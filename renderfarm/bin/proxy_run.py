@@ -2,7 +2,7 @@
 
 import argparse
 import os,sys
-from dabtractor.factories import configuration_factory as config
+from sww.renderfarm.dabtractor.factories import environment_factory as config
 
 
 # ##############################################################
@@ -17,12 +17,12 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 # ##############################################################
 
-from dabtractor.factories import proxy_runner as pr
+from sww.renderfarm.dabtractor.utils import proxy_runner as pr
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    defaultproxy = config.CurrentConfiguration().nukedefaultproxytemplate
+    defaultproxy = config.Environment().config
 
     parser.add_argument("-p", "--proxytemplate", default=defaultproxy,
                     help="The nuke proxy template to use.  Found in $DABRENDER/usr/proxys  default is {}".format(defaultproxy[0]))

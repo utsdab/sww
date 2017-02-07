@@ -11,11 +11,15 @@
   },
 
   "DABASSETS" : {
-    "path"            : "/Volumes/dabrender/work/assets"
+    "path"            : "/Volumes/dabrender/assets"
+  },
+
+  "DABUSERPREFS" : {
+    "path"            : "/Volumes/dabrender/work/userprefs"
   },
 
   "DABSOFTWARE" : {
-    "path"            : "/Volumes/dabrender/usr/software"
+    "path"            : "/Volumes/dabrender/sww"
   },
 
   "DABRENDER" : {

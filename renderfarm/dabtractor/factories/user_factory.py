@@ -38,8 +38,9 @@ class Map(object):
     """
     def __init__(self):
         self.env=envfac.Environment()
-        self.dabrender = self.env.getdefault("DABRENDER","path")
-        self.dabwork = self.env.getdefault("DABWORK","path")
+        self.dabrender = self.env.alreadyset("DABRENDER","path","")
+        self.dabusr = self.env.alreadyset("DABUSR","path","")
+        self.dabwork = self.env.alreadyset("DABWORK","path","")
         self.mapfilejson = self.env.getdefault("DABRENDER","usermapfile")
         self.tractorcrewlist = self.env.getdefault("DABRENDER","tractorcrewlist")
         self.mapfilepickle = self.env.getdefault("DABRENDER","mapfilepickle")
@@ -181,6 +182,7 @@ class EnvType(object):
         self.env=envfac.Environment()
         self.dabrenderpath=self.env.getdefault("DABRENDER","path")
         self.dabwork=self.env.getdefault("DABWORK","path")
+        self.dabuserprefs=self.env.getdefault("DABUSERPREFS","path")
 
         if userid:
             self.envtype="user_work"
@@ -196,7 +198,7 @@ class EnvType(object):
             self.envtype="project_work"
             self.projectname=projectname
 
-    def makedirectory(self):
+    def makeworkdirectory(self):
         # attempts to make the user_work directory for the user or the project under project_work
         try:
             if self.envtype == "user_work":
@@ -211,6 +213,17 @@ class EnvType(object):
         except Exception, e:
             logger.warn("Made nothing {}".format(e))
 
+    def makeuserprefs(self):
+        # attempts to make individual userprefs directory for the user
+        try:
+            if self.envtype == "users":
+                os.mkdir( os.path.join(self.dabuserprefs,self.envtype,self.usernumber))
+                logger.info("Made {} under userprefs/{}".format(self.envtype,self.usernumber))
+            else:
+                logger.info("Made no directories")
+                raise
+        except Exception, e:
+            logger.warn("Made no new userprefs {}".format(e))
 
 
 class TRACTORuser(object):

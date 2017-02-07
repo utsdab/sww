@@ -178,7 +178,7 @@ class Environment(ConfigBase):
                             debug = True)
 
     def alreadyset(self, envar, defaultgroup, defaultkey):
-        #  look to see if an environment variable is already define an if not check th e dabtractor config else return
+        #  look to see if an environment variable is already define an if not check the dabtractor config else return
         #  the default
         try:
             env = os.environ

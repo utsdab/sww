@@ -2,7 +2,7 @@
 
 import os,sys
 import argparse
-from software.renderfarm.dabtractor.factories import user_factory as uf
+from sww.renderfarm.dabtractor.factories import user_factory as uf
 import tractor.api.author as author
 
 
@@ -19,7 +19,8 @@ logger.addHandler(sh)
 
 
 '''
-This is to be run by the farm as pixar user to add a new entry into the json map file
+This is a command to be run by the farm as pixar user to add a new entry into the json map file.
+Only pixar user has permission to edit this file.
 
 '''
 
@@ -41,11 +42,18 @@ def main(number,username,year):
     try:
         logger.info("Adding your working directory in dabrender")
         env = uf.EnvType(userid=number)
-        env.makedirectory()
+        env.makeworkdirectory()
     except Exception,err:
         logger.info("Cant make directory {}".format(err))
         raise
 
+    try:
+        logger.info("Adding your userprefs directory in dabrender")
+        env = uf.EnvType(userid=number)
+        env.makeuserprefsdirectory()
+    except Exception,err:
+        logger.info("Cant make directory {}".format(err))
+        raise
 
 def parseArguments():
     parser = argparse.ArgumentParser(description="Add user to the Json Map list",

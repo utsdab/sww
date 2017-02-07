@@ -1,7 +1,7 @@
 #!/usr/bin/env rmanpy
 
 import os
-from software.renderfarm.dabtractor.factories import user_factory as uf
+from sww.renderfarm.dabtractor.factories import user_factory as uf
 # ##############################################################
 import logging
 logger = logging.getLogger(__name__)
