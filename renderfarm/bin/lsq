@@ -6,7 +6,6 @@ use Data::Dumper;
 
 ########################################
 # Justen Marshall's "lsq" script       #
-# Animal Logic (c) 1999-2004           #
 #                                      #
 # This script is a replacement for lsf #
 # (a custom list-frames script). This  #

@@ -2,7 +2,7 @@
 
 import os,sys
 import argparse
-from software.renderfarm.dabtractor.factories import user_factory as uf
+from sww.renderfarm.dabtractor.factories import user_factory as uf
 import tractor.api.author as author
 
 
@@ -17,9 +17,9 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 # ##############################################################
 
-
 '''
-This is to be run by the farm as pixar user to add a new entry into the json map file
+This is a command to be run by the farm as pixar user to add a new entry into the json map file.
+Only pixar user has permission to edit this file.
 
 '''
 
@@ -27,30 +27,31 @@ def main(number,username,year):
     try:
         usermap=uf.Map()
         usermap.adduser(number, username, year)
-
     except Exception,err:
         logger.warn("Cant add user to map, {}".format(err))
         raise
-
     try:
         usermap.writecrewformat()
     except Exception, err:
         logger.warn("Cant write crew format, {}".format(err))
-
-
     try:
         logger.info("Adding your working directory in dabrender")
         env = uf.EnvType(userid=number)
-        env.makedirectory()
+        env.makeworkdirectory()
     except Exception,err:
         logger.info("Cant make directory {}".format(err))
         raise
-
+    try:
+        logger.info("Adding your userprefs directory in dabrender")
+        env = uf.EnvType(userid=number)
+        env.makeuserprefs()
+    except Exception,err:
+        logger.info("Cant make userprefs {}".format(err))
+        raise
 
 def parseArguments():
     parser = argparse.ArgumentParser(description="Add user to the Json Map list",
                                      epilog="This should only run as pixar user on the farm")
-
     parser.add_argument("-n", dest="number",
                         action="append",
                         help="your user number")
@@ -60,17 +61,15 @@ def parseArguments():
     parser.add_argument("-y", dest="year",
                         action="append",
                         help="year you started")
-
     return parser.parse_args()
 
 # #####################################################################################################
 if __name__ == '__main__':
-
     try:
         arguments = parseArguments()
         logger.info("Arguments: %s" % arguments)
     except Exception, exitstatus:
-        logger.critical("Cant parse args %s" % (arguments))
+        logger.critical("Cant parse args")
         sys.exit("ERROR Cant parse arguments %s" % exitstatus)
     try:
         n=arguments.number[0]

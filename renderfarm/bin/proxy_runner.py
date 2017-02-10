@@ -12,9 +12,9 @@ import subprocess
 import sys
 import time
 
-from software.renderfarm.dabtractor import proxys as pt
-from software.renderfarm.dabtractor.factories import utils_factory as utils
-from software.renderfarm.dabtractor.factories import environment_factory as env
+from sww.renderfarm.dabtractor import proxys as pt
+from sww.renderfarm.dabtractor.factories import utils_factory as utils
+from sww.renderfarm.dabtractor.factories import environment_factory as env
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

@@ -1,0 +1,25 @@
+ldapsearch -x -D dc=UTS,dc=edu,dc=au -h moe-ldap1.itd.uts.edu.au
+
+ldapsearch -o nettimeout=10 -l 60 -z 100 -Z -LLL -H 
+ldap://moe-ldap1.itd.uts.edu.au:636 -b dc=uts,dc=edu,dc=au -x -W -D 
+uid=970634,ou=People,dc=uts,dc=edu,dc=au 
+'(&(objectclass=person)(cn=Esamie))'
+
+
+
+'(&(objectclass=person)(cn=Esamie))'
+
+
+ldapsearch -H ldap://moe-ldap1.itd.uts.edu.au:636 -b dc=uts,dc=edu,dc=au -x -W -D uid=120988,ou=People,dc=uts,dc=edu,dc=au '(&(objectclass=person)(cn=Gidney))'
+
+ldapsearch -h moe-ldap1.itd.uts.edu.au -p 389 -b dc=uts,dc=edu,dc=au -Z -W -D uid=120988,ou=People,dc=uts,dc=edu,dc=au '(&(objectclass=person)(cn=Gidney))'
+
+##############################
+
+he main issue was compliance with our security policies. I have been pushing our IT Governance and Compliance team to approve this request. The issue stems from not being able to identify a mechanism to restrict the data to the subset of students relating to you.
+ 
+In any case the IT Governance and Compliance team have since approve the request and Kunal who manages the Mac Directory sent me the following command that should give you what you want.
+ 
+ldapsearch -h moe-ldap1.itd.uts.edu.au -D "uid=xxxxxx,ou=people,dc=uts,dc=edu,dc=au" -Z -b "dc=uts,dc=edu,dc=au" -s sub -W 'uid=xxxxxx'
+ 
+Note “uid” is the staff/student id

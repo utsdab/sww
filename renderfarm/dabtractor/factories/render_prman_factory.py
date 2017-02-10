@@ -82,7 +82,7 @@ class RenderPrman(RenderBase):
                  startframe=1,
                  endframe=10,
                  byframe=1,
-                 projectgroup="yr1",
+                 projectgroup="",
                  outformat="",
                  resolution="720p",
                  skipframes=0,
@@ -182,7 +182,7 @@ class RenderPrman(RenderBase):
                                               "renderManBatchGenRibForLayer {layerid} {start} {end} {phase}".format(
                                                   layerid=0, start=self.startframe, end=self.endframe, phase=1),
                                               "-file", self.mayascenefilefullpath],
-                                              tags=["maya", "rms", "theWholeFarm"],
+                                              tags=["maya", "theWholeFarm"],
                                               atleast=int(self.threads),
                                               atmost=int(self.threads),
                                               service="RfMRibGen")
@@ -233,7 +233,7 @@ class RenderPrman(RenderBase):
                     "renderManBatchGenRibForLayer {layerid} {start} {end} {phase}".format(
                             layerid=0, start=_chunkstart, end=_chunkend, phase=2),
                             "-file", self.mayascenefilefullpath],
-                    tags=["maya", "rms", "theWholeFarm"],
+                    tags=["maya", "theWholeFarm"],
                     atleast=int(self.threads),
                     atmost=int(self.threads),
                     service="RfMRibGen")
