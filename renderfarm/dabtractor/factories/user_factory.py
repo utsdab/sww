@@ -153,18 +153,14 @@ class Map(object):
         shutil.copy2(source, dest)
 
     def adduser(self, number, name, year):
-        # add a new user to the map
+        # add a new user to the json map file
         if not self.getuser(number):
-            # self.backup()
             logger.info("No one by that number {}, adding".format(number))
-
             try:
                 with open(self.mapfilejson) as json_data:
                     all = json.load(json_data)
-
                 new={number:{"name":name,"number":number,"year":year}}
                 all.update(new)
-
                 with open(self.mapfilejson, 'w') as outfile:
                     json.dump(all, outfile, sort_keys = True, indent = 4,)
             except Exception, err:
@@ -172,9 +168,6 @@ class Map(object):
                 raise
         else:
             logger.info("User {} already in map file".format(number))
-
-
-
 
 class EnvType(object):
     # this is the user work area either work/number or projects/projectname
@@ -348,7 +341,6 @@ class FARMuser(object):
 
 
 if __name__ == '__main__':
-
     ##### all this is testing
     ##### this  is a factory and shouldnt be called as 'main'
 
@@ -356,13 +348,11 @@ if __name__ == '__main__':
     logger.setLevel(logging.DEBUG)
 
     m = Map()
-
     logger.debug("-------- TEST MAP ------------")
     try:
         logger.debug("getuser:{} getusername:{}".format( m.getuser("120988"), m.getusername("120988")) )
     except Exception, err:
         logger.warn(err)
-
 
     logger.debug("-------- TEST adduser ------------")
     try:

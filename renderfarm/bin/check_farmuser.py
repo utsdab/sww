@@ -20,3 +20,15 @@ try:
     logger.info("Found user number >>>> %s" % (a.number))
 except Exception,err:
     logger.critical("Error You are NOT Known >>>> %s" % (err))
+
+## TODO  check there are userprefs
+
+## TODO  check user prefs has a config setup
+
+## TODO  check there is a user_work area
+
+## TODO  check permissions are ok
+
+## TODO  check in tractor crewlist
+
+
