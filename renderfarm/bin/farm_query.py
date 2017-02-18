@@ -39,7 +39,7 @@ import tractor.api.query as tq
 _thisuser = os.getenv("USER")
 # (_usernumber,_username) =  ufac.FarmUser(_thisuser).query()
 # try:
-#     u = ufac.FARMuser()
+#     u = ufac.FarmUser()
 #     _usernumber = u.number
 #     _username = u.name
 # except:

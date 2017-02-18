@@ -43,7 +43,7 @@ env = envfac.Environment()
 cfg = envfac.ConfigBase()
 
 try:
-    u = ufac.FARMuser()
+    u = ufac.FarmUser()
     _usernumber = u.number
     _username = u.name
 except Exception, err:

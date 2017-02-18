@@ -24,7 +24,7 @@ try:
                                                                       usermap.getusername(me)))
 except Exception, err:
     logger.info("User {} is not in the map file.  Follow the steps to be added.....".format(me))
-    u = uf.UTSuser()
+    u = uf.UtsUser()
     u.addtomap()
     u.validate()
     u.spool()

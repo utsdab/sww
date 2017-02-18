@@ -65,24 +65,24 @@ class ConfigBase(object):
         try:
             _type = type(self.groups.get(group).get(key))
         except Exception, err:
-            logger.warn("Options - Group %s or Attribute %s not in config.json file, %s" % (group,key,err))
+            logger.warn("Options - Group <%s> or Attribute <%s> not in config.json file, %s" % (group,key,err))
             logger.debug("ALL DEFAULTS = %s" % self.getalldefaults())
         else:
             if _type==type([]):
                 _return = self.groups.get(group).get(key)
             else:
-                logger.warn("Attribute %s has no options, %s" % (key,err))
+                logger.warn("Attribute %s has no options, %s" % (key, err))
         finally:
             return _return
 
     def getdefault(self, group, key):
         # returns the first index if a list or just the vale if not a list
         _return = None
-        logger.debug("try %s %s"%(group,key))
+        # logger.debug("try %s %s"%(group,key))
         try:
             _type = type(self.groups.get(group).get(key))
         except Exception, err:
-            logger.warn("Default - Group %s or Attribute %s not in config.json file, %s" % (group,key,err))
+            logger.warn("Default - Group <%s> or Attribute <%s> not in config.json file, %s" % (group, key, err))
             logger.debug("ALL DEFAULTS = %s" % self.getalldefaults())
         else:
             if _type==type([]):
@@ -127,13 +127,24 @@ class ConfigBase(object):
                 elif type(self.groups.get(group).get(attribute))== type(u'xx'):
                     default = self.groups.get(group).get(attribute)
                 else:
-                    print "%s not a list or a string" % attribute
-                    print type(self.groups.get(group).get(attribute))
+                    logger.warn("%s not a list or a string" % attribute)
+                    logger.warm( type(self.groups.get(group).get(attribute)))
                     default = None
 
                 _defaults[(group,attribute)]=default
 
         return _defaults
+
+    def getallgroupswithpath(self):
+        # Any group with a "path" attribute should be and environment variable declaration os.environ
+        # return a list of groups with "path" declared
+        # warn if the value is not valid
+        _haspath = []
+        for group in self.groups.keys():
+            for attribute in self.groups.get(group).keys():
+                if attribute=="path":
+                    _haspath.append(group)
+        return _haspath
 
 
 class Environment(ConfigBase):
@@ -156,7 +167,7 @@ class Environment(ConfigBase):
         super(Environment, self).__init__()
         self.dabrender = self.alreadyset("DABRENDER", "DABRENDER","path")
         self.dabwork = self.alreadyset("DABWORK", "DABWORK","path")
-        self.dabsoftware = self.alreadyset("DABSOFTWARE", "DABSOFTWARE", "path")
+        self.dabsoftware = self.alreadyset("DABSWW", "DABSWW", "path")
         self.dabusr = self.alreadyset("DABUSR", "DABUSR", "path")
         self.dabassets = self.alreadyset("DABASSETS", "DABASSETS", "path")
         self.type = self.alreadyset("TYPE","DABWORK","envtype")
@@ -181,8 +192,7 @@ class Environment(ConfigBase):
         #  look to see if an environment variable is already define an if not check the dabtractor config else return
         #  the default
         try:
-            env = os.environ
-            val = env[envar]
+            val = os.environ[envar]
         except Exception, err:
             default=self.getdefault(defaultgroup,defaultkey)
             logger.debug("{} :: not found in environment, setting to default: {}".format(envar, default))
@@ -252,31 +262,72 @@ class Environment(ConfigBase):
             logger.info("Putback main environment variables")
 
 
+class Environment2(ConfigBase):
+    """
+    This class adds to the environment is oe.environ
+
+    1. read the environment that needs to be there in the config json file ie (has a "path" attribute
+    2. if not founf then add it to the environment os.environ
+
+    """
+    def __init__(self):
+        #
+        super(Environment2, self).__init__()
+        #existing envars
+        # print os.environ.keys()
+
+        self.requiredenvars = self.getallgroupswithpath()
+
+        for envar in self.requiredenvars:
+            try:
+                e=os.environ[envar]
+            except:
+                logger.warn("{} NOT FOUND".format(envar))
+                _value=self.getdefault(envar,"path")
+                print envar,_value
+                os.environ[envar]=_value
+                logger.info("Setting {} to {}".format(envar,_value))
+            else:
+                logger.info("{} = {}".format(envar,e))
+
+
+
 if __name__ == '__main__':
 
     sh.setLevel(logging.DEBUG)
     logger.debug("-------- PROJECT FACTORY TEST ------------")
 
-    JJ = Environment()
+    EE=Environment2()
+    # _envars = ["DABRENDER","DABUSR","DABWORK","DABSWW","USER","HOME"]
+    # for envar in _envars:
+    #     try:
+    #         e=os.environ[envar]
+    #     except:
+    #         logger.warn("{} NOT FOUND".format(envar))
+    #     else:
+    #         logger.info("{} = {}".format(envar,e))
 
 
-    logger.debug("GROUPS = %s"% JJ.getgroups())
-    group = "maya"
-    attribute = "versions"
-
-    logger.debug( "ATTRIBUTES = %s"% JJ.getattributes(group))
-    logger.debug( "ATTRIBUTE VALUES =  %s"%  JJ.getoptions(group,attribute))
-    logger.debug( "DEFAULT VALUE =  %s"% JJ.getdefault(group,attribute))
-
-    group = "nuke"
-    attribute = "versions"
-    logger.debug( "ATTRIBUTES =  %s"%  JJ.getattributes(group))
-    logger.debug( "ATTRIBUTE VALUES =  %s"%  JJ.getoptions(group,attribute))
-    logger.debug( "DEFAULT VALUE =  %s"% JJ.getdefault(group,attribute))
-
-    group = "renderman"
-    attribute = "versions"
-    logger.debug( "ATTRIBUTES =  %s"%  JJ.getattributes(group))
-    logger.debug( "ATTRIBUTE VALUES =  %s"%  JJ.getoptions(group,attribute))
-    logger.debug( "DEFAULT VALUE =  %s"% JJ.getdefault(group,attribute))
-
+    # JJ = Environment()
+    #
+    #
+    # logger.debug("GROUPS = %s"% JJ.getgroups())
+    # group = "maya"
+    # attribute = "versions"
+    #
+    # logger.debug( "ATTRIBUTES = %s"% JJ.getattributes(group))
+    # logger.debug( "ATTRIBUTE VALUES =  %s"%  JJ.getoptions(group,attribute))
+    # logger.debug( "DEFAULT VALUE =  %s"% JJ.getdefault(group,attribute))
+    #
+    # group = "nuke"
+    # attribute = "versions"
+    # logger.debug( "ATTRIBUTES =  %s"%  JJ.getattributes(group))
+    # logger.debug( "ATTRIBUTE VALUES =  %s"%  JJ.getoptions(group,attribute))
+    # logger.debug( "DEFAULT VALUE =  %s"% JJ.getdefault(group,attribute))
+    #
+    # group = "renderman"
+    # attribute = "versions"
+    # logger.debug( "ATTRIBUTES =  %s"%  JJ.getattributes(group))
+    # logger.debug( "ATTRIBUTE VALUES =  %s"%  JJ.getoptions(group,attribute))
+    # logger.debug( "DEFAULT VALUE =  %s"% JJ.getdefault(group,attribute))
+    #

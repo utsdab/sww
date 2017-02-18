@@ -1,6 +1,4 @@
 {
-  "configpath": "/Users/Shared/UTS_Dev/gitRepositories/utsdab/usr/software/renderfarm/dabtractor/factories/configuration_factory.py",
-
   "DABUSR": {
     "path"            : "/Volumes/dabrender/usr"
   },
@@ -15,10 +13,10 @@
   },
 
   "DABUSERPREFS" : {
-    "path"            : "/Volumes/dabrender/work/userprefs"
+    "path"            : "/Volumes/dabrender/work/user_prefs"
   },
 
-  "DABSOFTWARE" : {
+  "DABSWW" : {
     "path"            : "/Volumes/dabrender/sww"
   },
 

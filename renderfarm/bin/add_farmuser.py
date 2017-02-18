@@ -36,14 +36,14 @@ def main(number,username,year):
         logger.warn("Cant write crew format, {}".format(err))
     try:
         logger.info("Adding your working directory in dabrender")
-        env = uf.EnvType(userid=number)
+        env = uf.WorkType(userid=number)
         env.makeworkdirectory()
     except Exception,err:
         logger.info("Cant make directory {}".format(err))
         raise
     try:
         logger.info("Adding your userprefs directory in dabrender")
-        env = uf.EnvType(userid=number)
+        env = uf.WorkType(userid=number)
         env.makeuserprefs()
     except Exception,err:
         logger.info("Cant make userprefs {}".format(err))

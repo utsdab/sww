@@ -34,83 +34,103 @@ logger.addHandler(sh)
 
 class Map(object):
     """
-    This class is the mapping of students
+    This class is the mapping of student information into a json file that acts like a cache rather than having to do LDAP queries all the time.
+
     """
     def __init__(self):
         self.env=envfac.Environment()
-        self.dabrender = self.env.alreadyset("DABRENDER","path","")
-        self.dabusr = self.env.alreadyset("DABUSR","path","")
-        self.dabwork = self.env.alreadyset("DABWORK","path","")
-        self.mapfilejson = self.env.getdefault("DABRENDER","usermapfile")
-        self.tractorcrewlist = self.env.getdefault("DABRENDER","tractorcrewlist")
-        self.mapfilepickle = self.env.getdefault("DABRENDER","mapfilepickle")
-        self.backuppath = self.env.getdefault("DABRENDER","backuppath")
+        # self.dabrender = self.env.alreadyset("DABRENDER","path","/Volume/dabrender")
+        # self.dabusr = self.env.alreadyset("DABUSR","path","/Volume/dabrender")
+        # self.dabwork = self.env.alreadyset("DABWORK","path","")
+
 
         try:
-            self.mapfilejson = os.path.join(self.dabrender, self.mapfilejson)
+            _mapfilejson = os.path.join(self.dabrender, self.env.getdefault("DABRENDER","usermapfile"))
         except Exception, err:
             logger.critical("No Map Path {}".format(err))
         else:
-            logger.info("Map File: {}".format(self.mapfilejson))
-            if os.path.exists(self.mapfilejson):
-                file(self.mapfilejson).close()
-
-        try:
-            self.tractorcrewlist = os.path.join(self.dabrender, self.tractorcrewlist)
-        except Exception, err:
-            logger.critical("No Tractor Crew List Not in Config {}".format(err))
-        else:
-            logger.info("Tractor Crew List: {}".format(self.tractorcrewlist))
+            logger.info("Map File: {}".format(_mapfilejson))
+            self.mapfilejson=_mapfilejson
+            with open(self.mapfilejson) as json_data:
+                self.all = json.load(json_data)
+                self.allusers = self.all.keys()
+        finally:
+            file(self.mapfilejson).close()
 
 
         try:
-            self.mapfilepickle = os.path.join(self.dabrender, self.mapfilepickle)
+            _tractorcrewlist = os.path.join(self.dabrender, self.env.getdefault("DABRENDER","tractorcrewlist"))
+            if not os.path.isfile(_tractorcrewlist):
+                logger.warn("Cant find {}".format(_tractorcrewlist))
+                raise IOError
         except Exception, err:
-            logger.critical("No Map Pickle  Not in Config {}".format(err))
+            logger.critical("No Tractor Crew List File Error {}".format(err))
         else:
-            logger.info("Map Pickle  : {}".format(self.mapfilepickle))
+            logger.info("Tractor Crew List: {}".format(_tractorcrewlist))
+            self.tractorcrewlist=_tractorcrewlist
+        finally:
+            pass
 
 
         try:
-            self.backuppath = os.path.join(self.dabrender, self.backuppath)
+            _backuppath = os.path.join(self.dabrender, self.env.getdefault("DABRENDER","backuppath"))
+            if not os.path.exists(_backuppath):
+                logger.warn("Cant find {}".format(_backuppath))
+                raise IOError
         except Exception, err:
-            logger.critical("Backup Path Not in Config {}".format(err))
+            logger.critical("No Map File Backup Path Error {}".format(err))
+            os.mkdir(self.backuppath)
         else:
-            logger.info("Backup Path: {}".format(self.backuppath))
-            if not os.path.exists(self.backuppath):
-                os.mkdir(self.backuppath)
+            logger.info("Backup Path: {}".format(_backuppath))
+            self.backuppath=_backuppath
+        finally:
+            pass
 
 
 
     def writecrewformat(self):
-        with open(self.mapfilejson) as json_data:
-            all = json.load(json_data)
+        #
+        # write out the json map data in a tractor crewlist format to a file
+        #
 
-        allkeys = all.keys()
-        if not os.path.exists(self.tractorcrewlist):
+        try:
+            _crewlist = open(self.tractorcrewlist, 'w')
+            if not self.all:
+                raise "Error making Data Model from json file"
+        except Exception, err:
+            logger.warn("Error opening tractorcrewlist file {} : {}".format(self.tractorcrewlist,err))
+        else:
+            for i, student in enumerate(self.allusers):
+                _line='"{number}", # {student} {name} {year}'.format(student = student,
+                                                               number=self.all[student].get("number","NONE"),
+                                                               name=self.all[student].get("name","NONE"),
+                                                               year=self.all[student].get("year","NONE"))
+                _crewlist.write("{}\n".format(_line))
+                logger.debug(_line)
+        finally:
             open(self.tractorcrewlist, 'w').close()
 
-        _crewlist = open(self.tractorcrewlist, 'w')
-        for i, student in enumerate(allkeys):
-            _line='"{number}", # {student} {name} {year}'.format(student = student,
-                                                               number=all[student].get("number","NONE"),
-                                                               name=all[student].get("name","NONE"),
-                                                               year=all[student].get("year","NONE"))
-            _crewlist.write("{}\n".format(_line))
-        _crewlist.close()
 
     def getallusers(self):
-        # get all the users printed out - debugging
-        with open(self.mapfilejson) as json_data:
-            all = json.load(json_data)
-        allkeys = all.keys()
+        # return a dictionary of user info
+        try:
+            with open(self.mapfilejson) as json_data:
+                all = json.load(json_data)
+        except Exception, err:
+            logger.warn("Error opening json file")
+            all=None
+        else:
+            return all
+        finally:
+            pass
+
 
         ###  print for crews.config file
-        for i, student in enumerate(allkeys):
-            logger.info('"{number}", # {student} {name} {year}'.format(student = student,
-                                                               number=all[student].get("number","NONE"),
-                                                               name=all[student].get("name","NONE"),
-                                                               year=all[student].get("year","NONE")))
+        # for i, student in enumerate(allusers):
+        #     logger.info('"{number}", # {student} {name} {year}'.format(student = student,
+        #                                                        number=all[student].get("number","NONE"),
+        #                                                        name=all[student].get("name","NONE"),
+        #                                                        year=all[student].get("year","NONE")))
 
     def getuser(self, usernumber):
         # query user in the map file and return the dictionary
@@ -169,7 +189,7 @@ class Map(object):
         else:
             logger.info("User {} already in map file".format(number))
 
-class EnvType(object):
+class WorkType(object):
     # this is the user work area either work/number or projects/projectname
     def __init__(self,userid=None,projectname=None):
         self.env=envfac.Environment()
@@ -219,12 +239,20 @@ class EnvType(object):
             logger.warn("Made no new userprefs {}".format(e))
 
 
-class TRACTORuser(object):
+class TractorUser(object):
     # this is the crew.config for tractor
     def __init__(self):
         pass
 
-class UTSuser(object):
+class UtsUser(object):
+    '''
+    This class represents the UTS user account.  Data is queried from the LDAP server at UTS to build a model of the
+    student.  This requires the user to authenticate against the UTS LDAP server.
+    Once this is built then the class has methods to write the data to a Map object which caches the info into a json file.
+    The json file is owned by pixar user and is edited by creating a farm job which runs as pixar user.  This afford
+    a mechanism to manage the reading and writing to this map file.  Its not great but its ok.
+    It could be that this file is a serialised file.
+    '''
     def __init__(self):
         self.name=None
         self.number = os.getenv("USER")
@@ -311,7 +339,7 @@ class UTSuser(object):
 
 
 
-class FARMuser(object):
+class FarmUser(object):
     def __init__(self):
         # the user details as defined in the map
         self.user = os.getenv("USER")
@@ -347,23 +375,30 @@ if __name__ == '__main__':
     sh.setLevel(logging.DEBUG)
     logger.setLevel(logging.DEBUG)
 
-    m = Map()
+    ###############################################
     logger.debug("-------- TEST MAP ------------")
-    try:
-        logger.debug("getuser:{} getusername:{}".format( m.getuser("120988"), m.getusername("120988")) )
-    except Exception, err:
-        logger.warn(err)
+    m = Map()
+    for i,j in enumerate(m.allusers):
+        logger.debug("{number:12s}{name:24s} {year}".format(number=j,year=m.all.get(j).get("year"),name=m.all.get(
+            j).get("name")))
 
-    logger.debug("-------- TEST adduser ------------")
-    try:
-        # m.getallusers()
-        m.backup()
-        m.adduser("1209880","mattgidney","2020")
-        m.adduser("0000000","nextyearstudent","2016")
-        m.adduser("9999999","neveryearstudent","2016")
 
-    except Exception, err:
-        logger.warn(err)
+    ###############################################
+    # try:
+    #     logger.debug("getuser:{} getusername:{}".format( m.getuser("120988"), m.getusername("120988")) )
+    # except Exception, err:
+    #     logger.warn(err)
+    #
+    # logger.debug("-------- TEST adduser ------------")
+    # try:
+    #     # m.getallusers()
+    #     m.backup()
+    #     m.adduser("1209880","mattgidney","2020")
+    #     m.adduser("0000000","nextyearstudent","2016")
+    #     m.adduser("9999999","neveryearstudent","2016")
+    #
+    # except Exception, err:
+    #     logger.warn(err)
     #
     #
     # logger.debug("-------- TEST getuser ------------")
@@ -380,12 +415,12 @@ if __name__ == '__main__':
     #     logger.warn(err)
 
 
-    # u = FARMuser()
+    # u = FarmUser()
     # logger.debug( u.name )
     # logger.debug( u.number)
     # logger.debug( u.year)
     # logger.debug( u.user)
-    uts = UTSuser()
+    uts = UtsUser()
     logger.debug( uts.name)
     logger.debug( uts.number)
 
@@ -408,9 +443,9 @@ if __name__ == '__main__':
 
     logger.debug("-------- TEST ENVTYPE ------------")
     try:
-        e=EnvType(userid="120988")
+        e=WorkType(userid="120988")
         e.makedirectory()
-        e=EnvType(projectname="albatross")
+        e=WorkType(projectname="albatross")
         e.makedirectory()
         logger.debug("ENVTYPE: {}".format(e.__dict__))
         logger.debug("       : {}".format(dir(e)))
