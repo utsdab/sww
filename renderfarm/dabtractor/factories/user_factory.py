@@ -38,14 +38,12 @@ class Map(object):
 
     """
     def __init__(self):
-        self.env=envfac.Environment()
-        # self.dabrender = self.env.alreadyset("DABRENDER","path","/Volume/dabrender")
-        # self.dabusr = self.env.alreadyset("DABUSR","path","/Volume/dabrender")
-        # self.dabwork = self.env.alreadyset("DABWORK","path","")
-
+        self.env=envfac.Environment2()
+        self.config=envfac.ConfigBase()
 
         try:
-            _mapfilejson = os.path.join(self.dabrender, self.env.getdefault("DABRENDER","usermapfile"))
+            _mapfilejson = os.path.join(self.env.environ["DABRENDER"], self.config.getdefault("DABRENDER",
+                                                                                              "usermapfile"))
         except Exception, err:
             logger.critical("No Map Path {}".format(err))
         else:
@@ -59,7 +57,7 @@ class Map(object):
 
 
         try:
-            _tractorcrewlist = os.path.join(self.dabrender, self.env.getdefault("DABRENDER","tractorcrewlist"))
+            _tractorcrewlist = os.path.join(self.env.environ["DABRENDER"], self.config.getdefault("DABRENDER","tractorcrewlist"))
             if not os.path.isfile(_tractorcrewlist):
                 logger.warn("Cant find {}".format(_tractorcrewlist))
                 raise IOError
@@ -73,7 +71,7 @@ class Map(object):
 
 
         try:
-            _backuppath = os.path.join(self.dabrender, self.env.getdefault("DABRENDER","backuppath"))
+            _backuppath = os.path.join(self.env.environ["DABRENDER"], self.config.getdefault("DABRENDER","backuppath"))
             if not os.path.exists(_backuppath):
                 logger.warn("Cant find {}".format(_backuppath))
                 raise IOError
@@ -257,7 +255,7 @@ class UtsUser(object):
         self.name=None
         self.number = os.getenv("USER")
         self.job=None
-        self.env=envfac.Environment()
+        self.farmjob=envfac.FarmJob()
         self.year=time.strftime("%Y")
         logger.info("Current Year is %s" % self.year)
 
@@ -283,36 +281,35 @@ class UtsUser(object):
 
     def addtomap(self):
 
-        if self.number in self.env.getdefault("DABRENDER","superuser"):
-            logger.info("Your are a superuser - yay")
-        else:
-            logger.warn("You need to be a superuser to mess with the map file sorry")
-            # sys.exit("You need to be a superuser to mess with the map file sorry")
+        # if self.number in self.farmjob.getdefault("DABRENDER","superuser"):
+        #     logger.info("Your are a superuser - yay")
+        # else:
+        #     logger.warn("You need to be a superuser to mess with the map file sorry")
 
         try:
             # ################ TRACTOR JOB ################
             self.command = ["bash", "-c", "add_farmuser.py -n {} -u {} -y {}".format(self.number,self.name,self.year)]
             # self.args = ["-n",self.number,"-u",self.name,"-y",]
             # self.command = self.base+self.ar
-            self.job = self.env.author.Job(title="New User Request: {}".format(self.name),
-                                  priority=100,
-                                  metadata="user={} realname={}".format(self.number, self.name),
-                                  comment="New User Request is {} {} {}".format(self.number, self.name,self.number),
-                                  projects=["admin"],
-                                  tier="admin",
-                                  envkey=["default"],
-                                  tags=["theWholeFarm"],
-                                  service="ShellServices")
+            self.job = self.farmjob.author.Job(title="New User Request: {}".format(self.name),
+                                               priority=100,
+                                               metadata="user={} realname={}".format(self.number, self.name),
+                                               comment="New User Request is {} {} {}".format(self.number, self.name,self.number),
+                                               projects=["admin"],
+                                               tier="admin",
+                                               envkey=["default"],
+                                               tags=["theWholeFarm"],
+                                               service="ShellServices")
             # ############## 2  RUN COMMAND ###########
-            task_parent = self.env.author.Task(title="Parent")
+            task_parent = self.farmjob.author.Task(title="Parent")
             task_parent.serialsubtasks = 1
-            task_bash = self.env.author.Task(title="Command")
+            task_bash = self.farmjob.author.Task(title="Command")
             bashcommand = author.Command(argv=self.command)
             task_bash.addCommand(bashcommand)
             task_parent.addChild(task_bash)
 
             # ############## 7 NOTIFY ###############
-            task_notify = self.env.author.Task(title="Notify")
+            task_notify = self.farmjob.author.Task(title="Notify")
             task_notify.addCommand(self.mail("JOB", "COMPLETE", "blah"))
             task_parent.addChild(task_notify)
             self.job.addChild(task_parent)
@@ -326,7 +323,7 @@ class UtsUser(object):
     def mail(self, level="Level", trigger="Trigger", body="Render Progress Body"):
         bodystring = "Add New User: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
         subjectstring = "FARM JOB: %s " % (self.command)
-        mailcmd = self.env.author.Command(argv=["sendmail.py", "-t", "%s@uts.edu.au" % self.number,
+        mailcmd = self.farmjob.author.Command(argv=["sendmail.py", "-t", "%s@uts.edu.au" % self.number,
                                        "-b", bodystring, "-s", subjectstring])
         return mailcmd
 

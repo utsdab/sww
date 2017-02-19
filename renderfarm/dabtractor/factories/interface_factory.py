@@ -22,7 +22,7 @@ logger.addHandler(sh)
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
-CFG = envfac.Environment()
+CFG = envfac.Environment2()
 WIDTH = 400
 WIDTH_SMALL = WIDTH*0.3
 WIDTH_HALF = WIDTH*0.5

@@ -19,7 +19,7 @@ logger.addHandler(sh)
 class ShotgunBase(object):
     # base object
     def __init__(self):
-        self.env=envfac.Environment()
+        self.env=envfac.Environment2()
         self.serverpath = str(self.env.getdefault("shotgun", "serverpath"))
         self.scriptname = str(self.env.getdefault("shotgun", "scriptname"))
         self.scriptkey  = str(self.env.getdefault("shotgun", "scriptkey"))

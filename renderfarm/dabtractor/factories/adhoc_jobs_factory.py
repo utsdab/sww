@@ -31,24 +31,23 @@ class JobBase(object):
     """
     Base class for all batch jobs
     """
-
     def __init__(self):
         self.user = os.getenv("USER")
         self.spooljob = False
-        self.env=envfac.Environment()
+        self.env=envfac.Environment2()
+        self.farmjob=envfac.FarmJob()
 
         try:
-            # get the names of the central render location for the user
             ru = ufac.FarmUser()
-            self.renderusernumber = ru.number
-            self.renderusername = ru.name
-            self.dabrender = ru.dabrender
-            self.dabrenderworkpath = ru.dabuserworkpath
-            self.initialProjectPath = ru.dabuserworkpath
-
         except Exception, erroruser:
             logger.warn("Cant get the users name and number back %s" % erroruser)
             sys.exit("Cant get the users name")
+        else:
+            self.renderusernumber = ru.number
+            self.renderusername = ru.name
+            self.dabrender = self.env.environ["DABRENDER"]
+            self.dabrenderworkpath = self.env.environ["DABWORK"]
+            self.initialProjectPath = self.env.environ["DABWORK"]
 
         if os.path.isdir(self.dabrender):
             logger.info("Found %s" % self.dabrender)
@@ -63,13 +62,7 @@ class SendMail(JobBase):
         Mail from pixar job defined using the tractor api
     '''
 
-    def __init__(self,
-                 mailto=[],
-                 mailfrom=[],
-                 mailcc=[],
-                 mailsubject="subject",
-                 mailbody="body"):
-
+    def __init__(self,mailto,mailfrom,mailcc,mailsubject,mailbody):
         super(SendMail, self).__init__()
         self.testing=False
         self.mailto=mailto
@@ -77,7 +70,6 @@ class SendMail(JobBase):
         self.mailcc=mailcc
         self.mailsubject=mailsubject
         self.mailbody=mailbody
-
 
     def build(self):
         """
@@ -94,7 +86,7 @@ class SendMail(JobBase):
             _tier="batch"
 
         # ################ 0 JOB ################
-        self.job = self.env.author.Job(title="MAIL: {}".format(self.renderusername),
+        self.job = self.farmjob.author.Job(title="MAIL: {}".format(self.renderusername),
                               priority=10,
                               envkey=["ShellServices"],
                               metadata="user={} username={} usernumber={}".format(self.user, self.renderusername,
@@ -107,13 +99,13 @@ class SendMail(JobBase):
                               service=_service_Testing)
 
         # ############## 0 ThisJob #################
-        task_thisjob = self.env.author.Task(title="Adhoc Job")
+        task_thisjob = self.farmjob.author.Task(title="Adhoc Job")
         task_thisjob.serialsubtasks = 1
 
 
         # ############## 5 NOTIFY ###############
         # logger.info("email = {}".format(self.email))
-        task_notify = self.env.author.Task(title="Notify", service="ShellServices")
+        task_notify = self.farmjob.author.Task(title="Notify", service="ShellServices")
         task_notify.addCommand(self.bugreport("BUG", self.mailbody))
         task_thisjob.addChild(task_notify)
 
@@ -126,7 +118,7 @@ class SendMail(JobBase):
     def mail(self, level="Level", trigger="Trigger", body="Render Progress Body"):
         bodystring = "Prman Render Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
         subjectstring = "FARM JOB: %s %s" % (str(self.scenebasename), self.renderusername)
-        mailcmd = self.env.author.Command(argv=["sendmail.py", "-t", "%s@uts.edu.au" % self.user,
+        mailcmd = self.farmjob.author.Command(argv=["sendmail.py", "-t", "%s@uts.edu.au" % self.user,
                                        "-b", bodystring, "-s", subjectstring], service="ShellServices")
 
         return mailcmd
@@ -134,9 +126,9 @@ class SendMail(JobBase):
     def bugreport(self, level="BUG", body="Bug report details"):
         _bodystring = "LEVEL: {}\n\n\nDETAILS: \n\n{}".format(level, body)
         _subjectstring = "BUG REPORT: From {} {}\n".format(str(self.renderusername),str(self.renderusernumber))
-        mailcmd = self.env.author.Command(argv=["sendmail.py", "-t", "%s@uts.edu.au" % "120988",
+        mailcmd = self.farmjob.author.Command(argv=["sendmail.py", "-t", "%s@uts.edu.au" % "120988",
                                        "-b", _bodystring, "-s", _subjectstring], service="ShellServices")
-        cccmd = self.env.author.Command(argv=["sendmail.py", "-t", "%s@uts.edu.au" % self.user,
+        cccmd = self.farmjob.author.Command(argv=["sendmail.py", "-t", "%s@uts.edu.au" % self.user,
                                        "-b", _bodystring, "-s", _subjectstring], service="ShellServices")
         return mailcmd
 

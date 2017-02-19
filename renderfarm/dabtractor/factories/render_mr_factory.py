@@ -32,27 +32,27 @@ class RenderBase(object):
         self.user = os.getenv("USER")
         self.spooljob = False
         self.testing = False
-        self.env=envfac.Environment()
+        self.farmjob=envfac.FarmJob()
 
         try:
             # get the names of the central render location for the user
             ru = ufac.FarmUser()
-            self.renderusernumber = ru.number
-            self.renderusername = ru.name
-            self.dabrender = ru.dabrender
-            self.dabrenderworkpath = ru.dabuserworkpath
-            self.initialProjectPath = ru.dabuserworkpath
-
         except Exception, erroruser:
             logger.warn("Cant get the users name and number back %s" % erroruser)
             sys.exit("Cant get the users name")
-
-        if os.path.isdir(self.dabrender):
-            logger.info("Found %s" % self.dabrender)
         else:
-            self.initialProjectPath = None
-            logger.critical("Cant find central filer mounted %s" % self.dabrender)
-            raise Exception, "dabrender not a valid mount point"
+            self.renderusernumber = ru.number
+            self.renderusername = ru.name
+            # self.dabrender = ru.dabrender
+            # self.dabrenderworkpath = ru.dabuserworkpath
+            # self.initialProjectPath = ru.dabuserworkpath
+
+        # if os.path.isdir(self.dabrender):
+        #     logger.info("Found %s" % self.dabrender)
+        # else:
+        #     self.initialProjectPath = None
+        #     logger.critical("Cant find central filer mounted %s" % self.dabrender)
+        #     raise Exception, "dabrender not a valid mount point"
 
 
 class RenderMentalray(RenderBase):

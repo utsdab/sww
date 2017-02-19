@@ -68,7 +68,7 @@ class ImageSequence(object):
             _lsseqpath = "lsseq"
             _env['PATH'] = '{}:{}'.format(_lsseqpath,_env["PATH"])
             p = subprocess.Popen(["lsseq", "-R", "-O", "-p", "--format", "nuke", self.startingpath],
-                                 # env=_env,
+                                 # farmjob=_env,
                                  stdout=subprocess.PIPE)
             out= p.communicate()[0]
             # output = [ [moviepath, nukefilename, range ], [], [] ]
@@ -162,7 +162,7 @@ class ImageSequence(object):
 
             try:
                 logger.info("Runing command {}".format(" ".join(seq)))
-                # p1 = subprocess.Popen(seq, env=_env, stdout=subprocess.PIPE, shell=True)
+                # p1 = subprocess.Popen(seq, farmjob=_env, stdout=subprocess.PIPE, shell=True)
 
                 p2 = subprocess.Popen(seq,
                                       env=_env,

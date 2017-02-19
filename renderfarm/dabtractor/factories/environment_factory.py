@@ -41,11 +41,12 @@ class ConfigBase(object):
     }
     '''
     def __init__(self):
+
         self.configjson = os.path.join(os.path.dirname(rf.__file__), "etc","dabtractor_config.json")
+        _file=open(self.configjson)
         self.groups = {}
         self.config = None
         try:
-            _file=open(self.configjson)
             self.config=json.load(_file)
         except Exception,err:
             logger.warn("Problem reading json file %s"%err)
@@ -78,7 +79,6 @@ class ConfigBase(object):
     def getdefault(self, group, key):
         # returns the first index if a list or just the vale if not a list
         _return = None
-        # logger.debug("try %s %s"%(group,key))
         try:
             _type = type(self.groups.get(group).get(key))
         except Exception, err:
@@ -135,16 +135,30 @@ class ConfigBase(object):
 
         return _defaults
 
-    def getallgroupswithpath(self):
+    def getallenvgroups(self):
         # Any group with a "path" attribute should be and environment variable declaration os.environ
         # return a list of groups with "path" declared
         # warn if the value is not valid
         _haspath = []
         for group in self.groups.keys():
             for attribute in self.groups.get(group).keys():
-                if attribute=="path":
+                if attribute=="farmjob":
                     _haspath.append(group)
         return _haspath
+
+
+class FarmJob(ConfigBase):
+    def __init__(self):
+        super(FarmJob, self).__init__()
+        self.author=author
+        self.tq=tq
+        self.hostname = str(self.getdefault("tractor","engine"))
+        self.port= int(self.getdefault("tractor","port"))
+        self.jobowner=str(self.getdefault("tractor","jobowner"))
+
+        self.author.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
+        self.tq.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
+
 
 
 class Environment(ConfigBase):
@@ -165,27 +179,26 @@ class Environment(ConfigBase):
 
     def __init__(self):
         super(Environment, self).__init__()
-        self.dabrender = self.alreadyset("DABRENDER", "DABRENDER","path")
-        self.dabwork = self.alreadyset("DABWORK", "DABWORK","path")
-        self.dabsoftware = self.alreadyset("DABSWW", "DABSWW", "path")
-        self.dabusr = self.alreadyset("DABUSR", "DABUSR", "path")
-        self.dabassets = self.alreadyset("DABASSETS", "DABASSETS", "path")
-        self.type = self.alreadyset("TYPE","DABWORK","envtype")
+        # self.dabrender = self.alreadyset("DABRENDER", "DABRENDER","farmjob")
+        # self.dabwork = self.alreadyset("DABWORK", "DABWORK","farmjob")
+        # self.dabsoftware = self.alreadyset("DABSWW", "DABSWW", "farmjob")
+        # self.dabusr = self.alreadyset("DABUSR", "DABUSR", "farmjob")
+        # self.dabassets = self.alreadyset("DABASSETS", "DABASSETS", "farmjob")
+        # self.type = self.alreadyset("TYPE","DABWORK","envtype")
         # self.show = self.alreadyset("SHOW", "","")
         # self.project = self.alreadyset("PROJECT", "","")
         # self.scene = self.alreadyset("SCENE", "","")
         # self.user = self.alreadyset("USER", "","")
         # self.username = self.alreadyset("USERNAME", "","")
-        cfg=ConfigBase()
         self.author=author
         self.tq=tq
-        self.author.setEngineClientParam(hostname = str(cfg.getdefault("tractor","engine")),
-                            port = int(str(cfg.getdefault("tractor","port"))),
-                            user = str(cfg.getdefault("tractor","jobowner")),
+        self.author.setEngineClientParam(hostname = str(self.getdefault("tractor","engine")),
+                            port = int(str(self.getdefault("tractor","port"))),
+                            user = str(self.getdefault("tractor","jobowner")),
                             debug = True)
-        self.tq.setEngineClientParam(hostname = str(cfg.getdefault("tractor","engine")),
-                            port = str(cfg.getdefault("tractor","port")),
-                            user = str(cfg.getdefault("tractor","jobowner")),
+        self.tq.setEngineClientParam(hostname = str(self.getdefault("tractor","engine")),
+                            port = int(self.getdefault("tractor","port")),
+                            user = str(self.getdefault("tractor","jobowner")),
                             debug = True)
 
     def alreadyset(self, envar, defaultgroup, defaultkey):
@@ -266,30 +279,42 @@ class Environment2(ConfigBase):
     """
     This class adds to the environment is oe.environ
 
-    1. read the environment that needs to be there in the config json file ie (has a "path" attribute
+    1. read the environment that needs to be there in the config json file ie (has a "farmjob" attribute
     2. if not founf then add it to the environment os.environ
 
     """
     def __init__(self):
         #
         super(Environment2, self).__init__()
-        #existing envars
-        # print os.environ.keys()
-
-        self.requiredenvars = self.getallgroupswithpath()
+        self.requiredenvars = self.getallenvgroups()
 
         for envar in self.requiredenvars:
             try:
                 e=os.environ[envar]
             except:
-                logger.warn("{} NOT FOUND".format(envar))
-                _value=self.getdefault(envar,"path")
-                print envar,_value
+                logger.warn("Environment variable {} NOT FOUND".format(envar))
+                _value=self.getdefault(envar,"farmjob")
                 os.environ[envar]=_value
-                logger.info("Setting {} to {}".format(envar,_value))
+                logger.info("Setting {} to {} from config.json file".format(envar,_value))
             else:
                 logger.info("{} = {}".format(envar,e))
 
+        self.environ=os.environ
+        logger.debug(self.environ.items())
+
+    def setnewenv(self,key,value):
+        # declare a new variable and put back to os.environ
+        if not os.environ.has_key(key):
+            try:
+                os.environ[key]=value
+            except Exception, err:
+                logger.warn("Cant set environment variable {} to {}".format(key,value))
+            else:
+                logger.info("Environment variable {} = {}".format(key,value))
+            finally:
+                self.environ=os.environ
+        else:
+            logger.warn("Environment variable {} already set".format(key))
 
 
 if __name__ == '__main__':
@@ -298,14 +323,9 @@ if __name__ == '__main__':
     logger.debug("-------- PROJECT FACTORY TEST ------------")
 
     EE=Environment2()
-    # _envars = ["DABRENDER","DABUSR","DABWORK","DABSWW","USER","HOME"]
-    # for envar in _envars:
-    #     try:
-    #         e=os.environ[envar]
-    #     except:
-    #         logger.warn("{} NOT FOUND".format(envar))
-    #     else:
-    #         logger.info("{} = {}".format(envar,e))
+    print EE.requiredenvars
+    # print EE.environ.keys()
+
 
 
     # JJ = Environment()

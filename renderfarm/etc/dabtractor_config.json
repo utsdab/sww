@@ -1,32 +1,36 @@
 {
   "DABUSR": {
-    "path"            : "/Volumes/dabrender/usr"
+    "env"            : "/Volumes/dabrender/usr"
   },
 
   "DABWORK" : {
-    "path"            : "/Volumes/dabrender/work",
+    "env"            : "/Volumes/dabrender/work",
     "envtype"         : [ "user_work", "project_work" ]
   },
 
   "DABASSETS" : {
-    "path"            : "/Volumes/dabrender/assets"
+    "env"            : "/Volumes/dabrender/assets"
   },
 
   "DABUSERPREFS" : {
-    "path"            : "/Volumes/dabrender/work/user_prefs"
+    "env"            : "/Volumes/dabrender/work/user_prefs"
   },
 
   "DABSWW" : {
-    "path"            : "/Volumes/dabrender/sww"
+    "env"            : "/Volumes/dabrender/sww"
   },
 
   "DABRENDER" : {
-    "path"            : "/Volumes/dabrender",
+    "env"            : "/Volumes/dabrender",
     "usermapfile"     : "etc/map/user_map.json",
     "mapfilepickle"   : "etc/map/user_map.pickle",
     "tractorcrewlist" : "etc/map/tractor_crew_list.txt",
     "backuppath"      : "etc/map/backup",
     "superuser"       : "120988"
+  },
+
+  "MATTG" : {
+    "env"            : "isnuts"
   },
 
   "shotgun" : {

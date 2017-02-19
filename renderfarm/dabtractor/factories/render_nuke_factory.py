@@ -38,27 +38,26 @@ class RenderBase(object):
         self.user = os.getenv("USER")
         self.spooljob = False
         self.testing = False
-        self.env=envfac.Environment()
+        self.env=envfac.FarmJob()
 
         try:
-            # get the names of the central render location for the user
             ru = ufac.FarmUser()
-            self.usernumber = ru.number
-            self.username = ru.name
-            self.dabrender = ru.dabrender
-            self.dabrenderworkpath = ru.dabuserworkpath
-            self.initialProjectPath = ru.dabuserworkpath
-
         except Exception, erroruser:
             logger.warn("Cant get the users name and number back %s" % erroruser)
             sys.exit("Cant get the users name")
-
-        if os.path.isdir(self.dabrender):
-            logger.info("Found %s" % self.dabrender)
         else:
-            self.initialProjectPath = None
-            logger.critical("Cant find central filer mounted %s" % self.dabrender)
-            raise Exception, "dabrender not a valid mount point"
+            self.usernumber = ru.number
+            self.username = ru.name
+        #     self.dabrender = ru.dabrender
+        #     self.dabrenderworkpath = ru.dabuserworkpath
+        #     self.initialProjectPath = ru.dabuserworkpath
+        #
+        # if os.path.isdir(self.dabrender):
+        #     logger.info("Found %s" % self.dabrender)
+        # else:
+        #     self.initialProjectPath = None
+        #     logger.critical("Cant find central filer mounted %s" % self.dabrender)
+        #     raise Exception, "dabrender not a valid mount point"
 
 
 class NukeJob(RenderBase):
@@ -67,7 +66,7 @@ class NukeJob(RenderBase):
     """
     def __init__(self, envdabrender, envtype, envproject, envshow, envscene, threads, threadmemory,
                  scenefullpath, startframe, endframe, byframe, framechunks, options, projectgroup,
-                 version, email):
+                 version, renderusernumber, renderusername, email):
         super(NukeJob, self).__init__()
         self.envdabrender = envdabrender
         self.envtype = envtype
@@ -87,20 +86,23 @@ class NukeJob(RenderBase):
         self.threads = threads
         self.threadmemory = threadmemory
         self.spooljob = False
+        self.renderusernumber = renderusernumber
+        self.renderusername = renderusername
         self.email = email
 
-        try:
-            # get the names of the central render location for the user
-            ru = ufac.FarmUser()
-            self.renderusernumber = ru.number
-            self.renderusername = ru.name
-            self.dabrender = ru.dabrender
-            self.dabrenderworkpath = ru.dabrender
-            self.initialProjectPath = ru.dabrender
 
-        except Exception, erroruser:
-            logger.warn("Cant get the users name and number back %s" % erroruser)
-            sys.exit("Cant get the users name")
+        # try:
+        #     # get the names of the central render location for the user
+        #     ru = ufac.FarmUser()
+        #     self.renderusernumber = ru.number
+        #     self.renderusername = ru.name
+        #     self.dabrender = ru.dabrender
+        #     self.dabrenderworkpath = ru.dabrender
+        #     self.initialProjectPath = ru.dabrender
+        #
+        # except Exception, erroruser:
+        #     logger.warn("Cant get the users name and number back %s" % erroruser)
+        #     sys.exit("Cant get the users name")
 
     def getValues(entries):
         for entry in entries:
@@ -109,8 +111,8 @@ class NukeJob(RenderBase):
             logger.info('%s: "%s"' % ( field, text))
 
     def build(self):
-        _nuke_proxy_template = "{d}/usr/custom/nuke/proxy_script_templates/nuke_proxy_v002.nk".format(d=self.dabrender)
-        _nuke_version = "Nuke{}".format(config.ConfigBase.getdefault("nukeversion"))
+        _nuke_proxy_template = "{d}/usr/custom/nuke/proxy_script_templates/nuke_proxy_v002.nk".format(d=self.envdabrender)
+        _nuke_version = "Nuke{}".format(self.version)
         _nuke_envkey = _nuke_version
         _nuke_executable="{n}".format(n=_nuke_version)
         _nukescriptbaseonly = os.path.basename(self.nukescriptfullpath)
@@ -215,7 +217,7 @@ if __name__ == "__main__":
             envshow="matthewgidney",
             envproject="testFarm",
             envscene= "comp/testcomp_v02.nk",
-            version="9.0v8",
+            version="10.0v5",
             scenefullpath = "/Volumes/dabrender/user_work/matthewgidney/testFarm/comp/testcomp_v02.nk",
             framechunks = int("3"),
             startframe = int("1"),
@@ -223,11 +225,18 @@ if __name__ == "__main__":
             byframe = int("1"),
             options = "-v",
             threads = 8,
-            usernumber = "120988",
-            username = "matthewgidney",
+            renderusernumber = "120988",
+            renderusername = "matthewgidney",
             threadmemory=4000,
+            projectgroup="admin",
             email=[]
     )
+
+    # envdabrender, envtype, envproject, envshow, envscene, threads, threadmemory,
+    #              scenefullpath, startframe, endframe, byframe, framechunks, options, projectgroup,
+    #              version, renderusernumber, renderusername, email):
+
+
     job.build()
     job.validate()
     logger.info("FINISHED TESTING")

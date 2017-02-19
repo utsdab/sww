@@ -36,12 +36,12 @@ class CommandBase(object):
         try:
             # get the names of the central render location for the user
             ru = ufac.FarmUser()
-            env=envfac.Environment()
+            env=envfac.Environment2()
             self.renderusernumber = ru.number
             self.renderusername = ru.name
-            self.dabrender = env.dabrender
-            self.dabrenderworkpath = env.dabwork
-            self.initialProjectPath = env.dabwork
+            self.dabrender = env.environ["DABRENDER"]
+            self.dabrenderworkpath = env.environ["DABWORK"]
+            self.initialProjectPath = env.environ["DABWORK"]
 
         except Exception, erroruser:
             logger.warn("Cant get the users name and number back %s" % erroruser)
@@ -124,7 +124,7 @@ class Bash(CommandBase):
             logger.info("Spooled correctly")
             # all jobs owner by pixar user on the farm
             self.job.spool(
-                # owner=self.env.getdefault("tractor","jobowner"),
+                # owner=self.farmjob.getdefault("tractor","jobowner"),
                 port=int(self.env.getdefault("tractor","port"))
             )
         except Exception, spoolerr:
@@ -257,7 +257,7 @@ if __name__ == '__main__':
 
     rs=Rsync()
 
-    # self.env.author.setEngineClientParam(hostname="tractor-engine", port=5600, user="pixar", debug=True)
+    # self.farmjob.author.setEngineClientParam(hostname="tractor-engine", port=5600, user="pixar", debug=True)
 
     logger.setLevel(logging.DEBUG)
     logger.info("Running test for {}".format(__name__))
