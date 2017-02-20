@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 """
     All these Classes are to do with the defining of the USER
 
@@ -34,16 +33,17 @@ logger.addHandler(sh)
 
 class Map(object):
     """
-    This class is the mapping of student information into a json file that acts like a cache rather than having to do LDAP queries all the time.
-
+    This class is the mapping of student information into a json file
+    that acts like a cache rather than having to do LDAP
+    queries all the time.
     """
     def __init__(self):
         self.env=envfac.Environment2()
         self.config=envfac.ConfigBase()
 
         try:
-            _mapfilejson = os.path.join(self.env.environ["DABRENDER"], self.config.getdefault("DABRENDER",
-                                                                                              "usermapfile"))
+            _mapfilejson = os.path.join(self.env.environ["DABRENDER"], \
+                                        self.config.getdefault("DABRENDER","usermapfile"))
         except Exception, err:
             logger.critical("No Map Path {}".format(err))
         else:
@@ -57,7 +57,8 @@ class Map(object):
 
 
         try:
-            _tractorcrewlist = os.path.join(self.env.environ["DABRENDER"], self.config.getdefault("DABRENDER","tractorcrewlist"))
+            _tractorcrewlist = os.path.join(self.env.environ["DABRENDER"], \
+                                            self.config.getdefault("DABRENDER","tractorcrewlist"))
             if not os.path.isfile(_tractorcrewlist):
                 logger.warn("Cant find {}".format(_tractorcrewlist))
                 raise IOError
@@ -71,7 +72,8 @@ class Map(object):
 
 
         try:
-            _backuppath = os.path.join(self.env.environ["DABRENDER"], self.config.getdefault("DABRENDER","backuppath"))
+            _backuppath = os.path.join(self.env.environ["DABRENDER"],\
+                                       self.config.getdefault("DABRENDER","backuppath"))
             if not os.path.exists(_backuppath):
                 logger.warn("Cant find {}".format(_backuppath))
                 raise IOError
@@ -87,9 +89,7 @@ class Map(object):
 
 
     def writecrewformat(self):
-        #
-        # write out the json map data in a tractor crewlist format to a file
-        #
+        """ write out the json map data in a tractor crewlist format to a file """
 
         try:
             _crewlist = open(self.tractorcrewlist, 'w')
@@ -110,7 +110,9 @@ class Map(object):
 
 
     def getallusers(self):
-        # return a dictionary of user info
+        """
+        :return: a dictionary of user info or None
+        """
         try:
             with open(self.mapfilejson) as json_data:
                 all = json.load(json_data)
@@ -123,7 +125,7 @@ class Map(object):
             pass
 
 
-        ###  print for crews.config file
+        ###  print for tractor crews.config format file
         # for i, student in enumerate(allusers):
         #     logger.info('"{number}", # {student} {name} {year}'.format(student = student,
         #                                                        number=all[student].get("number","NONE"),
@@ -131,7 +133,12 @@ class Map(object):
         #                                                        year=all[student].get("year","NONE")))
 
     def getuser(self, usernumber):
-        # query user in the map file and return the dictionary
+        """
+        Query user in the map file
+        :param usernumber:
+        :return: a dictionary of user data
+        """
+
         with open(self.mapfilejson) as json_data:
             all = json.load(json_data)
         try:
@@ -143,10 +150,14 @@ class Map(object):
             return None
 
     def getusername(self,usernumber):
+        """
+        :param usernumber:
+        :return: the user name for the user number
+        """
         return self.getuser(usernumber).get("name")
 
     def removeuser(self, usernumber):
-        # remove a user from the map
+        """ remove a user from the map """
         if self.getuser(usernumber):
             # self.backup()
             logger.info("Removing user {}".format(usernumber))
@@ -159,7 +170,7 @@ class Map(object):
                 json.dump(all, outfile, sort_keys = True, indent = 4,)
 
     def backup(self):
-        # backup the existing map
+        """ backup the existing map """
         source=self.mapfilejson
         now=utils.getnow()
         if not os.path.isdir(self.backuppath):
@@ -188,7 +199,9 @@ class Map(object):
             logger.info("User {} already in map file".format(number))
 
 class WorkType(object):
-    # this is the user work area either work/number or projects/projectname
+    """
+    This is the user work area either work/number or projects/projectname
+    """
     def __init__(self,userid=None,projectname=None):
         self.env=envfac.Environment()
         self.dabrenderpath=self.env.getdefault("DABRENDER","path")
@@ -210,7 +223,8 @@ class WorkType(object):
             self.projectname=projectname
 
     def makeworkdirectory(self):
-        # attempts to make the user_work directory for the user or the project under project_work
+        """ Attempts to make the user_work directory for the user or
+        the project under project_work """
         try:
             if self.envtype == "user_work":
                 os.mkdir( os.path.join(self.dabwork,self.envtype,self.username))
@@ -225,7 +239,9 @@ class WorkType(object):
             logger.warn("Made nothing {}".format(e))
 
     def makeuserprefs(self):
-        # attempts to make individual userprefs directory for the user
+        """ Attempts to make individual userprefs directory for the user
+        :return:
+        """
         try:
             if self.envtype == "users":
                 os.mkdir( os.path.join(self.dabuserprefs,self.envtype,self.usernumber))
@@ -238,24 +254,31 @@ class WorkType(object):
 
 
 class TractorUser(object):
-    # this is the crew.config for tractor
+    """ This is the crew.config for tractor """
     def __init__(self):
         pass
 
 class UtsUser(object):
-    '''
-    This class represents the UTS user account.  Data is queried from the LDAP server at UTS to build a model of the
-    student.  This requires the user to authenticate against the UTS LDAP server.
-    Once this is built then the class has methods to write the data to a Map object which caches the info into a json file.
-    The json file is owned by pixar user and is edited by creating a farm job which runs as pixar user.  This afford
-    a mechanism to manage the reading and writing to this map file.  Its not great but its ok.
+    """
+    This class represents the UTS user account.  Data is queried from the
+    LDAP server at UTS to build a model of the student.  This requires the
+    user to authenticate against the UTS LDAP server.
+    Once this is built then the class has methods to write the data to a
+    Map object which caches the info into a json file.
+    The json file is owned by pixar user and is edited by creating a farm
+    job which runs as pixar user.  This afford a mechanism to manage the
+    reading and writing to this map file.  Its not great but its ok.
     It could be that this file is a serialised file.
-    '''
+    """
     def __init__(self):
+        """
+
+        """
         self.name=None
         self.number = os.getenv("USER")
         self.job=None
         self.farmjob=envfac.FarmJob()
+        self.env=envfac.Environment2()
         self.year=time.strftime("%Y")
         logger.info("Current Year is %s" % self.year)
 
@@ -280,11 +303,10 @@ class UtsUser(object):
             sys.exit("UTS doesnt seem to know you")
 
     def addtomap(self):
+        """
 
-        # if self.number in self.farmjob.getdefault("DABRENDER","superuser"):
-        #     logger.info("Your are a superuser - yay")
-        # else:
-        #     logger.warn("You need to be a superuser to mess with the map file sorry")
+        :return:
+        """
 
         try:
             # ################ TRACTOR JOB ################
@@ -317,10 +339,21 @@ class UtsUser(object):
             logger.warn(joberror)
 
     def validate(self):
+        """
+
+        :return:
+        """
         if self.job:
             logger.info("\n\n{:_^80}\n{}\n{:_^80}".format("snip", self.job.asTcl(), "snip"))
 
     def mail(self, level="Level", trigger="Trigger", body="Render Progress Body"):
+        """
+        A method to handle sending mail.
+        :param level:
+        :param trigger:
+        :param body:
+        :return: mail command
+        """
         bodystring = "Add New User: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
         subjectstring = "FARM JOB: %s " % (self.command)
         mailcmd = self.farmjob.author.Command(argv=["sendmail.py", "-t", "%s@uts.edu.au" % self.number,
@@ -328,8 +361,12 @@ class UtsUser(object):
         return mailcmd
 
     def spool(self):
+        """
+        Spool to the farm method.
+        :return:
+        """
         try:
-            self.job.spool(owner="pixar")
+            self.job.spool(owner="{}".format(envfac.FarmJob.getdefault("tractor","jobowner")))
             logger.info("Spooled correctly")
         except Exception, spoolerr:
             logger.warn("A spool error %s" % spoolerr)
@@ -338,37 +375,33 @@ class UtsUser(object):
 
 class FarmUser(object):
     def __init__(self):
-        # the user details as defined in the map
-        self.user = os.getenv("USER")
+        """ The user details as defined in the map, each user has data held in a
+        dictionary """
+
+        self.user = envfac.Environment2.environ["USER"]
+        self.number=None
+        self.year=None
+        self.keys=None
         usermap = Map()
 
         try:
             _userdict=usermap.getuser(self.user)
-            self.name=_userdict.get("name")
-            self.number=_userdict.get("number")
-            self.year=_userdict.get("year")
-
         except Exception,err:
             logger.critical("Problem creating User: {}".format(err))
             sys.exit(err)
-
-    def getusername(self):
-        return self.name
-
-    def getusernumber(self):
-        return self.number
-
-    def getenrolmentyear(self):
-        return self.year
-
+        else:
+            self.name=_userdict.get("name")
+            self.number=_userdict.get("number")
+            self.year=_userdict.get("year")
+            self.keys=_userdict.keys()
 
 
 
 
 if __name__ == '__main__':
-    ##### all this is testing
-    ##### this  is a factory and shouldnt be called as 'main'
-
+    """
+    All this is testing, this  is a factory and shouldnt be called as 'main'
+    """
     sh.setLevel(logging.DEBUG)
     logger.setLevel(logging.DEBUG)
 
@@ -381,48 +414,52 @@ if __name__ == '__main__':
 
 
     ###############################################
-    # try:
-    #     logger.debug("getuser:{} getusername:{}".format( m.getuser("120988"), m.getusername("120988")) )
-    # except Exception, err:
-    #     logger.warn(err)
-    #
-    # logger.debug("-------- TEST adduser ------------")
-    # try:
-    #     # m.getallusers()
-    #     m.backup()
-    #     m.adduser("1209880","mattgidney","2020")
-    #     m.adduser("0000000","nextyearstudent","2016")
-    #     m.adduser("9999999","neveryearstudent","2016")
-    #
-    # except Exception, err:
-    #     logger.warn(err)
-    #
-    #
-    # logger.debug("-------- TEST getuser ------------")
-    # try:
-    #     m.getuser("9999999")
-    # except Exception, err:
-    #     logger.warn(err)
-    #
-    # logger.debug("-------- TEST removeuser ------------")
-    # try:
-    #     m.removeuser("9999999")
-    #     m.getuser("9999999")
-    # except Exception, err:
-    #     logger.warn(err)
+    """
+    try:
+        logger.debug("getuser:{} getusername:{}".format( m.getuser("120988"), m.getusername("120988")) )
+    except Exception, err:
+        logger.warn(err)
+
+    logger.debug("-------- TEST adduser ------------")
+    try:
+        # m.getallusers()
+        m.backup()
+        m.adduser("1209880","mattgidney","2020")
+        m.adduser("0000000","nextyearstudent","2016")
+        m.adduser("9999999","neveryearstudent","2016")
+
+    except Exception, err:
+        logger.warn(err)
 
 
-    # u = FarmUser()
-    # logger.debug( u.name )
-    # logger.debug( u.number)
-    # logger.debug( u.year)
-    # logger.debug( u.user)
+    logger.debug("-------- TEST getuser ------------")
+    try:
+        m.getuser("9999999")
+    except Exception, err:
+        logger.warn(err)
+
+    logger.debug("-------- TEST removeuser ------------")
+    try:
+        m.removeuser("9999999")
+        m.getuser("9999999")
+    except Exception, err:
+        logger.warn(err)
+
+
+    u = FarmUser()
+    logger.debug( u.name )
+    logger.debug( u.number)
+    logger.debug( u.year)
+    logger.debug( u.user)
+
+    """
+
     uts = UtsUser()
     logger.debug( uts.name)
     logger.debug( uts.number)
 
 
-    '''
+    """
     logger.debug("-------- TEST show __dict__ ------------")
     try:
         logger.debug("MAP: {}".format(m.__dict__))
@@ -448,4 +485,4 @@ if __name__ == '__main__':
         logger.debug("       : {}".format(dir(e)))
     except Exception, err:
         logger.warn(err)
-    '''
+    """

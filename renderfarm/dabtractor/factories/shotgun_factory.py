@@ -1,4 +1,4 @@
-#!/usr/bin/env rmanpy
+#!/usr/bin/env python
 import pprint
 import sys
 from sww.shotgun_api3 import Shotgun

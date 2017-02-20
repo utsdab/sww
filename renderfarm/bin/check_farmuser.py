@@ -38,10 +38,7 @@ try:
 except Exception, err:
     logger.critical("MAP FILE ### ERROR %s" % (err))
 else:
-    logger.info("MAP FILE >>> {} {} {}".format (\
-                    mu.getusername(),
-                    mu.getusernumber(),
-                    mu.getenrolmentyear()))
+    logger.info("MAP FILE >>> {} {} {}".format ( mu.name, mu.number, mu.year))
 
 ## TODO  check there are userprefs
 try:
@@ -75,7 +72,7 @@ else:
 
 ## TODO  check there is a user_work area
 try:
-    uw=os.path.join(os.environ["DABWORK"],"user_work",mu.getusername())
+    uw=os.path.join(os.environ["DABWORK"],"user_work",mu.name)
     utf.ensure_dir(uw)
 except Exception, err:
     logger.critical("USER_WORK ### ERROR %s" % (err))

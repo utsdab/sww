@@ -29,7 +29,7 @@ logger.addHandler(sh)
 # ##############################################################
 
 class ConfigBase(object):
-    '''
+    """
     This class gathers up the configuration settings from an external json file.
     Function return configurations.
     The schema is simple - a two level dictionary:
@@ -39,8 +39,11 @@ class ConfigBase(object):
         attribute : [ default, value1, value2 ]  ### default value is index 0
         }
     }
-    '''
+
+    """
     def __init__(self):
+        """
+        """
 
         self.configjson = os.path.join(os.path.dirname(rf.__file__), "etc","dabtractor_config.json")
         _file=open(self.configjson)
@@ -61,7 +64,12 @@ class ConfigBase(object):
             _file.close()
 
     def getoptions(self, group, key):
-        # assumes the value of the attribute is a list
+        """
+        Assumes the value of the attribute is a list
+        :param group:
+        :param key:
+        :return:
+        """
         _return = None
         try:
             _type = type(self.groups.get(group).get(key))
@@ -77,7 +85,13 @@ class ConfigBase(object):
             return _return
 
     def getdefault(self, group, key):
-        # returns the first index if a list or just the vale if not a list
+        """
+        Returns the first index if a list or just the vale if not a list
+        :param group:
+        :param key:
+        :return:
+        """
+
         _return = None
         try:
             _type = type(self.groups.get(group).get(key))
@@ -95,7 +109,11 @@ class ConfigBase(object):
             return str(_return)
 
     def getgroups(self):
-        # returns all attribute groups
+        """
+        Returns all attribute groups
+        :return:
+        """
+
         _return = None
         try:
             _return = self.groups.keys()
@@ -105,7 +123,12 @@ class ConfigBase(object):
             return str(_return)
 
     def getattributes(self,group):
-        # return a groups attributes
+        """
+        Return a groups attributes
+        :param group:
+        :return:
+        """
+
         _return = None
         try:
             _return =  self.groups.get(group).keys()
@@ -117,7 +140,11 @@ class ConfigBase(object):
 
 
     def getalldefaults(self):
-        # returns a dict with key (group,attribute) and value is the default
+        """
+        Returns a dict with key (group,attribute) and value is the default
+        :return:
+        """
+
         _defaults = {}
         for group in self.groups.keys():
             for attribute in self.groups.get(group).keys():
@@ -136,9 +163,13 @@ class ConfigBase(object):
         return _defaults
 
     def getallenvgroups(self):
-        # Any group with a "path" attribute should be and environment variable declaration os.environ
-        # return a list of groups with "path" declared
-        # warn if the value is not valid
+        """
+        Any group with a "path" attribute should be and environment variable declaration os.environ
+        return a list of groups with "path" declared
+        warn if the value is not valid
+        :return:
+        """
+
         _haspath = []
         for group in self.groups.keys():
             for attribute in self.groups.get(group).keys():
@@ -148,7 +179,13 @@ class ConfigBase(object):
 
 
 class FarmJob(ConfigBase):
+    """
+
+    """
     def __init__(self):
+        """
+
+        """
         super(FarmJob, self).__init__()
         self.author=author
         self.tq=tq
@@ -169,11 +206,13 @@ class Environment(ConfigBase):
     presently $TASK and $SHOT not used
     move this all to a json file template
 
-    This probaly needs to be changed as the idea of a project might be buried within the show more deeply as per the
-    way shotun would have it.
+    This probaly needs to be changed as the idea of a project might be buried
+    within the show more deeply as per the way shotgun would have it.
     So $PROJECT is possibly  .../dir1/dir2/dir3/....../project
     project is a maya project and should therefor have a workspace.mel file.
 
+
+    this class is to be obsoleted!!!!!!
 
     """
 
@@ -202,7 +241,14 @@ class Environment(ConfigBase):
                             debug = True)
 
     def alreadyset(self, envar, defaultgroup, defaultkey):
-        #  look to see if an environment variable is already define an if not check the dabtractor config else return
+        """
+        Look to see if an environment variable is already define an if not check
+        the dabtractor config else return.
+        :param envar:
+        :param defaultgroup:
+        :param defaultkey:
+        :return:
+        """
         #  the default
         try:
             val = os.environ[envar]
@@ -215,6 +261,11 @@ class Environment(ConfigBase):
             return val
 
     def setfromscenefile(self, scenefilefullpath):
+        """
+        Try and set the structure from the scene file path.
+        :param scenefilefullpath:
+        :return:
+        """
         try:
             os.path.isfile(scenefilefullpath)
         except Exception, err:
@@ -240,6 +291,12 @@ class Environment(ConfigBase):
 
 
     def setfromprojroot(self, dirfullpath):
+        """
+        Try and set from the directory full path
+        :param dirfullpath:
+        :return:
+        """
+
         try:
             os.path.isdir(dirfullpath)
         except Exception, err:
@@ -263,6 +320,11 @@ class Environment(ConfigBase):
 
 
     def putback(self):
+        """
+        Put values back to the environment
+        :return:
+        """
+
         try:
             os.environ["DABWORK"] = self.dabwork
             os.environ["TYPE"] = self.type
@@ -277,14 +339,16 @@ class Environment(ConfigBase):
 
 class Environment2(ConfigBase):
     """
-    This class adds to the environment is oe.environ
+    This class adds to the environment is oe.environ it replaces Environment Class
 
     1. read the environment that needs to be there in the config json file ie (has a "farmjob" attribute
     2. if not founf then add it to the environment os.environ
 
     """
     def __init__(self):
-        #
+        """
+
+        """
         super(Environment2, self).__init__()
         self.requiredenvars = self.getallenvgroups()
 
@@ -293,7 +357,7 @@ class Environment2(ConfigBase):
                 e=os.environ[envar]
             except:
                 logger.warn("Environment variable {} NOT FOUND".format(envar))
-                _value=self.getdefault(envar,"farmjob")
+                _value=self.getdefault(envar,"env")
                 os.environ[envar]=_value
                 logger.info("Setting {} to {} from config.json file".format(envar,_value))
             else:
@@ -303,7 +367,13 @@ class Environment2(ConfigBase):
         logger.debug(self.environ.items())
 
     def setnewenv(self,key,value):
-        # declare a new variable and put back to os.environ
+        """
+        Declare a new variable and put back to os.environ.
+        :param key:
+        :param value:
+        :return:
+        """
+
         if not os.environ.has_key(key):
             try:
                 os.environ[key]=value
