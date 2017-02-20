@@ -207,7 +207,7 @@ class FarmJob(ConfigBase):
 #     move this all to a json file template
 #
 #     This probaly needs to be changed as the idea of a project might be buried
-#     within the show more deeply as per the way shotgun would have it.
+#     within the show more deeply as per the way shotgun_repos would have it.
 #     So $PROJECT is possibly  .../dir1/dir2/dir3/....../project
 #     project is a maya project and should therefor have a workspace.mel file.
 #

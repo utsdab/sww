@@ -20,11 +20,11 @@ class ShotgunBase(object):
     # base object
     def __init__(self):
         self.env=envfac.Environment2()
-        self.serverpath = str(self.env.getdefault("shotgun", "serverpath"))
-        self.scriptname = str(self.env.getdefault("shotgun", "scriptname"))
-        self.scriptkey  = str(self.env.getdefault("shotgun", "scriptkey"))
+        self.serverpath = str(self.env.getdefault("shotgun_repos", "serverpath"))
+        self.scriptname = str(self.env.getdefault("shotgun_repos", "scriptname"))
+        self.scriptkey  = str(self.env.getdefault("shotgun_repos", "scriptkey"))
         self.sg = Shotgun( self.serverpath, self.scriptname, self.scriptkey)
-        logger.info("SHOTGUN: talking to shotgun ...... %s" % self.serverpath)
+        logger.info("SHOTGUN: talking to shotgun_repos ...... %s" % self.serverpath)
 
 
 
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     #              shotname="tractortesting",
     #              taskname='layout',
     #              versioncode='from tractor 1',
-    #              description='test version using shotgun api',
+    #              description='test version using shotgun_repos api',
     #              ownerid=38,
     #              media='/Users/Shared/UTS_Dev/test_RMS_aaocean.0006.mov')
 
