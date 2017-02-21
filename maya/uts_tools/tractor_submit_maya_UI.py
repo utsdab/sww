@@ -110,8 +110,7 @@ class Maya(object):
 class Job(envfac.Environment):
     def __init__(self):
         super(Job, self).__init__()
-        self.env=envfac.Environment2()
-        print self.env.environ.keys()
+        self.env=ENV
         self.dabwork=self.env.environ["DABWORK"]
         self.usernumber = None
         self.username = None
@@ -139,12 +138,12 @@ class Job(envfac.Environment):
         self.scenefullpath = None,
         self.mayaversion = None,
         self.rmanversion = None,
-        self.nukeversion = None
         self.resolution = None,
         self.rms_maxsamples = None
         self.renderer = None
         self.version = None
 
+    #  moved to utils_factory
     def printme(self):
         logger.info("\n\n{:_^80}\n".format(" job attributes "))
         for i,key in enumerate(self.__dict__.keys()):

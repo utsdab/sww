@@ -165,12 +165,17 @@ def truncatepath(inputpath,truncatebit):
         _truncated = []
         _matched = False
         for i,bit in enumerate(_pathbits):
+            # print i, bit
+            # _truncated.append(bit)
             if bit == truncatebit:
                 _matched = True
                 break
             print i, bit
             _truncated.append(bit)
         _truncatedpath="/".join(_truncated)
+        # print inputpath
+        # print bit
+        # print _truncatedpath
         if os.path.isdir(_truncatedpath):
             return _truncatedpath
     else:
@@ -209,6 +214,11 @@ class RenderOutput(object):
                     y.append(x)
                 else:
                     z.append(x)
+
+
+
+
+
             for j, each in enumerate( zip(y,z) ):
                 print j,each
 
