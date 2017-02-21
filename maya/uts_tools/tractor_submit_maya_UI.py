@@ -42,7 +42,7 @@ import sys
 import os
 from sww.renderfarm.dabtractor.factories import interface_factory as ifac
 from sww.renderfarm.dabtractor.factories import render_prman_factory as rmsfac
-from sww.renderfarm.dabtractor.factories import render_mr_factory as mrfac
+from sww.renderfarm.dabtractor.factories import render_maya_factory as mrfac
 from sww.renderfarm.dabtractor.factories import render_nuke_factory as nukefac
 from sww.renderfarm.dabtractor.factories import render_houdini_factory as houdinifac
 from sww.renderfarm.dabtractor.factories import command_factory as cmdfac
@@ -485,5 +485,4 @@ def main():
 if __name__ == '__main__':
 
     sh.setLevel(logging.DEBUG)
-
     main()

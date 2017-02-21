@@ -902,6 +902,7 @@ class BugWidget(qg.QWidget):
         TEST = adhoc.SendMail(mailbody=self.bug_widget.toPlainText(),
                               mailsubject="mail subject",
                               mailcc="mail cc",
+                              mailfrom="tractor",
                               mailto="120988@uts.edu.au")
         TEST.build()
         TEST.validate()

@@ -63,6 +63,14 @@ class SendMail(JobBase):
     '''
 
     def __init__(self,mailto,mailfrom,mailcc,mailsubject,mailbody):
+        """
+
+        :param mailto:
+        :param mailfrom:
+        :param mailcc:
+        :param mailsubject:
+        :param mailbody:
+        """
         super(SendMail, self).__init__()
         self.testing=False
         self.mailto=mailto
