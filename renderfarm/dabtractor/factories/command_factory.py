@@ -32,16 +32,16 @@ class CommandBase(object):
         self.spooljob = False
         self.testing = False
         self.env=envfac.Environment()
-
+        self.fj=envfac.FarmJob()
+        self.env=envfac.Environment2()
         try:
             # get the names of the central render location for the user
-            ru = ufac.FarmUser()
-            env=envfac.Environment2()
-            self.renderusernumber = ru.number
-            self.renderusername = ru.name
-            self.dabrender = env.environ["DABRENDER"]
-            self.dabrenderworkpath = env.environ["DABWORK"]
-            self.initialProjectPath = env.environ["DABWORK"]
+
+            # self.renderusernumber = fj.usernumber
+            # self.renderusername = fj.username
+            self.dabrender = self.env.environ["DABRENDER"]
+            self.dabrenderworkpath = self.env.environ["DABWORK"]
+            self.initialProjectPath = self.env.environ["DABWORK"]
 
         except Exception, erroruser:
             logger.warn("Cant get the users name and number back %s" % erroruser)
@@ -71,13 +71,11 @@ class Bash(CommandBase):
         """
 
         # ################ 0 JOB ################
-        self.job = self.env.author.Job(title="Bash Job: {}".format(self.renderusername),
+        self.job = self.fj.author.Job(title="Bash Job: {}".format(self.fj.usernumber),
                               priority=10,
-                              metadata="user={} realname={}".format(self.user,
-                                                                    self.renderusername),
-                              comment="LocalUser is {} {} {}".format(self.user,
-                                                                     self.renderusername,
-                                                                     self.renderusernumber),
+                              metadata="user={} realname={}".format(self.fj.usernumber,
+                                                                    self.fj.username),
+                              comment="LocalUser is {} {}".format(self.fj.usernumber, self.fj.username),
                               projects=[str(self.projectgroup)],
                               # tier=_tier,
                               tags=["theWholeFarm"],
@@ -85,11 +83,11 @@ class Bash(CommandBase):
 
 
         # ############## 2  BASH ###########
-        task_parent = self.env.author.Task(title="Parent")
+        task_parent = self.fj.author.Task(title="Parent")
         task_parent.serialsubtasks = 1
-        task_bash = self.env.author.Task(title="Command")
+        task_bash = self.fj.author.Task(title="Command")
 
-        bashcommand = self.env.author.Command(argv=["bash","-c",self.command])
+        bashcommand = self.fj.author.Command(argv=["bash","-c",self.command])
         task_bash.addCommand(bashcommand)
         task_parent.addChild(task_bash)
 
@@ -103,7 +101,7 @@ class Bash(CommandBase):
         window.emailcompletion.get(),
         window.emailerror.get()
         """
-        task_notify = self.env.author.Task(title="Notify")
+        task_notify = self.fj.author.Task(title="Notify")
         task_notify.addCommand(self.mail("JOB", "COMPLETE", "blah"))
         task_parent.addChild(task_notify)
         self.job.addChild(task_parent)
@@ -115,7 +113,7 @@ class Bash(CommandBase):
     def mail(self, level="Level", trigger="Trigger", body="Render Progress Body"):
         bodystring = "Bash Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
         subjectstring = "FARM JOB: %s " % (self.command)
-        mailcmd = self.env.author.Command(argv=["sendmail.py", "-t", "%s@uts.edu.au" % self.user,
+        mailcmd = self.fj.author.Command(argv=["sendmail.py", "-t", "%s@uts.edu.au" % self.user,
                                        "-b", bodystring, "-s", subjectstring])
         return mailcmd
 
