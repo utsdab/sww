@@ -271,7 +271,7 @@ if __name__ == '__main__':
 
     TEST = Bash(
                # startdirectory="/var/tmp",
-               command="check_farmuser.py > out.txt",
+               command="farm_check.py > out.txt",
                # options="",
                email=[0,0,0,0,0,0]
     )

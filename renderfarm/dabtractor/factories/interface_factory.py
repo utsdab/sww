@@ -1,8 +1,12 @@
 import os
 import sys
 
+
 import PySide.QtCore as qc
 import PySide.QtGui as qg
+
+# print os.path.abspath(qc.__file__)
+# print os.path.abspath(qg.__file__)
 
 import adhoc_jobs_factory as adhoc
 import user_factory as ufac
@@ -986,21 +990,20 @@ class NukeWidget(qg.QWidget):
         self.layout().addLayout(self.options_layout)
 
         # set initial values
-        self._version(self.version_combo.currentText())
+        self._nuke_version(self.version_combo.currentText())
         self._options(self.options_combo.currentText())
 
         # connect vlaues to widget
-        self.version_combo.activated.connect(lambda: self._rms_version(self.version_combo.currentText()))
+        self.version_combo.activated.connect(lambda: self._nuke_version(self.version_combo.currentText()))
         self.options_combo.editTextChanged.connect(lambda: self._options(self.options_combo.currentText()))
 
     def _options(self, _value):
-        self.job.options = _value
-        logger.info("Options changed to {}".format(self.job.options))
+        self.job.nukeoptions = _value
+        logger.info("Options changed to {}".format(self.job.nukeoptions))
 
-
-    def _version(self, _value):
-        self.job.version = _value
-        logger.info("Version changed to {}".format(self.job.version))
+    def _nuke_version(self, _value):
+        self.job.nukeversion = _value
+        logger.info("Version changed to {}".format(self.job.nukeversion))
 
 # -------------------------------------------------------------------------------------------------------------------- #
 class HoudiniJobWidget(qg.QWidget):
@@ -1013,7 +1016,7 @@ class HoudiniJobWidget(qg.QWidget):
         self.layout().setAlignment(qc.Qt.AlignTop)
         self.setSizePolicy(qg.QSizePolicy.Minimum, qg.QSizePolicy.Fixed)
 
-        # NUKE WIDGET
+        # HOUDINI WIDGET
         self.houdini_widget = HoudiniWidget(self.job)
         self.layout().addWidget(self.houdini_widget)
 
@@ -1064,21 +1067,20 @@ class HoudiniWidget(qg.QWidget):
         self.layout().addLayout(self.options_layout)
 
         # set initial values
-        self._version(self.version_combo.currentText())
+        self._houdini_version(self.version_combo.currentText())
         self._options(self.options_combo.currentText())
 
         # connect vlaues to widget
-        self.version_combo.activated.connect(lambda: self._rms_version(self.version_combo.currentText()))
+        self.version_combo.activated.connect(lambda: self._houdini_version(self.version_combo.currentText()))
         self.options_combo.editTextChanged.connect(lambda: self._options(self.options_combo.currentText()))
 
     def _options(self, _value):
-        self.job.options = _value
-        logger.info("Options changed to {}".format(self.job.options))
+        self.job.houdinioptions = _value
+        logger.info("Options changed to {}".format(self.job.houdinioptions))
 
-
-    def _version(self, _value):
-        self.job.version = _value
-        logger.info("Version changed to {}".format(self.job.version))
+    def _houdini_version(self, _value):
+        self.job.houdiniversion = _value
+        logger.info("Version changed to {}".format(self.job.houdiniversion))
 
 
 

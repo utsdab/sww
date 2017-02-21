@@ -32,7 +32,7 @@ def ensure_dir(f):
         logger.warn("Not found, Making {}".format(f))
         os.makedirs(d)
     else:
-        logger.info("Found {}".format(f))
+        logger.debug("Found dir {}".format(f))
 
 def ensure_link(f):
     # check link and if not then raise
@@ -41,7 +41,7 @@ def ensure_link(f):
         logger.warn("Link Not found {}".format(f))
         raise
     else:
-        logger.info("Found link {}".format(f))
+        logger.debug("Found link {}".format(f))
 
 
 def sendmail(mailto,

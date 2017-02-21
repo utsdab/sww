@@ -377,8 +377,8 @@ class FarmUser(object):
     def __init__(self):
         """ The user details as defined in the map, each user has data held in a
         dictionary """
-
-        self.user = envfac.Environment2.environ["USER"]
+        self.env=envfac.Environment2()
+        self.user = self.env.environ["USER"]
         self.number=None
         self.year=None
         self.keys=None

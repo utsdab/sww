@@ -40,7 +40,7 @@ from sww.renderfarm.dabtractor.factories import environment_factory as envfac
 _thisuser = os.getenv("USER")
 # (_usernumber,_username) =  ufac.FarmUser(_thisuser).query()
 env = envfac.Environment()
-cfg = envfac.ConfigBase()
+farmjob = envfac.FarmJob()
 
 try:
     u = ufac.FarmUser()
@@ -48,13 +48,14 @@ try:
     _username = u.name
 except Exception, err:
     logger.warn(err)
-    sys.exit("Sorry you dont appear to be a registered farm user {}, try running farm_user.py and then contact matt - "
+    sys.exit("Sorry you dont appear to be a registered farm user {}, try running farm_adduser.py and then contact "
+             "matt - "
              "matthew.gidney@uts.edu.au".format(_thisuser))
 ################################
-print cfg.groups
-author.setEngineClientParam(hostname=cfg.getfromgroup("tractor","engine"),
-                            port=cfg.getfromgroup("tractor","port"),
-                            user=cfg.getfromgroup("tractor","username"),
+print farmjob.groups
+author.setEngineClientParam(hostname=farmjob.engine,
+                            port=farmjob.port,
+                            user=farmjob.jobowner,
                             debug=True)
 
 if __name__ == '__main__':

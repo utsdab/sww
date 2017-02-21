@@ -22,10 +22,6 @@ from software.maya.uts_tools.prman import cam_proj_setup_ui
 cam_proj_setup_ui.create_ui()
 
 """
-# todo.matt
-# TODO amsdajshdjkas
-# #\btodo\b.matt
-# \bxxxx\b. lkasdlkasjd
 # TODO
 
 
@@ -60,7 +56,7 @@ TRACTOT_SUBMIT_DIALOG = None
 MAYA_PRESENT = False
 COL1 = "background-color:lightgrey;color:black"
 COL2 = "background-color:lightgreen;color:darkblue"
-ENV = envfac.Environment()
+ENV = envfac.Environment2()
 VERSION = ENV.getdefault("farm","version")
 BUILD = ENV.getdefault("farm","build")
 WIDTH = 430
@@ -81,7 +77,7 @@ class TractorSubmit(qg.QDialog):
 
         ###########
         try:
-            if not os.path.isdir(ENV.dabrender):
+            if not os.path.isdir(ENV.environ["DABRENDER"]):
                 raise("Cant find dabrender")
         except Exception,err:
             sys.exit(err)
@@ -115,7 +111,7 @@ class Job(envfac.Environment):
     def __init__(self):
         super(Job, self).__init__()
         self.env=ENV
-        self.dabwork=self.env.dabwork
+        self.dabwork=self.env.environ["DABWORK"]
         self.usernumber = None
         self.username = None
         self.projectgroup = None
@@ -244,8 +240,8 @@ class Job(envfac.Environment):
                 startframe=int(self.startframe),
                 endframe=int(self.endframe),
                 byframe=int(self.byframe),
-                options=self.options,
-                version=self.version,
+                options=self.houdinioptions,
+                version=self.houdiniversion,
                 threads=self.threads,
                 threadmemory=self.threadmemory,
                 projectgroup=self.projectgroup,
@@ -266,16 +262,18 @@ class Job(envfac.Environment):
                 envshow=self.show,
                 envproject=self.project,
                 envscene=self.scene,
+                threads=self.threads,
+                threadmemory=self.threadmemory,
                 scenefullpath=self.scenefullpath,
-                framechunks=int(self.chunks),
                 startframe=int(self.startframe),
                 endframe=int(self.endframe),
                 byframe=int(self.byframe),
-                options=self.options,
-                version=self.version,
-                threads=self.threads,
-                threadmemory=self.threadmemory,
+                framechunks=int(self.chunks),
+                options=self.nukeoptions,
                 projectgroup=self.projectgroup,
+                version=self.nukeversion,
+                renderusernumber=self.usernumber,
+                renderusername=self.username,
                 email=[1, 0, 0, 0, 1, 0],
             )
             self.tractorjob.build()

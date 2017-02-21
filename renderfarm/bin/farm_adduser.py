@@ -20,14 +20,17 @@ me = os.getenv("USER")
 #looking up the map file
 try:
     usermap.getuser(me)
-    logger.info("You are a farm user: {} {} in year group: {}".format(usermap.getuser(me),
-                                                                      usermap.getusername(me)))
+
 except Exception, err:
-    logger.info("User {} is not in the map file.  Follow the steps to be added.....".format(me))
+    logger.warn("User {} is not in the map file.".format(me))
+    logger.warn("Adding {} - check for a Tractor Farm Job.".format(me))
     u = uf.UtsUser()
     u.addtomap()
     u.validate()
     u.spool()
+else:
+    logger.info("You are a farm user: {} {} from year: {}".format(usermap.getuser(me),\
+                                                                  usermap.getusername(me)))
 
 
 

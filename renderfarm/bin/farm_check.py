@@ -18,18 +18,17 @@ logger.addHandler(sh)
 # ##############################################################
 
 
-##  Check if user has an LDAP account
-# try:
-#     a = uf.UtsUser()
-#     e = ef.Environment()
-#     logger.info("LDAP ACCOUNT >>> name : %s" % (a.name))
-#     logger.info("LDAP ACCOUNT >>> number : %s" % (a.number))
-# except Exception, err:
-#     logger.critical("Error You are NOT Known >>>> %s" % (err))
-# finally:
-#     pass
-
-
+logger.info(">>>>>>> Checking if you are a Farm User <<<<<<<<")
+#  Check if user has an LDAP account
+try:
+    a = uf.UtsUser()
+    # e = ef.Environment()
+    logger.info("LDAP ACCOUNT >>> name : %s" % (a.name))
+    logger.info("LDAP ACCOUNT >>> number : %s" % (a.number))
+except Exception, err:
+    logger.critical("Error You are NOT Known >>>> %s" % (err))
+finally:
+    pass
 
 
 ## TODO  check user is in map file
@@ -38,7 +37,7 @@ try:
 except Exception, err:
     logger.critical("MAP FILE ### ERROR %s" % (err))
 else:
-    logger.info("MAP FILE >>> {} {} {}".format ( mu.name, mu.number, mu.year))
+    logger.info("MAP FILE  >>> {} {} {}".format ( mu.name, mu.number, mu.year))
 
 ## TODO  check there are userprefs
 try:
@@ -62,12 +61,12 @@ else:
 
 ## TODO  check maya prefs has a config setup
 try:
-    mayaprefs="{}/{}/mayaprefs".format(os.environ["DABUSERPREFS"],os.environ["USER"])
-    utf.ensure_link(mayaprefs)
+    mayaprefs="{}/{}/config/mayaprefs".format(os.environ["DABUSERPREFS"],os.environ["USER"])
+    utf.ensure_dir(mayaprefs)
 except Exception, err:
     logger.critical("USERPREFS ### mayaprefs link ERROR {} : {}".format (mayaprefs, err))
 else:
-    logger.info("USERPREFS >>> mayaprefs link : {}".format (mayaprefs))
+    logger.info("USERPREFS >>> mayaprefs : {}".format (mayaprefs))
 
 
 ## TODO  check there is a user_work area
@@ -81,6 +80,10 @@ else:
 
 
 ## TODO  check permissions are ok
+
+
+# logger.info("USER_WORK permissions {}".format (uw))
+
 # Use os.access() with flags os.R_OK, os.W_OK, and os.X_OK.
 # >>> import os
 # >>> statinfo = os.stat('somefile.txt')
@@ -90,11 +93,14 @@ else:
 # st_mtime=1297230027, st_ctime=1297230027)
 # >>> statinfo.st_size
 # 264
-statinfo = os.stat(up)
-print statinfo.st_gid, statinfo.st_uid
-print stat.S_IFDIR, stat.S_IFLNK,stat.S_IMODE(statinfo.st_mode)
+# statinfo = os.stat(up)
+# print statinfo.st_gid, statinfo.st_uid
+# print stat.S_IFDIR, stat.S_IFLNK,stat.S_IMODE(statinfo.st_mode)
 
 mode = os.stat(uw).st_mode
+stat_info = os.stat(uw)
+uid = stat_info.st_uid
+gid = stat_info.st_gid
 # otherExec  = bool(m & 0001)
 # otherWrite = bool(m & 0002)
 # otherRead  = bool(m & 0004)
@@ -104,16 +110,19 @@ groupRead  = bool(mode & 0040)
 otherRead  = bool(mode & stat.S_IROTH)
 otherWrite = bool(mode & stat.S_IWOTH)
 otherExec  = bool(mode & stat.S_IXOTH)
-os.chmod(uw,stat.S_IWOTH)
-print groupRead,groupWrite,groupExec
-print otherRead,otherWrite,otherExec
-# uw="/Users/120988/testfile"
-try:
-    os.chmod(uw,0775) # -rwxr-xr-x octal
-except Exception, err:
-    print "failed",err
-else:
-    print uw
+# os.chmod(uw,stat.S_IWOTH)
+
+logger.info("      GROUP PERMISSIONS: {} {} {} ".format(groupRead,groupWrite,groupExec))
+logger.info("      OTHER PERMISSIONS: {} {} {} ".format(otherRead,otherWrite,otherExec))
+logger.info("      UID GID: {} {}".format(uid, gid))
+
+
+# try:
+#     os.chmod(uw,0775) # -rwxr-xr-x octal
+# except Exception, err:
+#     print "failed",err
+# else:
+#     print uw
 
 ## TODO  check in tractor crewlist
 

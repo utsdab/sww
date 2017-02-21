@@ -48,27 +48,18 @@ class RenderBase(object):
         else:
             self.usernumber = ru.number
             self.username = ru.name
-        #     self.dabrender = ru.dabrender
-        #     self.dabrenderworkpath = ru.dabuserworkpath
-        #     self.initialProjectPath = ru.dabuserworkpath
-        #
-        # if os.path.isdir(self.dabrender):
-        #     logger.info("Found %s" % self.dabrender)
-        # else:
-        #     self.initialProjectPath = None
-        #     logger.critical("Cant find central filer mounted %s" % self.dabrender)
-        #     raise Exception, "dabrender not a valid mount point"
 
 
 class NukeJob(RenderBase):
     """
     Nuke Job instance which takes all relevant ags as input and constucts a tractor job using the API
     """
-    def __init__(self, envdabrender, envtype, envproject, envshow, envscene, threads, threadmemory,
+    def __init__(self, envdabwork, envtype, envproject, envshow, envscene, threads, threadmemory,
                  scenefullpath, startframe, endframe, byframe, framechunks, options, projectgroup,
                  version, renderusernumber, renderusername, email):
+
         super(NukeJob, self).__init__()
-        self.envdabrender = envdabrender
+        self.envdabwork = envdabwork
         self.envtype = envtype
         self.envproject = envproject
         self.envshow = envshow
@@ -90,20 +81,6 @@ class NukeJob(RenderBase):
         self.renderusername = renderusername
         self.email = email
 
-
-        # try:
-        #     # get the names of the central render location for the user
-        #     ru = ufac.FarmUser()
-        #     self.renderusernumber = ru.number
-        #     self.renderusername = ru.name
-        #     self.dabrender = ru.dabrender
-        #     self.dabrenderworkpath = ru.dabrender
-        #     self.initialProjectPath = ru.dabrender
-        #
-        # except Exception, erroruser:
-        #     logger.warn("Cant get the users name and number back %s" % erroruser)
-        #     sys.exit("Cant get the users name")
-
     def getValues(entries):
         for entry in entries:
             field = entry[0]
@@ -111,9 +88,8 @@ class NukeJob(RenderBase):
             logger.info('%s: "%s"' % ( field, text))
 
     def build(self):
-        _nuke_proxy_template = "{d}/usr/custom/nuke/proxy_script_templates/nuke_proxy_v002.nk".format(d=self.envdabrender)
         _nuke_version = "Nuke{}".format(self.version)
-        _nuke_envkey = _nuke_version
+        _nuke_envkey = "nuke{}".format(self.version)  # lowercase
         _nuke_executable="{n}".format(n=_nuke_version)
         _nukescriptbaseonly = os.path.basename(self.nukescriptfullpath)
 
@@ -146,6 +122,9 @@ class NukeJob(RenderBase):
 
         _totalframes=int(self.endframe-self.startframe+1)
         _chunks = int(self.framechunks)
+        _threads = int(self.threads)
+        print "XXXX",_threads
+        # _threads=self.threads
         _framesperchunk=_totalframes
         if _chunks < _totalframes:
             _framesperchunk=int(_totalframes/_chunks)
@@ -156,7 +135,7 @@ class NukeJob(RenderBase):
             _offset=i*_framesperchunk
             _chunkstart=(self.startframe+_offset)
             _chunkend=(_offset+_framesperchunk)
-            _chunkby=self.byframe
+            # _chunkby=self.byframe
             logger.info("Chunk {} is frames {}-{}".format(chunk,_chunkstart,_chunkend))
             if chunk ==_chunks:
                 _chunkend = self.endframe
@@ -165,7 +144,9 @@ class NukeJob(RenderBase):
             thischunk = self.env.author.Task(title=t1, service="NukeRender")
 
             commonargs = [_nuke_executable]
-            filespecificargs = ["-x", self.nukescriptfullpath, "{}-{}".format( _chunkstart, _chunkend)]
+            filespecificargs = ["-x", self.nukescriptfullpath, "-m", "{}".format(_threads),"{}-{}".format(_chunkstart,
+                                                                                         _chunkend)]
+
             if self.options:
                 userspecificargs = [utils.expandargumentstring(self.options),]
                 finalargs = commonargs + userspecificargs + filespecificargs
@@ -176,7 +157,7 @@ class NukeJob(RenderBase):
                                     argv=finalargs,
                                     service="NukeRender",
                                     tags=["nuke",],
-                                    envkey=[_nuke_envkey])
+                                    envkey=[])
             thischunk.addCommand(render)
             parent.addChild(thischunk)
 
@@ -212,7 +193,7 @@ if __name__ == "__main__":
     logger.info("START TESTING")
 
     job = NukeJob(
-            envdabrender="",
+            envdabwork="",
             envtype="",
             envshow="matthewgidney",
             envproject="testFarm",
@@ -232,16 +213,11 @@ if __name__ == "__main__":
             email=[]
     )
 
-    # envdabrender, envtype, envproject, envshow, envscene, threads, threadmemory,
-    #              scenefullpath, startframe, endframe, byframe, framechunks, options, projectgroup,
-    #              version, renderusernumber, renderusername, email):
-
-
     job.build()
     job.validate()
     logger.info("FINISHED TESTING")
 
-    '''
+    """
         ###################################################################################################
         This is a nuke batch job
         nuke -F 1-100 -x myscript.nk
@@ -348,7 +324,7 @@ if __name__ == "__main__":
         --   End switches, allowing script to start with a dash or be just - to read from stdin
 
 
-    '''
+    """
 
 
 

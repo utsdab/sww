@@ -11,7 +11,7 @@ import os
 import json
 import inspect
 import utils_factory as utils
-# import user_factory as ufac
+import user_factory as ufac
 import sww.renderfarm.dabtractor as dt
 import sww.renderfarm as rf
 import tractor.api.author as author
@@ -155,7 +155,7 @@ class ConfigBase(object):
                     default = self.groups.get(group).get(attribute)
                 else:
                     logger.warn("%s not a list or a string" % attribute)
-                    logger.warm( type(self.groups.get(group).get(attribute)))
+                    logger.warn( type(self.groups.get(group).get(attribute)))
                     default = None
 
                 _defaults[(group,attribute)]=default
@@ -180,7 +180,7 @@ class ConfigBase(object):
 
 class FarmJob(ConfigBase):
     """
-
+    A class with the basic farm job info
     """
     def __init__(self):
         """
@@ -189,153 +189,121 @@ class FarmJob(ConfigBase):
         super(FarmJob, self).__init__()
         self.author=author
         self.tq=tq
+        __utsuser=ufac.FarmUser()
+        self.username=__utsuser.name
+        self.usernumber=__utsuser.number
         self.hostname = str(self.getdefault("tractor","engine"))
         self.port= int(self.getdefault("tractor","port"))
         self.jobowner=str(self.getdefault("tractor","jobowner"))
+        self.engine=str(self.getdefault("tractor","engine"))
 
         self.author.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
         self.tq.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
 
 
 
-# class Environment(ConfigBase):
-#     """
-#     This class is the project structure base
-#     $DABRENDER/$TYPE/$SHOW/$PROJECT/$SCENE
-#     $SCENE is possible scenes/mayascene.ma - always relative to the project
-#     presently $TASK and $SHOT not used
-#     move this all to a json file template
-#
-#     This probaly needs to be changed as the idea of a project might be buried
-#     within the show more deeply as per the way shotgun_repos would have it.
-#     So $PROJECT is possibly  .../dir1/dir2/dir3/....../project
-#     project is a maya project and should therefor have a workspace.mel file.
-#
-#
-#     this class is to be obsoleted!!!!!!
-#
-#     """
-#
-#     def __init__(self):
-#         super(Environment, self).__init__()
-#         # self.dabrender = self.alreadyset("DABRENDER", "DABRENDER","farmjob")
-#         # self.dabwork = self.alreadyset("DABWORK", "DABWORK","farmjob")
-#         # self.dabsoftware = self.alreadyset("DABSWW", "DABSWW", "farmjob")
-#         # self.dabusr = self.alreadyset("DABUSR", "DABUSR", "farmjob")
-#         # self.dabassets = self.alreadyset("DABASSETS", "DABASSETS", "farmjob")
-#         # self.type = self.alreadyset("TYPE","DABWORK","envtype")
-#         # self.show = self.alreadyset("SHOW", "","")
-#         # self.project = self.alreadyset("PROJECT", "","")
-#         # self.scene = self.alreadyset("SCENE", "","")
-#         # self.user = self.alreadyset("USER", "","")
-#         # self.username = self.alreadyset("USERNAME", "","")
-#         self.author=author
-#         self.tq=tq
-#         self.author.setEngineClientParam(hostname = str(self.getdefault("tractor","engine")),
-#                             port = int(str(self.getdefault("tractor","port"))),
-#                             user = str(self.getdefault("tractor","jobowner")),
-#                             debug = True)
-#         self.tq.setEngineClientParam(hostname = str(self.getdefault("tractor","engine")),
-#                             port = int(self.getdefault("tractor","port")),
-#                             user = str(self.getdefault("tractor","jobowner")),
-#                             debug = True)
-#
-#     def alreadyset(self, envar, defaultgroup, defaultkey):
-#         """
-#         Look to see if an environment variable is already define an if not check
-#         the dabtractor config else return.
-#         :param envar:
-#         :param defaultgroup:
-#         :param defaultkey:
-#         :return:
-#         """
-#         #  the default
-#         try:
-#             val = os.environ[envar]
-#         except Exception, err:
-#             default=self.getdefault(defaultgroup,defaultkey)
-#             logger.debug("{} :: not found in environment, setting to default: {}".format(envar, default))
-#             return default
-#         else:
-#             logger.debug("{} :: found in environment as {}".format(envar, val))
-#             return val
-#
-#     def setfromscenefile(self, scenefilefullpath):
-#         """
-#         Try and set the structure from the scene file path.
-#         :param scenefilefullpath:
-#         :return:
-#         """
-#         try:
-#             os.path.isfile(scenefilefullpath)
-#         except Exception, err:
-#             logger.warn("Cant set from file.{} {}".format(scenefilefullpath, err))
-#         else:
-#             _dirname=os.path.dirname(scenefilefullpath)
-#             _basename=os.path.basename(scenefilefullpath)
-#             _dirbits=os.path.normpath(_dirname).split("/")
-#             _fullpath=os.path.normpath(scenefilefullpath).split("/")
-#             for i, bit in enumerate(_dirbits):
-#                 if bit == "project_work" or bit == "user_work":
-#                     logger.debug("")
-#                     self.dabwork="/".join(_dirbits[0:i])
-#                     logger.info("DABWORK: {}".format(self.dabwork))
-#                     self.type=bit
-#                     logger.info("TYPE: {}".format(self.type))
-#                     self.show=_dirbits[i+1]
-#                     logger.info("SHOW: {}".format( self.show))
-#                     self.project=_dirbits[i+2]
-#                     logger.info("PROJECT: {}".format( self.project))
-#                     self.scene="/".join(_fullpath[i+3:])
-#                     logger.info("SCENE: {}".format( self.scene))
-#
-#
-#     def setfromprojroot(self, dirfullpath):
-#         """
-#         Try and set from the directory full path
-#         :param dirfullpath:
-#         :return:
-#         """
-#
-#         try:
-#             os.path.isdir(dirfullpath)
-#         except Exception, err:
-#             logger.warn("Cant set from dir: {} {}".format( dirfullpath,err))
-#         else:
-#             _dirname=os.path.dirname(dirfullpath)
-#             _basename=os.path.basename(dirfullpath)
-#             _dirbits=os.path.normpath(_dirname).split("/")
-#             _fullpath=os.path.normpath(dirfullpath).split("/")
-#             for i, bit in enumerate(_dirbits):
-#                 if bit == "project_work" or bit == "user_work":
-#                     logger.info("")
-#                     self.dabwork="/".join(_dirbits[0:i])
-#                     logger.info("DABWORK: {}".format(self.dabwork))
-#                     self.type=bit
-#                     logger.info("TYPE: {}".format(self.type))
-#                     self.show=_dirbits[i+1]
-#                     logger.info("SHOW: {}".format( self.show))
-#                     self.project="/".join(_dirbits[i+1:])
-#                     logger.info("PROJECT: {}".format( self.project))
-#
-#
-#     def putback(self):
-#         """
-#         Put values back to the environment
-#         :return:
-#         """
-#
-#         try:
-#             os.environ["DABWORK"] = self.dabwork
-#             os.environ["TYPE"] = self.type
-#             os.environ["SHOW"] = self.show
-#             os.environ["PROJECT"] = self.project
-#             os.environ["SCENE"] = self.scene
-#         except Exception,err:
-#             logger.warn("Putback failed %s"%err)
-#         else:
-#             logger.info("Putback main environment variables")
-#
+class Environment(ConfigBase):
+    """
+    This class is the project structure base
+    $DABRENDER/$TYPE/$SHOW/$PROJECT/$SCENE
+    $SCENE is possible scenes/mayascene.ma - always relative to the project
+    presently $TASK and $SHOT not used
+    move this all to a json file template
+
+    This probaly needs to be changed as the idea of a project might be buried
+    within the show more deeply as per the way shotgun_repos would have it.
+    So $PROJECT is possibly  .../dir1/dir2/dir3/....../project
+    project is a maya project and should therefor have a workspace.mel file.
+
+
+    this class is to be obsoleted!!!!!!
+    only used in the UI widget, and the methods should move there.
+
+    """
+
+    def __init__(self):
+        super(Environment, self).__init__()
+        self.type = None
+        self.show =  None
+        self.project =  None
+        self.scene =  None
+
+    def setfromscenefile(self, scenefilefullpath):
+        """
+        Try and set the structure from the scene file path.
+        :param scenefilefullpath:
+        :return:
+        """
+        try:
+            os.path.isfile(scenefilefullpath)
+        except Exception, err:
+            logger.warn("Cant set from file.{} {}".format(scenefilefullpath, err))
+        else:
+            _dirname=os.path.dirname(scenefilefullpath)
+            _basename=os.path.basename(scenefilefullpath)
+            _dirbits=os.path.normpath(_dirname).split("/")
+            _fullpath=os.path.normpath(scenefilefullpath).split("/")
+            for i, bit in enumerate(_dirbits):
+                if bit == "project_work" or bit == "user_work":
+                    logger.debug("")
+                    self.dabwork="/".join(_dirbits[0:i])
+                    logger.info("DABWORK: {}".format(self.dabwork))
+                    self.type=bit
+                    logger.info("TYPE: {}".format(self.type))
+                    self.show=_dirbits[i+1]
+                    logger.info("SHOW: {}".format( self.show))
+                    self.project=_dirbits[i+2]
+                    logger.info("PROJECT: {}".format( self.project))
+                    self.scene="/".join(_fullpath[i+3:])
+                    logger.info("SCENE: {}".format( self.scene))
+
+
+    def setfromprojroot(self, dirfullpath):
+        """
+        Try and set from the directory full path
+        :param dirfullpath:
+        :return:
+        """
+
+        try:
+            os.path.isdir(dirfullpath)
+        except Exception, err:
+            logger.warn("Cant set from dir: {} {}".format( dirfullpath,err))
+        else:
+            _dirname=os.path.dirname(dirfullpath)
+            _basename=os.path.basename(dirfullpath)
+            _dirbits=os.path.normpath(_dirname).split("/")
+            _fullpath=os.path.normpath(dirfullpath).split("/")
+            for i, bit in enumerate(_dirbits):
+                if bit == "project_work" or bit == "user_work":
+                    logger.info("")
+                    self.dabwork="/".join(_dirbits[0:i])
+                    logger.info("DABWORK: {}".format(self.dabwork))
+                    self.type=bit
+                    logger.info("TYPE: {}".format(self.type))
+                    self.show=_dirbits[i+1]
+                    logger.info("SHOW: {}".format( self.show))
+                    self.project="/".join(_dirbits[i+1:])
+                    logger.info("PROJECT: {}".format( self.project))
+
+
+    def putback(self):
+        """
+        Put values back to the environment
+        :return:
+        """
+
+        try:
+            os.environ["DABWORK"] = self.dabwork
+            os.environ["TYPE"] = self.type
+            os.environ["SHOW"] = self.show
+            os.environ["PROJECT"] = self.project
+            os.environ["SCENE"] = self.scene
+        except Exception,err:
+            logger.warn("Putback failed %s"%err)
+        else:
+            logger.info("Putback main environment variables")
+
 
 class Environment2(ConfigBase):
     """
