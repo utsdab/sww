@@ -63,7 +63,7 @@ class ConfigBase(object):
                     # print _attribute
                     self.groups[group]=_attribute
         finally:
-            print self.groups
+            # print self.groups
             _file.close()
 
     def getoptions(self, group, key):
@@ -322,7 +322,6 @@ class Environment2(ConfigBase):
         """
         super(Environment2, self).__init__()
         self.requiredenvars = self.getallenvgroups()
-
         for envar in self.requiredenvars:
             try:
                 e=os.environ[envar]

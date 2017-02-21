@@ -52,16 +52,6 @@ class RenderBase(object):
             self.renderusernumber = ru.number
             self.renderusername = ru.name
 
-        # if os.path.ismount(self.dabrender):
-        #     logger.info("Found mount %s" % self.dabrender)
-
-        # if os.path.isdir(self.dabrender):
-        #     logger.info("Yet found directory %s" % self.dabrender)
-        # else:
-        #     self.initialProjectPath = None
-        #     logger.critical("Cant find central filer mounted %s" % self.dabrender)
-        #     raise Exception, "dabrender not a valid mount point"
-
 
 class RenderPrman(RenderBase):
     ''' Renderman job defined using the tractor api '''
