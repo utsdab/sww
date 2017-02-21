@@ -48,22 +48,19 @@ class ConfigBase(object):
         self.configjson = os.path.join(os.path.dirname(rf.__file__), "etc","dabtractor_config.json")
         _file=open(self.configjson)
         self.groups = {}
-        # self.config = None
+        self.config = None
         try:
             self.config=json.load(_file)
-        except Exception, err:
-            logger.warn("Problem reading json file {}".format(err))
+        except Exception,err:
+            logger.warn("Problem reading json file %s"%err)
         else:
             _groups=self.config.keys()
             _groups.sort()
             for i, group in enumerate(_groups):
-                # print i,group
                 _attribute=self.config.get(group)
                 if type(_attribute)==type({}):  # has children who are dicts
-                    # print _attribute
                     self.groups[group]=_attribute
         finally:
-            print self.groups
             _file.close()
 
     def getoptions(self, group, key):
