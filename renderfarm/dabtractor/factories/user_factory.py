@@ -10,15 +10,13 @@
 """
 import os
 import sys
-import json
-import shutil
 import string
 import time
 import subprocess
 import utils_factory as utils
 import environment_factory as envfac
 import tractor.api.author as author
-import sww.renderfarm.dabtractor.factories.shotgun_factory as sgt
+import shotgun_factory as sgt
 
 # ##############################################################
 import logging

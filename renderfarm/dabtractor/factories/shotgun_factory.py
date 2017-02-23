@@ -2,6 +2,7 @@
 import pprint
 import string
 import os
+import sys
 from sww.shotgun_api3 import Shotgun
 import environment_factory as envfac
 
@@ -11,7 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
-sh.setLevel(logging.DEBUG)
+# sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
@@ -30,6 +31,7 @@ class ShotgunBase(object):
 class Person(ShotgunBase):
     """
     This is a model of the user account as registered in shotgun
+    Basically used for authentication
     """
     def __init__(self,shotgunlogin=None):
         """
@@ -38,7 +40,7 @@ class Person(ShotgunBase):
         super(Person, self).__init__()
         if not shotgunlogin:
             self.shotgunlogin=os.environ["USER"]
-        __fields = ['login','name','firstname','lastname','department','email','status']
+        __fields = ['login','name','firstname','lastname','department','email','sg_tractor']
         __filters =  [['login','is', self.shotgunlogin]]
         __person=None
         try:
@@ -47,21 +49,24 @@ class Person(ShotgunBase):
             logger.warn("%s"%err)
             raise
         else:
+            if __person.has_key('sg_tractor'):
+                self.tractor=__person.get('sg_tractor')
+
             if __person.has_key('name'):
                 self.shotgunname=__person.get('name')
             if __person.has_key('email'):
                 self.email=__person.get('email')
                 self.dabname=self.cleanname(self.email)
-            if __person.has_key('status'):
-                self.status=__person.get('status')
             if __person.has_key('department'):
                 self.department=__person.get('department').get('name')
             if __person.has_key('login'):
                 self.login=__person.get('login')
                 self.dabnumber=self.login
         finally:
+            if  not self.tractor:
+                    logger.critical("Shotgun user {} is not Active. Sorry.".format(self.shotgunlogin))
+                    sys.exit()
             logger.debug("Shotgun Login {} : {}".format(self.shotgunlogin,__person))
-            # print self.cleanname(self.email)
 
     def cleanname(self,email):
         _nicename = email.split("@")[0]
@@ -125,7 +130,29 @@ class Projects(ShotgunBase):
         pass
 
 class People(ShotgunBase):
-    pass
+    def __init__(self):
+        super(People, self).__init__()
+        __fields = ['login','name','firstname','lastname','department','email','sg_tractor']
+        __filters =  [['sg_tractor','is', True]]
+        __people=None
+        try:
+            __people=self.sg.find("HumanUser",filters=__filters,fields=__fields)
+        except Exception, err:
+            logger.warn("%s"%err)
+            raise
+        else:
+            for __person in __people:
+                logger.debug("{l:12} # {d:9}{c:24}{n:24}{e:40}".format(l=__person.get('login'),
+                                                         n=__person.get('name'),
+                                                         c=self.cleanname(__person.get('email')),
+                                                         e=__person.get('email'),
+                                                         d=__person.get('department').get('name')))
+    def cleanname(self,email):
+        _nicename = email.split("@")[0]
+        _compactnicename = _nicename.lower().translate(None, string.whitespace)
+        _cleancompactnicename = _compactnicename.translate(None, string.punctuation)
+        # logger.debug("Cleaned name is : %s" % _cleancompactnicename)
+        return _cleancompactnicename
 
 class NewVersion(ShotgunBase):
     # new version object
@@ -202,11 +229,19 @@ if __name__ == "__main__":
     # c.sequences(89)
     # c.shots(89,48)
 
-    p=Person("mattg")
-    logger.info("{} {} {}".format(p.dabname,p.dabnumber,p.email))
+    p=Person()
+    logger.info("Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email}".format(\
+        name=p.dabname,number=p.dabnumber,email=p.email))
     logger.info("-------------------------------FINISHED TESTING")
 
+
+    pe=People()
+
     # print p.sg.schema_field_read('HumanUser')
+    # s=ShotgunBase()
+    # filter=
+    # field=
+    # print s.sg.schema_entity_read('Person')
     # print p.sg.schema_read()
 
 

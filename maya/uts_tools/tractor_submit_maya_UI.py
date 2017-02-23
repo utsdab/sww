@@ -25,7 +25,6 @@ cam_proj_setup_ui.create_ui()
 # TODO
 
 
-# -------------------------------------------------------------------------------------------------------------------- #
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -34,7 +33,7 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(filename)s as %(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-# -------------------------------------------------------------------------------------------------------------------- #
+
 
 import PySide.QtCore as qc
 import PySide.QtGui as qg
@@ -49,7 +48,6 @@ from sww.renderfarm.dabtractor.factories import command_factory as cmdfac
 from sww.renderfarm.dabtractor.factories import environment_factory as envfac
 from functools import partial
 
-# -------------------------------------------------------------------------------------------------------------------- #
 
 # Global variable to store the UI status, if it's open or closed
 TRACTOT_SUBMIT_DIALOG = None
@@ -61,7 +59,7 @@ VERSION = ENV.getdefault("farm","version")
 BUILD = ENV.getdefault("farm","build")
 WIDTH = 430
 HEIGHT = 950
-# -------------------------------------------------------------------------------------------------------------------- #
+
 class TractorSubmit(qg.QDialog):
     def __init__(self,mayapresent=False):
         super(TractorSubmit,self).__init__()
@@ -106,7 +104,7 @@ class Maya(object):
         logger.info("Maya is Found")
 
 
-# -------------------------------------------------------------------------------------------------------------------- #
+
 class Job(envfac.Environment):
     def __init__(self):
         super(Job, self).__init__()
@@ -306,7 +304,6 @@ class Job(envfac.Environment):
             self.fb.write("Spool Fail, Validate first!! : {}".format(err))
 
 
-# -------------------------------------------------------------------------------------------------------------------- #
 class TractorSubmitWidget(qg.QFrame):
     def __init__(self, job, maya=None):
         super(TractorSubmitWidget, self).__init__()
@@ -462,7 +459,6 @@ def delete():
     tractor_submit_dialog = None
 
 
-# -------------------------------------------------------------------------------------------------------------------- #
 def main():
     global tractor_submit_dialog
     try:
