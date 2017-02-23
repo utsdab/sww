@@ -77,7 +77,6 @@ class UserWidget(qg.QWidget):
         self.layout().addSpacerItem(qg.QSpacerItem(0, 5, qg.QSizePolicy.Expanding))
 
 
--------------------------------------------------------------------------------------------------------------------- #
 class ShowWidget(qg.QWidget):
     def __init__(self, job):
         super(ShowWidget, self).__init__()
@@ -199,7 +198,7 @@ class ShowWidget(qg.QWidget):
     def _get_show(self):
         pass
 
-# -------------------------------------------------------------------------------------------------------------------- #
+
 class SceneWidget(qg.QWidget):
     def __init__(self,job):
         super(SceneWidget, self).__init__()
@@ -238,7 +237,7 @@ class SceneWidget(qg.QWidget):
             logger.warn("Environment vars not put back %s"%err)
             self.scene_file_lb.setText("Then Select Scene File")
 
-# -------------------------------------------------------------------------------------------------------------------- #
+
 class ProjWidget(qg.QWidget):
     def __init__(self,job):
         super(ProjWidget, self).__init__()
@@ -277,8 +276,6 @@ class ProjWidget(qg.QWidget):
             self.proj_file_lb.setText("Select Project Root First")
 
 
-
-# -------------------------------------------------------------------------------------------------------------------- #
 class SubmitWidget(qg.QWidget):
     def __init__(self, job, feedback):
         super(SubmitWidget, self).__init__()
@@ -328,14 +325,11 @@ class SubmitWidget(qg.QWidget):
         # elif self.job.mode=="bug":
         #     self.job.commandvalidate()
 
-
     def submit(self):
         self.fb.write("Submit Job")
         logger.info("Submit Job Pressed")
         self.job.spool()
 
-
-# -------------------------------------------------------------------------------------------------------------------- #
 class OutputWidget(qg.QWidget):
     def __init__(self,job):
         super(OutputWidget, self).__init__()
@@ -385,7 +379,7 @@ class OutputWidget(qg.QWidget):
         self.job.resolution=_value
         logger.info("Resolution group changed to {}".format(self.job.resolution))
 
-# -------------------------------------------------------------------------------------------------------------------- #
+
 class RangeWidget(qg.QWidget):
     def __init__(self,job):
         super(RangeWidget, self).__init__()
@@ -472,7 +466,7 @@ class RangeWidget(qg.QWidget):
         self.job.chunks = self.chunks_combo.currentText()
         logger.info("Chunks changed to {}".format(self.job.chunks))
 
-# -------------------------------------------------------------------------------------------------------------------- #
+
 class MayaJobWidget(qg.QWidget):
     def __init__(self, job):
         super(MayaJobWidget, self).__init__()
@@ -544,7 +538,7 @@ class MayaJobWidget(qg.QWidget):
         logger.info("Options changed to {}".format(self.job.options))
 
 
-# -------------------------------------------------------------------------------------------------------------------- #
+
 class ThreadMemoryWidget(qg.QWidget):
     def __init__(self,job):
         super(ThreadMemoryWidget, self).__init__()
@@ -628,7 +622,7 @@ class CommonRenderOptionsWidget(qg.QWidget):
         self.threadmem_widget = ThreadMemoryWidget(self.job)
         self.layout().addWidget(self.threadmem_widget)
 
-# -------------------------------------------------------------------------------------------------------------------- #
+
 class FeedbackWidget(qg.QTextEdit):
     def __init__(self):
         super(FeedbackWidget, self).__init__()
@@ -644,7 +638,6 @@ class FeedbackWidget(qg.QTextEdit):
         self.append(_text)
 
 
-# -------------------------------------------------------------------------------------------------------------------- #
 class RendermanJobWidget(qg.QWidget):
     def __init__(self,job):
         super(RendermanJobWidget, self).__init__()
@@ -660,7 +653,6 @@ class RendermanJobWidget(qg.QWidget):
         self.layout().addWidget(self.renderman_widget)
 
 
-# -------------------------------------------------------------------------------------------------------------------- #
 class RendermanWidget(qg.QWidget):
     def __init__(self, job):
         super(RendermanWidget, self).__init__()
@@ -772,7 +764,7 @@ class RendermanWidget(qg.QWidget):
         self.job.rms_options=_value
         logger.info("Options  changed to {}".format(self.job.rms_options))
 
-# -------------------------------------------------------------------------------------------------------------------- #
+
 class BashJobWidget(qg.QWidget):
     def __init__(self,job):
         super(BashJobWidget, self).__init__()
@@ -787,7 +779,6 @@ class BashJobWidget(qg.QWidget):
         self.bash_widget = BashWidget(self.job)
         self.layout().addWidget(self.bash_widget)
 
-# -------------------------------------------------------------------------------------------------------------------- #
 class BashWidget(qg.QWidget):
     def __init__(self,job):
         super(BashWidget, self).__init__()
@@ -841,9 +832,6 @@ class BashWidget(qg.QWidget):
         logger.info("Command changed to {}".format(self.job.bashcommand))
 
 
-
-
-# -------------------------------------------------------------------------------------------------------------------- #
 class DiagnosticJobWidget(qg.QWidget):
     def __init__(self,job):
         super(DiagnosticJobWidget, self).__init__()
@@ -859,7 +847,7 @@ class DiagnosticJobWidget(qg.QWidget):
         self.diagnostic_widget = DiagnosticsWidget(self.job)
         self.layout().addWidget(self.diagnostic_widget)
 
-# -------------------------------------------------------------------------------------------------------------------- #
+
 class BugWidget(qg.QWidget):
     def __init__(self,job):
         super(BugWidget, self).__init__()
@@ -902,8 +890,6 @@ class BugWidget(qg.QWidget):
         TEST.spool()
 
 
-
-# -------------------------------------------------------------------------------------------------------------------- #
 class DiagnosticsWidget(qg.QWidget):
     def __init__(self,job):
         super(DiagnosticsWidget, self).__init__()
@@ -923,7 +909,6 @@ class DiagnosticsWidget(qg.QWidget):
         self.version_layout.addSpacerItem(qg.QSpacerItem(0, 5, qg.QSizePolicy.Expanding))
 
 
-# -------------------------------------------------------------------------------------------------------------------- #
 class NukeJobWidget(qg.QWidget):
     def __init__(self,job):
         super(NukeJobWidget, self).__init__()
@@ -938,7 +923,6 @@ class NukeJobWidget(qg.QWidget):
         self.nuke_widget = NukeWidget(self.job)
         self.layout().addWidget(self.nuke_widget)
 
-# -------------------------------------------------------------------------------------------------------------------- #
 class NukeWidget(qg.QWidget):
     def __init__(self,job):
         super(NukeWidget, self).__init__()
@@ -999,7 +983,6 @@ class NukeWidget(qg.QWidget):
         self.job.nukeversion = _value
         logger.info("Version changed to {}".format(self.job.nukeversion))
 
-# -------------------------------------------------------------------------------------------------------------------- #
 class HoudiniJobWidget(qg.QWidget):
     def __init__(self,job):
         super(HoudiniJobWidget, self).__init__()
@@ -1014,8 +997,6 @@ class HoudiniJobWidget(qg.QWidget):
         self.houdini_widget = HoudiniWidget(self.job)
         self.layout().addWidget(self.houdini_widget)
 
-
-# -------------------------------------------------------------------------------------------------------------------- #
 class HoudiniWidget(qg.QWidget):
     def __init__(self,job):
         super(HoudiniWidget, self).__init__()
@@ -1077,8 +1058,6 @@ class HoudiniWidget(qg.QWidget):
         logger.info("Version changed to {}".format(self.job.houdiniversion))
 
 
-
-# -------------------------------------------------------------------------------------------------------------------- #
 class TractorWidget(qg.QWidget):
     def __init__(self,job):
         super(TractorWidget, self).__init__()
@@ -1113,9 +1092,6 @@ class TractorWidget(qg.QWidget):
         self.job.projectgroup =_value
         logger.info("Project group changed to {}".format(self.job.projectgroup))
 
-
-
-# -------------------------------------------------------------------------------------------------------------------- #
 class Directory(qg.QFileDialog):
     def __init__(self,startplace=None,title="Select a Directory Please"):
         super(Directory, self).__init__()
@@ -1135,7 +1111,7 @@ class Directory(qg.QFileDialog):
         except Exception, err:
             logger.warn( "directory: {}".format(err))
 
-# -------------------------------------------------------------------------------------------------------------------- #
+
 class File(qg.QFileDialog):
     def __init__(self,startplace=None,title='Select a File Please',filetypes=["*.ma","*.mb","*.nk","*.hip"]):
         super(File, self).__init__()
@@ -1158,7 +1134,7 @@ class File(qg.QFileDialog):
         except Exception, err:
             logger.warn( "file: {}".format(err))
 
-# -------------------------------------------------------------------------------------------------------------------- #
+
 class Splitter(qg.QWidget):
     def __init__(self, text=None, shadow=True, color=(150, 150, 150)):
         super(Splitter, self).__init__()
@@ -1209,7 +1185,7 @@ class Splitter(qg.QWidget):
         second_line.setStyleSheet(style_sheet)
         self.layout().addWidget(second_line)
 
-# -------------------------------------------------------------------------------------------------------------------- #
+
 class FarmJobExtraWidget(qg.QWidget):
     def __init__(self, job):
         super(FarmJobExtraWidget, self).__init__()
