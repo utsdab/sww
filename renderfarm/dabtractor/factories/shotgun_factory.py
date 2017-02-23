@@ -154,6 +154,19 @@ class People(ShotgunBase):
         # logger.debug("Cleaned name is : %s" % _cleancompactnicename)
         return _cleancompactnicename
 
+    def writetractorcrewfile(self,crewfile):
+        """
+        Write out a tractor crew file for use with tractor.
+        each user entry is a line, most is comment and unnecessary.
+        eg. 11401229 # Year4 haeinfkim   Hae-In Kim  Hae-In.F.Kim@student.uts.edu.au
+
+        :param crewfile: The full path file name to be created, if none use default
+        :return:  the pilepath written, None if failed.
+        """
+
+
+
+
 class NewVersion(ShotgunBase):
     # new version object
     def __init__(self, media = None,
