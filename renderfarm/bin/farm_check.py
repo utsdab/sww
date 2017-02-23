@@ -4,6 +4,7 @@ import stat
 from sww.renderfarm.dabtractor.factories import user_factory as uf
 from sww.renderfarm.dabtractor.factories import environment_factory as ef
 from sww.renderfarm.dabtractor.factories import utils_factory as utf
+from sww.renderfarm.dabtractor.factories import shotgun_factory as sgt
 
 # ##############################################################
 import logging
@@ -19,25 +20,24 @@ logger.addHandler(sh)
 
 
 logger.info(">>>>>>> Checking if you are a Farm User <<<<<<<<")
-#  Check if user has an LDAP account
-try:
-    a = uf.UtsUser()
-    # e = ef.Environment()
-    logger.info("LDAP ACCOUNT >>> name : %s" % (a.name))
-    logger.info("LDAP ACCOUNT >>> number : %s" % (a.number))
-except Exception, err:
-    logger.critical("Error You are NOT Known >>>> %s" % (err))
-finally:
-    pass
+# #  Check if user has an LDAP account
+# try:
+#     a = uf.UtsUser()
+#     # e = ef.Environment()
+#     logger.info("LDAP ACCOUNT >>> name : %s" % (a.name))
+#     logger.info("LDAP ACCOUNT >>> number : %s" % (a.number))
+# except Exception, err:
+#     logger.critical("Error You are NOT Known >>>> %s" % (err))
+# finally:
+#     pass
 
 
-## TODO  check user is in map file
 try:
-    mu=uf.FarmUser()
-except Exception, err:
-    logger.critical("MAP FILE ### ERROR %s" % (err))
+    su=sgt.Person()
+except UserWarning, err:
+    logger.critical("USER NOT REGISTERED IN SHOTGUN %s" % (err))
 else:
-    logger.info("MAP FILE  >>> {} {} {}".format ( mu.name, mu.number, mu.year))
+    logger.info("User in Shotgun >>> {} {}".format(su.login,su.dabname))
 
 ## TODO  check there are userprefs
 try:
@@ -71,7 +71,7 @@ else:
 
 ## TODO  check there is a user_work area
 try:
-    uw=os.path.join(os.environ["DABWORK"],"user_work",mu.name)
+    uw=os.path.join(os.environ["DABWORK"],"user_work",su.dabname)
     utf.ensure_dir(uw)
 except Exception, err:
     logger.critical("USER_WORK ### ERROR %s" % (err))

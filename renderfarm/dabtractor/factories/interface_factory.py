@@ -1,7 +1,6 @@
 import os
 import sys
 
-
 import PySide.QtCore as qc
 import PySide.QtGui as qg
 
@@ -26,7 +25,7 @@ logger.addHandler(sh)
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
-CFG = envfac.Environment2()
+CFG = ufac.FarmUser()
 WIDTH = 400
 WIDTH_SMALL = WIDTH*0.3
 WIDTH_HALF = WIDTH*0.5
@@ -47,6 +46,11 @@ class UserWidget(qg.QWidget):
     def __init__(self,job):
         super(UserWidget, self).__init__()
         self.job = job
+        self.username=CFG.name
+        self.job.username = self.username
+        self.usernumber=CFG.number
+        self.job.usernumber=self.usernumber
+
         self.setLayout(qg.QVBoxLayout())
         self.layout().setSpacing(SPACING1)
         self.layout().setContentsMargins(0, 0, 0, 0)
@@ -58,7 +62,7 @@ class UserWidget(qg.QWidget):
         self.usernumber_text_layout.setContentsMargins(0, 0, 0, 0)
         self.usernumber_text_layout.addSpacerItem(qg.QSpacerItem(5,0, qg.QSizePolicy.Fixed))
 
-        self.usernumber_text_lb = qg.QLabel('$USER:      {}'.format(self._getuser()))
+        self.usernumber_text_lb = qg.QLabel('$USER:      {}'.format(self.usernumber))
         self.usernumber_text_layout.addWidget(self.usernumber_text_lb)
         self.layout().addLayout(self.usernumber_text_layout)
 
@@ -66,25 +70,14 @@ class UserWidget(qg.QWidget):
         self.username_text_layout.setSpacing(SPACING2)
         self.username_text_layout.setContentsMargins(0, 0, 0, 0)
         self.username_text_layout.addSpacerItem(qg.QSpacerItem(5,0, qg.QSizePolicy.Fixed))
-        self.username_text_lb = qg.QLabel('$USERNAME:  {}'.format(self._getusername(self._getuser())))
+        self.username_text_lb = qg.QLabel('$USERNAME:  {}'.format(self.username))
         self.username_text_layout.addWidget(self.username_text_lb)
 
         self.layout().addLayout(self.username_text_layout)
         self.layout().addSpacerItem(qg.QSpacerItem(0, 5, qg.QSizePolicy.Expanding))
 
 
-    def _getusername(self, _user):
-        u=ufac.Map()
-        self.username=u.getusername(_user)
-        self.job.username = self.username
-        return self.username
-
-    def _getuser(self):
-        self.usernumber=os.getenv("USER")
-        self.job.usernumber=self.usernumber
-        return self.usernumber
-
-# -------------------------------------------------------------------------------------------------------------------- #
+-------------------------------------------------------------------------------------------------------------------- #
 class ShowWidget(qg.QWidget):
     def __init__(self, job):
         super(ShowWidget, self).__init__()
@@ -354,7 +347,7 @@ class OutputWidget(qg.QWidget):
 
         self.resolution_text_lb = qg.QLabel('RESOLUTION:')
         self.resolution_combo = qg.QComboBox()
-        self.resolution_combo.addItems(CFG.getoptions("render","resolution"))
+        self.resolution_combo.addItems(CFG.env.getoptions("render","resolution"))
         self.resolution_combo.setMinimumWidth(WIDTH_HALF)
         self.resolution_layout = qg.QHBoxLayout()
         self.resolution_combo.setCurrentIndex(0)
@@ -367,7 +360,7 @@ class OutputWidget(qg.QWidget):
 
         self.outformat_text_lb = qg.QLabel('OUTPUT:')
         self.outformat_combo = qg.QComboBox()
-        self.outformat_combo.addItems(CFG.getoptions("render","outformat"))
+        self.outformat_combo.addItems(CFG.env.getoptions("render","outformat"))
         self.outformat_combo.setMinimumWidth(WIDTH_HALF)
         self.outformat_layout = qg.QHBoxLayout()
         self.outformat_layout.setContentsMargins(0, 0, 0, 0)
@@ -437,7 +430,7 @@ class RangeWidget(qg.QWidget):
         self.chunks_text_lb = qg.QLabel('JOB CHUNKS:')
         self.chunks_combo = qg.QComboBox()
 
-        self.chunks_combo.addItems(CFG.getoptions("render","chunks"))
+        self.chunks_combo.addItems(CFG.env.getoptions("render","chunks"))
         self.chunks_combo.setMinimumWidth(WIDTH_HALF)
         self.chunks_layout = qg.QHBoxLayout()
         self.chunks_layout.setContentsMargins(0, 0, 0, 0)
@@ -495,7 +488,7 @@ class MayaJobWidget(qg.QWidget):
 
         self.mayaversion_text_lb = qg.QLabel('MAYA VERSION:')
         self.mayaversion_combo = qg.QComboBox()
-        self.mayaversion_combo.addItems(CFG.getoptions("maya","versions"))
+        self.mayaversion_combo.addItems(CFG.env.getoptions("maya","versions"))
         self.mayaversion_combo.setMinimumWidth(WIDTH_HALF)
         self.mayaversion_layout = qg.QHBoxLayout()
         self.mayaversion_layout.setContentsMargins(0, 0, 0, 0)
@@ -507,7 +500,7 @@ class MayaJobWidget(qg.QWidget):
 
         self.renderer_text_lb = qg.QLabel('RENDERER:')
         self.renderer_combo = qg.QComboBox()
-        self.renderer_combo.addItems(CFG.getoptions("maya","mayarenderer"))
+        self.renderer_combo.addItems(CFG.env.getoptions("maya","mayarenderer"))
         self.renderer_combo.setMinimumWidth(WIDTH_HALF)
         self.renderer_layout = qg.QHBoxLayout()
         self.renderer_layout.setContentsMargins(0, 0, 0, 0)
@@ -567,7 +560,7 @@ class ThreadMemoryWidget(qg.QWidget):
         self.threads_text_lb = qg.QLabel('THREADS:')
         self.threads_combo = qg.QComboBox()
         self.threads_combo.setMinimumWidth(WIDTH_HALF)
-        self.threads_combo.addItems(CFG.getoptions("render","threads"))
+        self.threads_combo.addItems(CFG.env.getoptions("render","threads"))
 
         self.threads_combo.setCurrentIndex(0)
         self.threads_layout.addWidget(self.threads_text_lb)
@@ -583,7 +576,7 @@ class ThreadMemoryWidget(qg.QWidget):
         self.threadmemory_text_lb = qg.QLabel('THREAD MEMORY MB:')
         self.threadmemory_combo = qg.QComboBox()
         self.threadmemory_combo.setMinimumWidth(WIDTH_HALF)
-        self.threadmemory_combo.addItems(CFG.getoptions("render","rendermemory"))
+        self.threadmemory_combo.addItems(CFG.env.getoptions("render","rendermemory"))
         self.threadmemory_combo.setCurrentIndex(0)
         self.threadmemory_layout.addWidget(self.threadmemory_text_lb)
         self.threadmemory_layout.addSpacerItem(qg.QSpacerItem(0, 5, qg.QSizePolicy.Expanding))
@@ -681,7 +674,7 @@ class RendermanWidget(qg.QWidget):
 
         self.mayaversion_text_lb = qg.QLabel('MAYA VERSION:')
         self.mayaversion_combo = qg.QComboBox()
-        self.mayaversion_combo.addItems(CFG.getoptions("maya","versions"))
+        self.mayaversion_combo.addItems(CFG.env.getoptions("maya","versions"))
         self.mayaversion_combo.setMinimumWidth(WIDTH_HALF)
         self.mayaversion_layout = qg.QHBoxLayout()
         self.mayaversion_layout.setContentsMargins(0, 0, 0, 0)
@@ -693,7 +686,7 @@ class RendermanWidget(qg.QWidget):
 
         self.rmanversion_text_lb = qg.QLabel('RMAN VERSION:')
         self.rmanversion_combo = qg.QComboBox()
-        self.rmanversion_combo.addItems(CFG.getoptions("renderman","versions"))
+        self.rmanversion_combo.addItems(CFG.env.getoptions("renderman","versions"))
         self.rmanversion_combo.setMinimumWidth(WIDTH_HALF)
         self.rmanversion_layout = qg.QHBoxLayout()
         self.rmanversion_layout.setContentsMargins(0, 0, 0, 0)
@@ -705,7 +698,7 @@ class RendermanWidget(qg.QWidget):
 
         self.integrator_text_lb = qg.QLabel('INTEGRATOR:')
         self.integrator_combo = qg.QComboBox()
-        self.integrator_combo.addItems(CFG.getoptions("renderman","integrators"))
+        self.integrator_combo.addItems(CFG.env.getoptions("renderman","integrators"))
         self.integrator_combo.setMinimumWidth(WIDTH_HALF)
         self.integrator_combo.setCurrentIndex(0)
         self.integrator_layout = qg.QHBoxLayout()
@@ -718,7 +711,7 @@ class RendermanWidget(qg.QWidget):
 
         self.maxsamples_text_lb = qg.QLabel('MAX SAMPLES:')
         self.maxsamples_combo = qg.QComboBox()
-        self.maxsamples_combo.addItems(CFG.getoptions("render","maxsamples"))
+        self.maxsamples_combo.addItems(CFG.env.getoptions("render","maxsamples"))
         self.maxsamples_combo.setMinimumWidth(WIDTH_HALF)
 
         self.maxsamples_combo.setCurrentIndex(0)
@@ -964,7 +957,7 @@ class NukeWidget(qg.QWidget):
 
         self.version_text_lb = qg.QLabel('NUKE VERSION:')
         self.version_combo = qg.QComboBox()
-        self.version_combo.addItems(CFG.getoptions("nuke","versions"))
+        self.version_combo.addItems(CFG.env.getoptions("nuke","versions"))
         self.version_combo.setMinimumWidth(WIDTH_HALF)
         self.version_layout = qg.QHBoxLayout()
         self.version_layout.setContentsMargins(0, 0, 0, 0)
@@ -1041,7 +1034,7 @@ class HoudiniWidget(qg.QWidget):
 
         self.version_text_lb = qg.QLabel('HOUDINI VERSION:')
         self.version_combo = qg.QComboBox()
-        self.version_combo.addItems(CFG.getoptions("houdini","versions"))
+        self.version_combo.addItems(CFG.env.getoptions("houdini","versions"))
         self.version_combo.setMinimumWidth(WIDTH_SMALL)
         self.version_layout = qg.QHBoxLayout()
         self.version_layout.setContentsMargins(0, 0, 0, 0)
@@ -1103,7 +1096,7 @@ class TractorWidget(qg.QWidget):
         self.project_group_layout.setSpacing(0)
         self.project_group_text_lb = qg.QLabel('PROJECT GROUP:')
         self.project_group_combo = qg.QComboBox()
-        self.project_group_combo.addItems(CFG.getoptions("renderjob","projectgroup"))
+        self.project_group_combo.addItems(CFG.env.getoptions("renderjob","projectgroup"))
         self.project_group_combo.setCurrentIndex(0)
         self.project_group_layout.addSpacerItem(qg.QSpacerItem(0, 5, qg.QSizePolicy.Expanding))
         self.project_group_layout.addWidget(self.project_group_text_lb)

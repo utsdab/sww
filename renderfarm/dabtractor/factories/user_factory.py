@@ -18,6 +18,7 @@ import subprocess
 import utils_factory as utils
 import environment_factory as envfac
 import tractor.api.author as author
+import sww.renderfarm.dabtractor.factories.shotgun_factory as sgt
 
 # ##############################################################
 import logging
@@ -31,232 +32,61 @@ logger.addHandler(sh)
 # ##############################################################
 
 
-class Map(object):
-    """
-    This class is the mapping of student information into a json file
-    that acts like a cache rather than having to do LDAP
-    queries all the time.
-    """
-    def __init__(self):
-        self.env=envfac.Environment2()
-        self.config=envfac.ConfigBase()
 
-        try:
-            _mapfilejson = os.path.join(self.env.environ["DABRENDER"], \
-                                        self.config.getdefault("DABRENDER","usermapfile"))
-        except Exception, err:
-            logger.critical("No Map Path {}".format(err))
-        else:
-            logger.info("Map File: {}".format(_mapfilejson))
-            self.mapfilejson=_mapfilejson
-            with open(self.mapfilejson) as json_data:
-                self.all = json.load(json_data)
-                self.allusers = self.all.keys()
-        finally:
-            file(self.mapfilejson).close()
+# class WorkType(object):
+#     """
+#     This is the user work area either work/number or projects/projectname
+#     """
+#     def __init__(self,userid=None,projectname=None):
+#         self.env=envfac.Environment()
+#         self.dabrenderpath=self.env.getdefault("DABRENDER","path")
+#         self.dabwork=self.env.getdefault("DABWORK","path")
+#         self.dabuserprefs=self.env.getdefault("DABUSERPREFS","path")
+#
+#         if userid:
+#             self.envtype="user_work"
+#             self.userid=userid
+#             self.map=Map()
+#             self.userdict=self.map.getuser(self.userid)
+#             self.usernumber=self.userdict.get("number")
+#             self.username=self.userdict.get("name")
+#             self.enrol=self.userdict.get("year")
+#             logger.debug("Usernumber {}, Username {}, Enrolled {}".format (self.usernumber,self.username,self.enrol))
+#
+#         if projectname:
+#             self.envtype="project_work"
+#             self.projectname=projectname
+#
+#     def makeworkdirectory(self):
+#         """ Attempts to make the user_work directory for the user or
+#         the project under project_work """
+#         try:
+#             if self.envtype == "user_work":
+#                 os.mkdir( os.path.join(self.dabwork,self.envtype,self.username))
+#                 logger.info("Made {} under user_work".format(self.username))
+#             elif self.envtype == "project_work":
+#                 os.mkdir( os.path.join(self.dabwork,self.envtype,self.projectname))
+#                 logger.info("Made {} under project_work".format(self.projectname))
+#             else:
+#                 logger.info("Made no directories")
+#                 raise
+#         except Exception, e:
+#             logger.warn("Made nothing {}".format(e))
+#
+#     def makeuserprefs(self):
+#         """ Attempts to make individual userprefs directory for the user
+#         :return:
+#         """
+#         try:
+#             if self.envtype == "users":
+#                 os.mkdir( os.path.join(self.dabuserprefs,self.envtype,self.usernumber))
+#                 logger.info("Made {} under userprefs/{}".format(self.envtype,self.usernumber))
+#             else:
+#                 logger.info("Made no directories")
+#                 raise
+#         except Exception, e:
+#             logger.warn("Made no new userprefs {}".format(e))
 
-
-        try:
-            _tractorcrewlist = os.path.join(self.env.environ["DABRENDER"], \
-                                            self.config.getdefault("DABRENDER","tractorcrewlist"))
-            if not os.path.isfile(_tractorcrewlist):
-                logger.warn("Cant find {}".format(_tractorcrewlist))
-                raise IOError
-        except Exception, err:
-            logger.critical("No Tractor Crew List File Error {}".format(err))
-        else:
-            logger.info("Tractor Crew List: {}".format(_tractorcrewlist))
-            self.tractorcrewlist=_tractorcrewlist
-        finally:
-            pass
-
-
-        try:
-            _backuppath = os.path.join(self.env.environ["DABRENDER"],\
-                                       self.config.getdefault("DABRENDER","backuppath"))
-            if not os.path.exists(_backuppath):
-                logger.warn("Cant find {}".format(_backuppath))
-                raise IOError
-        except Exception, err:
-            logger.critical("No Map File Backup Path Error {}".format(err))
-            os.mkdir(self.backuppath)
-        else:
-            logger.info("Backup Path: {}".format(_backuppath))
-            self.backuppath=_backuppath
-        finally:
-            pass
-
-
-
-    def writecrewformat(self):
-        """ write out the json map data in a tractor crewlist format to a file """
-
-        try:
-            _crewlist = open(self.tractorcrewlist, 'w')
-            if not self.all:
-                raise "Error making Data Model from json file"
-        except Exception, err:
-            logger.warn("Error opening tractorcrewlist file {} : {}".format(self.tractorcrewlist,err))
-        else:
-            for i, student in enumerate(self.allusers):
-                _line='"{number}", # {student} {name} {year}'.format(student = student,
-                                                               number=self.all[student].get("number","NONE"),
-                                                               name=self.all[student].get("name","NONE"),
-                                                               year=self.all[student].get("year","NONE"))
-                _crewlist.write("{}\n".format(_line))
-                logger.debug(_line)
-        finally:
-            open(self.tractorcrewlist, 'w').close()
-
-
-    def getallusers(self):
-        """
-        :return: a dictionary of user info or None
-        """
-        try:
-            with open(self.mapfilejson) as json_data:
-                all = json.load(json_data)
-        except Exception, err:
-            logger.warn("Error opening json file")
-            all=None
-        else:
-            return all
-        finally:
-            pass
-
-
-        ###  print for tractor crews.config format file
-        # for i, student in enumerate(allusers):
-        #     logger.info('"{number}", # {student} {name} {year}'.format(student = student,
-        #                                                        number=all[student].get("number","NONE"),
-        #                                                        name=all[student].get("name","NONE"),
-        #                                                        year=all[student].get("year","NONE")))
-
-    def getuser(self, usernumber):
-        """
-        Query user in the map file
-        :param usernumber:
-        :return: a dictionary of user data
-        """
-
-        with open(self.mapfilejson) as json_data:
-            all = json.load(json_data)
-        try:
-            _result=all[usernumber]
-            logger.debug("Found in Map: {}".format(_result))
-            return _result
-        except Exception, e:
-            logger.warn("{} not found {}".format(usernumber,e))
-            return None
-
-    def getusername(self,usernumber):
-        """
-        :param usernumber:
-        :return: the user name for the user number
-        """
-        return self.getuser(usernumber).get("name")
-
-    def removeuser(self, usernumber):
-        """ remove a user from the map """
-        if self.getuser(usernumber):
-            # self.backup()
-            logger.info("Removing user {}".format(usernumber))
-
-            with open(self.mapfilejson) as json_data:
-                all = json.load(json_data)
-
-            all.pop(usernumber, None)
-            with open(self.mapfilejson, 'w') as outfile:
-                json.dump(all, outfile, sort_keys = True, indent = 4,)
-
-    def backup(self):
-        """ backup the existing map """
-        source=self.mapfilejson
-        now=utils.getnow()
-        if not os.path.isdir(self.backuppath):
-            os.mkdir( self.backuppath, 0775 );
-        dest=os.path.join(self.backuppath,
-                          "{}-{}".format(os.path.basename(self.mapfilejson),now))
-        logger.info("Backup: source {}".format(source))
-        logger.info("Backup: dest {}".format(dest))
-        shutil.copy2(source, dest)
-
-    def adduser(self, number, name, year):
-        # add a new user to the json map file
-        if not self.getuser(number):
-            logger.info("No one by that number {}, adding".format(number))
-            try:
-                with open(self.mapfilejson) as json_data:
-                    all = json.load(json_data)
-                new={number:{"name":name,"number":number,"year":year}}
-                all.update(new)
-                with open(self.mapfilejson, 'w') as outfile:
-                    json.dump(all, outfile, sort_keys = True, indent = 4,)
-            except Exception, err:
-                logger.warn("Error adding user {}".format(err))
-                raise
-        else:
-            logger.info("User {} already in map file".format(number))
-
-class WorkType(object):
-    """
-    This is the user work area either work/number or projects/projectname
-    """
-    def __init__(self,userid=None,projectname=None):
-        self.env=envfac.Environment()
-        self.dabrenderpath=self.env.getdefault("DABRENDER","path")
-        self.dabwork=self.env.getdefault("DABWORK","path")
-        self.dabuserprefs=self.env.getdefault("DABUSERPREFS","path")
-
-        if userid:
-            self.envtype="user_work"
-            self.userid=userid
-            self.map=Map()
-            self.userdict=self.map.getuser(self.userid)
-            self.usernumber=self.userdict.get("number")
-            self.username=self.userdict.get("name")
-            self.enrol=self.userdict.get("year")
-            logger.debug("Usernumber {}, Username {}, Enrolled {}".format (self.usernumber,self.username,self.enrol))
-
-        if projectname:
-            self.envtype="project_work"
-            self.projectname=projectname
-
-    def makeworkdirectory(self):
-        """ Attempts to make the user_work directory for the user or
-        the project under project_work """
-        try:
-            if self.envtype == "user_work":
-                os.mkdir( os.path.join(self.dabwork,self.envtype,self.username))
-                logger.info("Made {} under user_work".format(self.username))
-            elif self.envtype == "project_work":
-                os.mkdir( os.path.join(self.dabwork,self.envtype,self.projectname))
-                logger.info("Made {} under project_work".format(self.projectname))
-            else:
-                logger.info("Made no directories")
-                raise
-        except Exception, e:
-            logger.warn("Made nothing {}".format(e))
-
-    def makeuserprefs(self):
-        """ Attempts to make individual userprefs directory for the user
-        :return:
-        """
-        try:
-            if self.envtype == "users":
-                os.mkdir( os.path.join(self.dabuserprefs,self.envtype,self.usernumber))
-                logger.info("Made {} under userprefs/{}".format(self.envtype,self.usernumber))
-            else:
-                logger.info("Made no directories")
-                raise
-        except Exception, e:
-            logger.warn("Made no new userprefs {}".format(e))
-
-
-class TractorUser(object):
-    """ This is the crew.config for tractor """
-    def __init__(self):
-        pass
 
 class UtsUser(object):
     """
@@ -379,21 +209,16 @@ class FarmUser(object):
         dictionary """
         self.env=envfac.Environment2()
         self.user = self.env.environ["USER"]
-        self.number=None
-        self.year=None
-        self.keys=None
-        usermap = Map()
 
         try:
-            _userdict=usermap.getuser(self.user)
+            __sgt = sgt.Person()
         except Exception,err:
             logger.critical("Problem creating User: {}".format(err))
             sys.exit(err)
         else:
-            self.name=_userdict.get("name")
-            self.number=_userdict.get("number")
-            self.year=_userdict.get("year")
-            self.keys=_userdict.keys()
+            self.name=__sgt.dabname
+            self.number=__sgt.dabnumber
+
 
 
 
@@ -406,11 +231,6 @@ if __name__ == '__main__':
     logger.setLevel(logging.DEBUG)
 
     ###############################################
-    logger.debug("-------- TEST MAP ------------")
-    m = Map()
-    for i,j in enumerate(m.allusers):
-        logger.debug("{number:12s}{name:24s} {year}".format(number=j,year=m.all.get(j).get("year"),name=m.all.get(
-            j).get("name")))
 
 
     ###############################################

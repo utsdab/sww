@@ -372,27 +372,3 @@ if __name__ == '__main__':
     print FJ.getalldefaults()
 
 
-
-    # JJ = Environment()
-    #
-    #
-    # logger.debug("GROUPS = %s"% JJ.getgroups())
-    # group = "maya"
-    # attribute = "versions"
-    #
-    # logger.debug( "ATTRIBUTES = %s"% JJ.getattributes(group))
-    # logger.debug( "ATTRIBUTE VALUES =  %s"%  JJ.getoptions(group,attribute))
-    # logger.debug( "DEFAULT VALUE =  %s"% JJ.getdefault(group,attribute))
-    #
-    # group = "nuke"
-    # attribute = "versions"
-    # logger.debug( "ATTRIBUTES =  %s"%  JJ.getattributes(group))
-    # logger.debug( "ATTRIBUTE VALUES =  %s"%  JJ.getoptions(group,attribute))
-    # logger.debug( "DEFAULT VALUE =  %s"% JJ.getdefault(group,attribute))
-    #
-    # group = "renderman"
-    # attribute = "versions"
-    # logger.debug( "ATTRIBUTES =  %s"%  JJ.getattributes(group))
-    # logger.debug( "ATTRIBUTE VALUES =  %s"%  JJ.getoptions(group,attribute))
-    # logger.debug( "DEFAULT VALUE =  %s"% JJ.getdefault(group,attribute))
-    #

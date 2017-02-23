@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import pprint
-import sys
+import string
+import os
 from sww.shotgun_api3 import Shotgun
 import environment_factory as envfac
 
@@ -20,12 +21,54 @@ class ShotgunBase(object):
     # base object
     def __init__(self):
         self.env=envfac.Environment2()
-        self.serverpath = str(self.env.getdefault("shotgun_repos", "serverpath"))
-        self.scriptname = str(self.env.getdefault("shotgun_repos", "scriptname"))
-        self.scriptkey  = str(self.env.getdefault("shotgun_repos", "scriptkey"))
+        self.serverpath = str(self.env.getdefault("shotgun", "serverpath"))
+        self.scriptname = str(self.env.getdefault("shotgun", "scriptname"))
+        self.scriptkey  = str(self.env.getdefault("shotgun", "scriptkey"))
         self.sg = Shotgun( self.serverpath, self.scriptname, self.scriptkey)
-        logger.info("SHOTGUN: talking to shotgun_repos ...... %s" % self.serverpath)
+        logger.info("SHOTGUN: talking to shotgun ...... %s" % self.serverpath)
 
+class Person(ShotgunBase):
+    """
+    This is a model of the user account as registered in shotgun
+    """
+    def __init__(self,shotgunlogin=None):
+        """
+        :param shotgunlogin: optional name to use - defaults to $USER
+        """
+        super(Person, self).__init__()
+        if not shotgunlogin:
+            self.shotgunlogin=os.environ["USER"]
+        __fields = ['login','name','firstname','lastname','department','email','status']
+        __filters =  [['login','is', self.shotgunlogin]]
+        __person=None
+        try:
+            __person=self.sg.find_one("HumanUser",filters=__filters,fields=__fields)
+        except Exception, err:
+            logger.warn("%s"%err)
+            raise
+        else:
+            if __person.has_key('name'):
+                self.shotgunname=__person.get('name')
+            if __person.has_key('email'):
+                self.email=__person.get('email')
+                self.dabname=self.cleanname(self.email)
+            if __person.has_key('status'):
+                self.status=__person.get('status')
+            if __person.has_key('department'):
+                self.department=__person.get('department').get('name')
+            if __person.has_key('login'):
+                self.login=__person.get('login')
+                self.dabnumber=self.login
+        finally:
+            logger.debug("Shotgun Login {} : {}".format(self.shotgunlogin,__person))
+            # print self.cleanname(self.email)
+
+    def cleanname(self,email):
+        _nicename = email.split("@")[0]
+        _compactnicename = _nicename.lower().translate(None, string.whitespace)
+        _cleancompactnicename = _compactnicename.translate(None, string.punctuation)
+        logger.debug("Cleaned name is : %s" % _cleancompactnicename)
+        return _cleancompactnicename
 
 
 class Projects(ShotgunBase):
@@ -81,6 +124,8 @@ class Projects(ShotgunBase):
     def tasks(self):
         pass
 
+class People(ShotgunBase):
+    pass
 
 class NewVersion(ShotgunBase):
     # new version object
@@ -153,11 +198,17 @@ if __name__ == "__main__":
     #              media='/Users/Shared/UTS_Dev/test_RMS_aaocean.0006.mov')
 
     # query projects shots etc
-    c=Projects()
-    c.sequences(89)
-    c.shots(89,48)
+    # c=Projects()
+    # c.sequences(89)
+    # c.shots(89,48)
 
+    p=Person("mattg")
+    logger.info("{} {} {}".format(p.dabname,p.dabnumber,p.email))
     logger.info("-------------------------------FINISHED TESTING")
+
+    # print p.sg.schema_field_read('HumanUser')
+    # print p.sg.schema_read()
+
 
 
 '''
