@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
-# sh.setLevel(logging.INFO)
+sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
@@ -135,13 +135,15 @@ class People(ShotgunBase):
         __fields = ['login','name','firstname','lastname','department','email','sg_tractor']
         __filters =  [['sg_tractor','is', True]]
         __people=None
+        self.people=None
         try:
             __people=self.sg.find("HumanUser",filters=__filters,fields=__fields)
         except Exception, err:
             logger.warn("%s"%err)
             raise
         else:
-            for __person in __people:
+            self.people=__people
+            for __person in self.people:
                 logger.debug("{l:12} # {d:9}{c:24}{n:24}{e:40}".format(l=__person.get('login'),
                                                          n=__person.get('name'),
                                                          c=self.cleanname(__person.get('email')),
@@ -154,7 +156,7 @@ class People(ShotgunBase):
         # logger.debug("Cleaned name is : %s" % _cleancompactnicename)
         return _cleancompactnicename
 
-    def writetractorcrewfile(self,crewfile):
+    def writetractorcrewfile(self,crewfilefullpath=None):
         """
         Write out a tractor crew file for use with tractor.
         each user entry is a line, most is comment and unnecessary.
@@ -163,6 +165,28 @@ class People(ShotgunBase):
         :param crewfile: The full path file name to be created, if none use default
         :return:  the pilepath written, None if failed.
         """
+        self.crewfilefullpath=crewfilefullpath
+        try:
+            _file=open(self.crewfilefullpath,"w")
+        except IOError, err:
+            logger.warn("Cant open file {} : {}".format(self.crewfilefullpath,err))
+        else:
+            for i, person in enumerate(self.people):
+                _line="{l:12} # {d:9}{c:24}{n:24}{e:40}\n".format(l=person.get('login'),
+                                                         n=person.get('name'),
+                                                         c=self.cleanname(person.get('email')),
+                                                         e=person.get('email'),
+                                                         d=person.get('department').get('name'))
+                _file.write(_line)
+            _file.close()
+        finally:
+            logger.info("Wrote tractor crew file: {}".format(self.crewfilefullpath))
+
+
+
+
+
+
 
 
 
@@ -249,6 +273,7 @@ if __name__ == "__main__":
 
 
     pe=People()
+    pe.writetractorcrewfile("/Users/120988/Desktop/crew.list.txt")
 
     # print p.sg.schema_field_read('HumanUser')
     # s=ShotgunBase()
