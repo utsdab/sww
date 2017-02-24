@@ -11,7 +11,7 @@ import os
 import json
 import inspect
 import utils_factory as utils
-# import user_factory as ufac
+import user_factory as ufac
 import sww.renderfarm.dabtractor as dt
 import sww.renderfarm as rf
 import tractor.api.author as author
@@ -29,7 +29,7 @@ logger.addHandler(sh)
 # ##############################################################
 
 class ConfigBase(object):
-    '''
+    """
     This class gathers up the configuration settings from an external json file.
     Function return configurations.
     The schema is simple - a two level dictionary:
@@ -39,13 +39,17 @@ class ConfigBase(object):
         attribute : [ default, value1, value2 ]  ### default value is index 0
         }
     }
-    '''
+
+    """
     def __init__(self):
+        """
+        """
+
         self.configjson = os.path.join(os.path.dirname(rf.__file__), "etc","dabtractor_config.json")
+        _file=open(self.configjson)
         self.groups = {}
         self.config = None
         try:
-            _file=open(self.configjson)
             self.config=json.load(_file)
         except Exception,err:
             logger.warn("Problem reading json file %s"%err)
@@ -60,29 +64,39 @@ class ConfigBase(object):
             _file.close()
 
     def getoptions(self, group, key):
-        # assumes the value of the attribute is a list
+        """
+        Assumes the value of the attribute is a list
+        :param group:
+        :param key:
+        :return:
+        """
         _return = None
         try:
             _type = type(self.groups.get(group).get(key))
         except Exception, err:
-            logger.warn("Options - Group %s or Attribute %s not in config.json file, %s" % (group,key,err))
+            logger.warn("Options - Group <%s> or Attribute <%s> not in config.json file, %s" % (group,key,err))
             logger.debug("ALL DEFAULTS = %s" % self.getalldefaults())
         else:
             if _type==type([]):
                 _return = self.groups.get(group).get(key)
             else:
-                logger.warn("Attribute %s has no options, %s" % (key,err))
+                logger.warn("Attribute %s has no options, %s" % (key, err))
         finally:
             return _return
 
     def getdefault(self, group, key):
-        # returns the first index if a list or just the vale if not a list
+        """
+        Returns the first index if a list or just the vale if not a list
+        :param group:
+        :param key:
+        :return:
+        """
+
         _return = None
-        logger.debug("try %s %s"%(group,key))
         try:
             _type = type(self.groups.get(group).get(key))
         except Exception, err:
-            logger.warn("Default - Group %s or Attribute %s not in config.json file, %s" % (group,key,err))
+            logger.warn("Default - Group <%s> or Attribute <%s> not in config.json file, %s" % (group, key, err))
             logger.debug("ALL DEFAULTS = %s" % self.getalldefaults())
         else:
             if _type==type([]):
@@ -95,7 +109,11 @@ class ConfigBase(object):
             return str(_return)
 
     def getgroups(self):
-        # returns all attribute groups
+        """
+        Returns all attribute groups
+        :return:
+        """
+
         _return = None
         try:
             _return = self.groups.keys()
@@ -105,7 +123,12 @@ class ConfigBase(object):
             return str(_return)
 
     def getattributes(self,group):
-        # return a groups attributes
+        """
+        Return a groups attributes
+        :param group:
+        :return:
+        """
+
         _return = None
         try:
             _return =  self.groups.get(group).keys()
@@ -117,7 +140,11 @@ class ConfigBase(object):
 
 
     def getalldefaults(self):
-        # returns a dict with key (group,attribute) and value is the default
+        """
+        Returns a dict with key (group,attribute) and value is the default
+        :return:
+        """
+
         _defaults = {}
         for group in self.groups.keys():
             for attribute in self.groups.get(group).keys():
@@ -127,13 +154,52 @@ class ConfigBase(object):
                 elif type(self.groups.get(group).get(attribute))== type(u'xx'):
                     default = self.groups.get(group).get(attribute)
                 else:
-                    print "%s not a list or a string" % attribute
-                    print type(self.groups.get(group).get(attribute))
+                    logger.warn("%s not a list or a string" % attribute)
+                    logger.warn( type(self.groups.get(group).get(attribute)))
                     default = None
 
                 _defaults[(group,attribute)]=default
 
         return _defaults
+
+    def getallenvgroups(self):
+        """
+        Any group with a "path" attribute should be and environment variable declaration os.environ
+        return a list of groups with "path" declared
+        warn if the value is not valid
+        :return:
+        """
+
+        _haspath = []
+        for group in self.groups.keys():
+            for attribute in self.groups.get(group).keys():
+                if attribute=="farmjob":
+                    _haspath.append(group)
+        return _haspath
+
+
+class FarmJob(ConfigBase):
+    """
+    A class with the basic farm job info
+    """
+    def __init__(self):
+        """
+
+        """
+        super(FarmJob, self).__init__()
+        self.author=author
+        self.tq=tq
+        __utsuser=ufac.FarmUser()
+        self.username=__utsuser.name
+        self.usernumber=__utsuser.number
+        self.hostname = str(self.getdefault("tractor","engine"))
+        self.port= int(self.getdefault("tractor","port"))
+        self.jobowner=str(self.getdefault("tractor","jobowner"))
+        self.engine=str(self.getdefault("tractor","engine"))
+
+        self.author.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
+        self.tq.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
+
 
 
 class Environment(ConfigBase):
@@ -144,54 +210,30 @@ class Environment(ConfigBase):
     presently $TASK and $SHOT not used
     move this all to a json file template
 
-    This probaly needs to be changed as the idea of a project might be buried within the show more deeply as per the
-    way shotun would have it.
+    This probaly needs to be changed as the idea of a project might be buried
+    within the show more deeply as per the way shotgun_repos would have it.
     So $PROJECT is possibly  .../dir1/dir2/dir3/....../project
     project is a maya project and should therefor have a workspace.mel file.
 
+
+    this class is to be obsoleted!!!!!!
+    only used in the UI widget, and the methods should move there.
 
     """
 
     def __init__(self):
         super(Environment, self).__init__()
-        self.dabrender = self.alreadyset("DABRENDER", "DABRENDER","path")
-        self.dabwork = self.alreadyset("DABWORK", "DABWORK","path")
-        self.dabsoftware = self.alreadyset("DABSOFTWARE", "DABSOFTWARE", "path")
-        self.dabusr = self.alreadyset("DABUSR", "DABUSR", "path")
-        self.dabassets = self.alreadyset("DABASSETS", "DABASSETS", "path")
-        self.type = self.alreadyset("TYPE","DABWORK","envtype")
-        # self.show = self.alreadyset("SHOW", "","")
-        # self.project = self.alreadyset("PROJECT", "","")
-        # self.scene = self.alreadyset("SCENE", "","")
-        # self.user = self.alreadyset("USER", "","")
-        # self.username = self.alreadyset("USERNAME", "","")
-        cfg=ConfigBase()
-        self.author=author
-        self.tq=tq
-        self.author.setEngineClientParam(hostname = str(cfg.getdefault("tractor","engine")),
-                            port = int(str(cfg.getdefault("tractor","port"))),
-                            user = str(cfg.getdefault("tractor","jobowner")),
-                            debug = True)
-        self.tq.setEngineClientParam(hostname = str(cfg.getdefault("tractor","engine")),
-                            port = str(cfg.getdefault("tractor","port")),
-                            user = str(cfg.getdefault("tractor","jobowner")),
-                            debug = True)
-
-    def alreadyset(self, envar, defaultgroup, defaultkey):
-        #  look to see if an environment variable is already define an if not check the dabtractor config else return
-        #  the default
-        try:
-            env = os.environ
-            val = env[envar]
-        except Exception, err:
-            default=self.getdefault(defaultgroup,defaultkey)
-            logger.debug("{} :: not found in environment, setting to default: {}".format(envar, default))
-            return default
-        else:
-            logger.debug("{} :: found in environment as {}".format(envar, val))
-            return val
+        self.type = None
+        self.show =  None
+        self.project =  None
+        self.scene =  None
 
     def setfromscenefile(self, scenefilefullpath):
+        """
+        Try and set the structure from the scene file path.
+        :param scenefilefullpath:
+        :return:
+        """
         try:
             os.path.isfile(scenefilefullpath)
         except Exception, err:
@@ -217,6 +259,12 @@ class Environment(ConfigBase):
 
 
     def setfromprojroot(self, dirfullpath):
+        """
+        Try and set from the directory full path
+        :param dirfullpath:
+        :return:
+        """
+
         try:
             os.path.isdir(dirfullpath)
         except Exception, err:
@@ -240,6 +288,11 @@ class Environment(ConfigBase):
 
 
     def putback(self):
+        """
+        Put values back to the environment
+        :return:
+        """
+
         try:
             os.environ["DABWORK"] = self.dabwork
             os.environ["TYPE"] = self.type
@@ -252,31 +305,70 @@ class Environment(ConfigBase):
             logger.info("Putback main environment variables")
 
 
+class Environment2(ConfigBase):
+    """
+    This class adds to the environment is oe.environ it replaces Environment Class
+
+    1. read the environment that needs to be there in the config json file ie (has a "farmjob" attribute
+    2. if not founf then add it to the environment os.environ
+
+    """
+    def __init__(self):
+        """
+
+        """
+        super(Environment2, self).__init__()
+        self.requiredenvars = self.getallenvgroups()
+
+        for envar in self.requiredenvars:
+            try:
+                e=os.environ[envar]
+            except:
+                logger.warn("Environment variable {} NOT FOUND".format(envar))
+                _value=self.getdefault(envar,"env")
+                os.environ[envar]=_value
+                logger.info("Setting {} to {} from config.json file".format(envar,_value))
+            else:
+                logger.info("{} = {}".format(envar,e))
+
+        self.environ=os.environ
+        logger.debug(self.environ.items())
+
+    def setnewenv(self,key,value):
+        """
+        Declare a new variable and put back to os.environ.
+        :param key:
+        :param value:
+        :return:
+        """
+
+        if not os.environ.has_key(key):
+            try:
+                os.environ[key]=value
+            except Exception, err:
+                logger.warn("Cant set environment variable {} to {}".format(key,value))
+            else:
+                logger.info("Environment variable {} = {}".format(key,value))
+            finally:
+                self.environ=os.environ
+        else:
+            logger.warn("Environment variable {} already set".format(key))
+
+
 if __name__ == '__main__':
 
     sh.setLevel(logging.DEBUG)
     logger.debug("-------- PROJECT FACTORY TEST ------------")
 
-    JJ = Environment()
+    E2=Environment2()
+    print E2.requiredenvars
+    print E2.environ.keys()
 
+    CB=ConfigBase()
+    print CB.getallenvgroups()
+    print CB.getalldefaults()
 
-    logger.debug("GROUPS = %s"% JJ.getgroups())
-    group = "maya"
-    attribute = "versions"
+    FJ=FarmJob()
+    print FJ.getalldefaults()
 
-    logger.debug( "ATTRIBUTES = %s"% JJ.getattributes(group))
-    logger.debug( "ATTRIBUTE VALUES =  %s"%  JJ.getoptions(group,attribute))
-    logger.debug( "DEFAULT VALUE =  %s"% JJ.getdefault(group,attribute))
-
-    group = "nuke"
-    attribute = "versions"
-    logger.debug( "ATTRIBUTES =  %s"%  JJ.getattributes(group))
-    logger.debug( "ATTRIBUTE VALUES =  %s"%  JJ.getoptions(group,attribute))
-    logger.debug( "DEFAULT VALUE =  %s"% JJ.getdefault(group,attribute))
-
-    group = "renderman"
-    attribute = "versions"
-    logger.debug( "ATTRIBUTES =  %s"%  JJ.getattributes(group))
-    logger.debug( "ATTRIBUTE VALUES =  %s"%  JJ.getoptions(group,attribute))
-    logger.debug( "DEFAULT VALUE =  %s"% JJ.getdefault(group,attribute))
 

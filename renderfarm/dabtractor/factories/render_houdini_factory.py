@@ -58,7 +58,7 @@ class RenderBase(object):
 
         try:
             # get the names of the central render location for the user
-            ru = ufac.FARMuser()
+            ru = ufac.FarmUser()
             self.renderusernumber = ru.number
             self.renderusername = ru.name
             self.dabrender = ru.dabrender

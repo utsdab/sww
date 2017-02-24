@@ -39,20 +39,18 @@ class RenderBase(object):
         self.user = os.getenv("USER")
         self.spooljob = False
         self.testing=False
-        self.env=envfac.Environment()
+        self.farmjob=envfac.FarmJob()
+
 
         try:
             # get the names of the central render location for the user
-            ru = ufac.FARMuser()
-            self.renderusernumber = ru.number
-            self.renderusername = ru.name
-            # self.dabrender = ru.dabrender
-            # self.dabrenderworkpath = ru.dabuserworkpath
-            # self.initialProjectPath = ru.dabuserworkpath
-
+            ru = ufac.FarmUser()
         except Exception, erroruser:
             logger.warn("Cant get the users name and number back %s" % erroruser)
             sys.exit("Cant get the users name")
+        else:
+            self.renderusernumber = ru.number
+            self.renderusername = ru.name
 
         # if os.path.ismount(self.dabrender):
         #     logger.info("Found mount %s" % self.dabrender)
@@ -150,7 +148,7 @@ class RenderPrman(RenderBase):
         :return:
         '''
         # ################ 0 JOB ################
-        self.job = self.env.author.Job(title="RM: {} {} {}-{}".format(
+        self.job = self.farmjob.author.Job(title="RM: {} {} {}-{}".format(
               self.renderusername,self.scenename,self.startframe,self.endframe),
               priority=10,
               envkey=[self.envkey_rfm,"ProjectX",
@@ -163,21 +161,21 @@ class RenderPrman(RenderBase):
                                                                    self.renderusernumber),
               comment="LocalUser is {} {} {}".format(self.user,self.renderusername,self.renderusernumber),
               projects=[str(self.projectgroup)],
-              tier=str(self.env.getdefault("renderjob","rendertier")),
+              tier=str(self.farmjob.getdefault("renderjob","rendertier")),
               tags=["theWholeFarm", ],
               service="")
 
 
         # ############## 0 ThisJob #################
-        task_thisjob = self.env.author.Task(title="Renderman Job")
+        task_thisjob = self.farmjob.author.Task(title="Renderman Job")
         task_thisjob.serialsubtasks = 1
 
         # ############## 1 PREFLIGHT ##############
-        task_preflight = self.env.author.Task(title="Preflight")
+        task_preflight = self.farmjob.author.Task(title="Preflight")
         task_preflight.serialsubtasks = 1
         task_thisjob.addChild(task_preflight)
-        task_generate_rib_preflight = self.env.author.Task(title="Generate RIB Preflight")
-        command_ribgen = self.env.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,
+        task_generate_rib_preflight = self.farmjob.author.Task(title="Generate RIB Preflight")
+        command_ribgen = self.farmjob.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,
                                               "-command",
                                               "renderManBatchGenRibForLayer {layerid} {start} {end} {phase}".format(
                                                   layerid=0, start=self.startframe, end=self.endframe, phase=1),
@@ -203,9 +201,9 @@ class RenderPrman(RenderBase):
         task_preflight.addChild(task_render_preflight)
 
         # ############## 3 RIBGEN ##############
-        task_render_allframes = self.env.author.Task(title="ALL FRAMES {}-{}".format(self.startframe, self.endframe))
+        task_render_allframes = self.farmjob.author.Task(title="ALL FRAMES {}-{}".format(self.startframe, self.endframe))
         task_render_allframes.serialsubtasks = 1
-        task_ribgen_allframes = self.env.author.Task(title="RIB GEN {}-{}".format(self.startframe, self.endframe))
+        task_ribgen_allframes = self.farmjob.author.Task(title="RIB GEN {}-{}".format(self.startframe, self.endframe))
 
         # divide the frame range up into chunks
         _totalframes=int(self.endframe-self.startframe+1)
@@ -244,7 +242,7 @@ class RenderPrman(RenderBase):
 
 
         # ############### 4 RENDER ##############
-        task_render_frames = self.env.author.Task(title="RENDER Frames {}-{}".format(self.startframe, self.endframe))
+        task_render_frames = self.farmjob.author.Task(title="RENDER Frames {}-{}".format(self.startframe, self.endframe))
         task_render_frames.serialsubtasks = 0
 
         for frame in range(self.startframe, (self.endframe + 1), self.byframe):
@@ -255,7 +253,7 @@ class RenderPrman(RenderBase):
             _ribfile = "{proj}/rib/{frame:04d}/{frame:04d}.rib".format(
                 proj=self.rendermanpath, frame=frame)
 
-            task_render_rib = self.env.author.Task(title="RENDER Frame {}".format(frame),
+            task_render_rib = self.farmjob.author.Task(title="RENDER Frame {}".format(frame),
                                           preview="sho {}".format(_imgfile),
                                           metadata="statsfile={} imgfile={}".format(_statsfile, _imgfile))
             commonargs = ["prman", "-cwd", self.mayaprojectpath]
@@ -317,7 +315,7 @@ class RenderPrman(RenderBase):
             ])
             userspecificargs = [ utils.expandargumentstring(self.options),"{}".format(_ribfile)]
             finalargs = commonargs + rendererspecificargs + userspecificargs
-            command_render = self.env.author.Command(argv=finalargs,
+            command_render = self.farmjob.author.Command(argv=finalargs,
                                             #envkey=[self.envkey_prman],
                                             tags=["prman", "theWholeFarm"],
                                             atleast=int(self.threads),
@@ -379,7 +377,7 @@ class RenderPrman(RenderBase):
 
                 _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (_seq, _option1, _option2, _option3, _output)) ]
 
-                task_proxy = self.env.author.Task(title="Proxy Generation")
+                task_proxy = self.farmjob.author.Task(title="Proxy Generation")
                 proxycommand = author.Command(argv=_rvio_cmd,
                                       service="Transcoding",
                                       tags=["rvio", "theWholeFarm"],
@@ -401,7 +399,7 @@ class RenderPrman(RenderBase):
             # compose mail
 
             logger.info("email = {}".format(self.email))
-            task_notify = self.env.author.Task(title="Notify", service="ShellServices")
+            task_notify = self.farmjob.author.Task(title="Notify", service="ShellServices")
             task_notify.addCommand(self.mail("JOB", "COMPLETE", "email details still wip"))
             task_thisjob.addChild(task_notify)
 
@@ -424,10 +422,10 @@ class RenderPrman(RenderBase):
             try:
                 logger.info("Spooled correctly")
                 # all jobs owner by pixar user on the farm
-                self.job.spool(owner=self.env.getdefault("tractor","jobowner"),
-                               port=int(self.env.getdefault("tractor","port")))
+                self.job.spool(owner=self.farmjob.getdefault("tractor","jobowner"),
+                               port=int(self.farmjob.getdefault("tractor","port")))
                 # self.job.spool(owner=self.user,
-                #                port=int(self.env.getdefault("tractor","port")))
+                #                port=int(self.farmjob.getdefault("tractor","port")))
 
             except Exception, spoolerr:
                 logger.warn("A spool error %s" % spoolerr)

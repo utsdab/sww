@@ -1,5 +1,7 @@
-#!/usr/bin/env rmanpy
+#!/usr/bin/env python
 import pprint
+import string
+import os
 import sys
 from sww.shotgun_api3 import Shotgun
 import environment_factory as envfac
@@ -10,7 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
-sh.setLevel(logging.DEBUG)
+sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
@@ -19,13 +21,59 @@ logger.addHandler(sh)
 class ShotgunBase(object):
     # base object
     def __init__(self):
-        self.env=envfac.Environment()
+        self.env=envfac.Environment2()
         self.serverpath = str(self.env.getdefault("shotgun", "serverpath"))
         self.scriptname = str(self.env.getdefault("shotgun", "scriptname"))
         self.scriptkey  = str(self.env.getdefault("shotgun", "scriptkey"))
         self.sg = Shotgun( self.serverpath, self.scriptname, self.scriptkey)
         logger.info("SHOTGUN: talking to shotgun ...... %s" % self.serverpath)
 
+class Person(ShotgunBase):
+    """
+    This is a model of the user account as registered in shotgun
+    Basically used for authentication
+    """
+    def __init__(self,shotgunlogin=None):
+        """
+        :param shotgunlogin: optional name to use - defaults to $USER
+        """
+        super(Person, self).__init__()
+        if not shotgunlogin:
+            self.shotgunlogin=os.environ["USER"]
+        __fields = ['login','name','firstname','lastname','department','email','sg_tractor']
+        __filters =  [['login','is', self.shotgunlogin]]
+        __person=None
+        try:
+            __person=self.sg.find_one("HumanUser",filters=__filters,fields=__fields)
+        except Exception, err:
+            logger.warn("%s"%err)
+            raise
+        else:
+            if __person.has_key('sg_tractor'):
+                self.tractor=__person.get('sg_tractor')
+
+            if __person.has_key('name'):
+                self.shotgunname=__person.get('name')
+            if __person.has_key('email'):
+                self.email=__person.get('email')
+                self.dabname=self.cleanname(self.email)
+            if __person.has_key('department'):
+                self.department=__person.get('department').get('name')
+            if __person.has_key('login'):
+                self.login=__person.get('login')
+                self.dabnumber=self.login
+        finally:
+            if  not self.tractor:
+                    logger.critical("Shotgun user {} is not Active. Sorry.".format(self.shotgunlogin))
+                    sys.exit()
+            logger.debug("Shotgun Login {} : {}".format(self.shotgunlogin,__person))
+
+    def cleanname(self,email):
+        _nicename = email.split("@")[0]
+        _compactnicename = _nicename.lower().translate(None, string.whitespace)
+        _cleancompactnicename = _compactnicename.translate(None, string.punctuation)
+        logger.debug("Cleaned name is : %s" % _cleancompactnicename)
+        return _cleancompactnicename
 
 
 class Projects(ShotgunBase):
@@ -80,6 +128,67 @@ class Projects(ShotgunBase):
 
     def tasks(self):
         pass
+
+class People(ShotgunBase):
+    def __init__(self):
+        super(People, self).__init__()
+        __fields = ['login','name','firstname','lastname','department','email','sg_tractor']
+        __filters =  [['sg_tractor','is', True]]
+        __people=None
+        self.people=None
+        try:
+            __people=self.sg.find("HumanUser",filters=__filters,fields=__fields)
+        except Exception, err:
+            logger.warn("%s"%err)
+            raise
+        else:
+            self.people=__people
+            for __person in self.people:
+                logger.debug("{l:12} # {d:9}{c:24}{n:24}{e:40}".format(l=__person.get('login'),
+                                                         n=__person.get('name'),
+                                                         c=self.cleanname(__person.get('email')),
+                                                         e=__person.get('email'),
+                                                         d=__person.get('department').get('name')))
+    def cleanname(self,email):
+        _nicename = email.split("@")[0]
+        _compactnicename = _nicename.lower().translate(None, string.whitespace)
+        _cleancompactnicename = _compactnicename.translate(None, string.punctuation)
+        # logger.debug("Cleaned name is : %s" % _cleancompactnicename)
+        return _cleancompactnicename
+
+    def writetractorcrewfile(self,crewfilefullpath=None):
+        """
+        Write out a tractor crew file for use with tractor.
+        each user entry is a line, most is comment and unnecessary.
+        eg. 11401229 # Year4 haeinfkim   Hae-In Kim  Hae-In.F.Kim@student.uts.edu.au
+
+        :param crewfile: The full path file name to be created, if none use default
+        :return:  the pilepath written, None if failed.
+        """
+        self.crewfilefullpath=crewfilefullpath
+        try:
+            _file=open(self.crewfilefullpath,"w")
+        except IOError, err:
+            logger.warn("Cant open file {} : {}".format(self.crewfilefullpath,err))
+        else:
+            for i, person in enumerate(self.people):
+                _line="{l:12} # {d:9}{c:24}{n:24}{e:40}\n".format(l=person.get('login'),
+                                                         n=person.get('name'),
+                                                         c=self.cleanname(person.get('email')),
+                                                         e=person.get('email'),
+                                                         d=person.get('department').get('name'))
+                _file.write(_line)
+            _file.close()
+        finally:
+            logger.info("Wrote tractor crew file: {}".format(self.crewfilefullpath))
+
+
+
+
+
+
+
+
 
 
 class NewVersion(ShotgunBase):
@@ -148,16 +257,31 @@ if __name__ == "__main__":
     #              shotname="tractortesting",
     #              taskname='layout',
     #              versioncode='from tractor 1',
-    #              description='test version using shotgun api',
+    #              description='test version using shotgun_repos api',
     #              ownerid=38,
     #              media='/Users/Shared/UTS_Dev/test_RMS_aaocean.0006.mov')
 
     # query projects shots etc
-    c=Projects()
-    c.sequences(89)
-    c.shots(89,48)
+    # c=Projects()
+    # c.sequences(89)
+    # c.shots(89,48)
 
+    p=Person()
+    logger.info("Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email}".format(\
+        name=p.dabname,number=p.dabnumber,email=p.email))
     logger.info("-------------------------------FINISHED TESTING")
+
+
+    pe=People()
+    pe.writetractorcrewfile("/Users/120988/Desktop/crew.list.txt")
+
+    # print p.sg.schema_field_read('HumanUser')
+    # s=ShotgunBase()
+    # filter=
+    # field=
+    # print s.sg.schema_entity_read('Person')
+    # print p.sg.schema_read()
+
 
 
 '''

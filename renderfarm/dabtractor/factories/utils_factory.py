@@ -25,6 +25,25 @@ def printdict(dict):
             logger.debug("DICT %s %s: %s" % (i, key, dict.get(key)))
 
 
+def ensure_dir(f):
+    d = os.path.dirname(f)
+    logger.debug("Checking {}".format(f))
+    if not os.path.exists(d):
+        logger.warn("Not found, Making {}".format(f))
+        os.makedirs(d)
+    else:
+        logger.debug("Found dir {}".format(f))
+
+def ensure_link(f):
+    # check link and if not then raise
+    logger.debug("Checking link {}".format(f))
+    if not os.path.islink(f):
+        logger.warn("Link Not found {}".format(f))
+        raise
+    else:
+        logger.debug("Found link {}".format(f))
+
+
 def sendmail(mailto,
              mailsubject,
              mailbody,

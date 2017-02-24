@@ -32,142 +32,22 @@ class RenderBase(object):
         self.user = os.getenv("USER")
         self.spooljob = False
         self.testing = False
-        self.env=envfac.Environment()
+        self.farmjob=envfac.FarmJob()
 
         try:
             # get the names of the central render location for the user
-            ru = ufac.FARMuser()
-            self.renderusernumber = ru.number
-            self.renderusername = ru.name
-            self.dabrender = ru.dabrender
-            self.dabrenderworkpath = ru.dabuserworkpath
-            self.initialProjectPath = ru.dabuserworkpath
-
+            ru = ufac.FarmUser()
         except Exception, erroruser:
             logger.warn("Cant get the users name and number back %s" % erroruser)
             sys.exit("Cant get the users name")
-
-        if os.path.isdir(self.dabrender):
-            logger.info("Found %s" % self.dabrender)
         else:
-            self.initialProjectPath = None
-            logger.critical("Cant find central filer mounted %s" % self.dabrender)
-            raise Exception, "dabrender not a valid mount point"
+            self.renderusernumber = ru.number
+            self.renderusername = ru.name
 
 
 class RenderMentalray(RenderBase):
-
     """
-    This is a maya batch mental ray
-
-    Usage: Render [options] filename
-           where "filename" is a Maya ASCII or a Maya binary file.
-
-    Common options:
-      -help              Print help
-      -test              Print Mel commands but do not execute them
-      -verb              Print Mel commands before they are executed
-      -keepMel           Keep the temporary Mel file
-      -listRenderers     List all available renderers
-      -renderer string   Use this specific renderer
-      -r string          Same as -renderer
-      -proj string       Use this Maya project to load the file
-      -log string        Save output into the given file
-
-    Specific options for renderer "mr": Mentalray renderer
-
-    General purpose flags:
-      -rd path                    Directory in which to store image files
-      -im filename                Image file output name
-      -of string                  Output image file format. See the Render Settings window
-            to find available formats
-
-    Frame numbering options
-      -s float                    Starting frame for an animation sequence
-      -e float                    End frame for an animation sequence
-      -b float                    By frame (or step) for an animation sequence
-      -skipExistingFrames boolean Skip frames that are already rendered (if true) or force rendering all frames (if false)
-      -pad int                    Number of digits in the output image frame file name
-            extension
-      -rfs int                    Renumber Frame Start: number for the first image when
-            renumbering frames
-      -rfb int                    Renumber Frame By (or step) used for renumbering frames
-      -fnc int                    File Name Convention: any of name, name.ext, ... See the
-            Render Settings window to find available options. Use namec and
-            namec.ext for Multi Frame Concatenated formats. As a shortcut,
-            numbers 1, 2, ... can also be used
-      -perframe                   Renders animation per-frame, without incremental change
-
-    Camera options
-      -cam name                   Specify which camera to be rendered
-      -rgb boolean                Turn RGB output on or off
-      -alpha boolean              Turn Alpha output on or off
-      -depth boolean              Turn Depth output on or off
-      -iip                        Ignore Image Planes. Turn off all image planes before
-            rendering
-
-    Resolution options
-      -x int                      Set X resolution of the final image
-      -y int                      Set Y resolution of the final image
-      -percentRes float           Renders the image using percent of the resolution
-      -ard float                  Device aspect ratio for the rendered image
-      -par float                  Pixel aspect ratio for the rendered image
-
-    Render Layers and Passes:
-      -rl boolean|name(s)         Render each render layer separately
-      -rp boolean|name(s)         Render passes separately. 'all' will render all passes
-      -sel boolean|name(s)        Selects which objects, groups and/or sets to render
-      -l boolean|name(s)          Selects which display and render layers to render
-      -rat/allRenderable          Render all renderable (2D and 3D)
-      -rto/renderTargetsOnly      Render target (2D) only rendering
-      -ort/omitRenderTargets      Omit render targets and render 3D only
-
-    Mel callbacks
-      -preRender string           Mel code executed before rendering
-      -postRender string          Mel code executed after rendering
-      -preLayer string            Mel code executed before each render layer
-      -postLayer string           Mel code executed after each render layer
-      -preFrame string            Mel code executed before each frame
-      -postFrame string           Mel code executed after each frame
-      -pre string                 Obsolete flag
-      -post string                Obsolete flag
-
-    Other:
-      -v/verbose int              Set the verbosity level.
-            0 to turn off messages
-            1 for fatal errors only
-            2 for all errors
-            3 for warnings
-            4 for informational messages
-            5 for progress messages
-            6 for detailed debugging messages
-      -rt/renderThreads int       Specify the number of rendering threads.
-      -art/autoRenderThreads      Automatically determine the number of rendering threads.
-      -mem/memory int             Set the memory limit (in MB).
-      -aml/autoMemoryLimit        Compute the memory limit automatically.
-      -ts/taskSize int            Set the pixel width/height of the render tiles.
-      -at/autoTiling              Automatically determine optimal tile size.
-      -fbm/frameBufferMode int    Set the frame buffer mode.
-            0 in-memory framebuffers
-            1 memory mapped framebuffers
-            2 cached framebuffers
-      -rnm boolean                Network rendering option. If true, mental ray renders
-            almost everything on slave machines, thus reducing the workload on the
-            master machine
-      -lic string                 Specify satellite licensing option. mu/unlimited or
-            mc/complete.
-      -reg int int int int        Set sub-region pixel boundary of the final image:
-            left, right, bottom, top
-      -sa/sampling int            Render the scene using the legacy sampling scheme.
-            0 Unified Sampling Mode
-            1 Legacy Rasterizer Mode
-            2 Legacy Sampling Mode
-      -uq/unifiedQuality float    Set the Unified Sampling quality (only meaningful when using the Unified Sampling mode).
-     *** Remember to place a space between option flags and their arguments. ***
-    Any boolean flag will take the following values as TRUE: on, yes, true, or 1.
-    Any boolean flag will take the following values as FALSE: off, no, false, or 0.
-
-        e.g. -s 1 -e 10 -x 512 -y 512 -cam persp -of jpg file.
+    now obsolete
 
     """
 

@@ -39,11 +39,11 @@ import tractor.api.query as tq
 _thisuser = os.getenv("USER")
 # (_usernumber,_username) =  ufac.FarmUser(_thisuser).query()
 # try:
-#     u = ufac.FARMuser()
+#     u = ufac.FarmUser()
 #     _usernumber = u.number
 #     _username = u.name
 # except:
-#     sys.exit("Sorry you dont appear to be a registered farm user {}, try running farm_user.py and then contact matt - "
+#     sys.exit("Sorry you dont appear to be a registered farm user {}, try running farm_adduser.py and then contact matt - "
 #              "matthew.gidney@uts.edu.au".format(_thisuser))
 ################################
 

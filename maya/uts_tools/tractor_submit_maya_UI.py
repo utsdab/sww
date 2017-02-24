@@ -22,14 +22,9 @@ from software.maya.uts_tools.prman import cam_proj_setup_ui
 cam_proj_setup_ui.create_ui()
 
 """
-# todo.matt
-# TODO amsdajshdjkas
-# #\btodo\b.matt
-# \bxxxx\b. lkasdlkasjd
 # TODO
 
 
-# -------------------------------------------------------------------------------------------------------------------- #
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -38,7 +33,7 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(filename)s as %(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-# -------------------------------------------------------------------------------------------------------------------- #
+
 
 import PySide.QtCore as qc
 import PySide.QtGui as qg
@@ -46,26 +41,25 @@ import sys
 import os
 from sww.renderfarm.dabtractor.factories import interface_factory as ifac
 from sww.renderfarm.dabtractor.factories import render_prman_factory as rmsfac
-from sww.renderfarm.dabtractor.factories import render_mr_factory as mrfac
+from sww.renderfarm.dabtractor.factories import render_maya_factory as mrfac
 from sww.renderfarm.dabtractor.factories import render_nuke_factory as nukefac
 from sww.renderfarm.dabtractor.factories import render_houdini_factory as houdinifac
 from sww.renderfarm.dabtractor.factories import command_factory as cmdfac
 from sww.renderfarm.dabtractor.factories import environment_factory as envfac
 from functools import partial
 
-# -------------------------------------------------------------------------------------------------------------------- #
 
 # Global variable to store the UI status, if it's open or closed
 TRACTOT_SUBMIT_DIALOG = None
 MAYA_PRESENT = False
 COL1 = "background-color:lightgrey;color:black"
 COL2 = "background-color:lightgreen;color:darkblue"
-ENV = envfac.Environment()
+ENV = envfac.Environment2()
 VERSION = ENV.getdefault("farm","version")
 BUILD = ENV.getdefault("farm","build")
 WIDTH = 430
 HEIGHT = 950
-# -------------------------------------------------------------------------------------------------------------------- #
+
 class TractorSubmit(qg.QDialog):
     def __init__(self,mayapresent=False):
         super(TractorSubmit,self).__init__()
@@ -81,7 +75,7 @@ class TractorSubmit(qg.QDialog):
 
         ###########
         try:
-            if not os.path.isdir(ENV.dabrender):
+            if not os.path.isdir(ENV.environ["DABRENDER"]):
                 raise("Cant find dabrender")
         except Exception,err:
             sys.exit(err)
@@ -110,12 +104,12 @@ class Maya(object):
         logger.info("Maya is Found")
 
 
-# -------------------------------------------------------------------------------------------------------------------- #
+
 class Job(envfac.Environment):
     def __init__(self):
         super(Job, self).__init__()
         self.env=ENV
-        self.dabwork=self.env.dabwork
+        self.dabwork=self.env.environ["DABWORK"]
         self.usernumber = None
         self.username = None
         self.projectgroup = None
@@ -244,8 +238,8 @@ class Job(envfac.Environment):
                 startframe=int(self.startframe),
                 endframe=int(self.endframe),
                 byframe=int(self.byframe),
-                options=self.options,
-                version=self.version,
+                options=self.houdinioptions,
+                version=self.houdiniversion,
                 threads=self.threads,
                 threadmemory=self.threadmemory,
                 projectgroup=self.projectgroup,
@@ -266,16 +260,18 @@ class Job(envfac.Environment):
                 envshow=self.show,
                 envproject=self.project,
                 envscene=self.scene,
+                threads=self.threads,
+                threadmemory=self.threadmemory,
                 scenefullpath=self.scenefullpath,
-                framechunks=int(self.chunks),
                 startframe=int(self.startframe),
                 endframe=int(self.endframe),
                 byframe=int(self.byframe),
-                options=self.options,
-                version=self.version,
-                threads=self.threads,
-                threadmemory=self.threadmemory,
+                framechunks=int(self.chunks),
+                options=self.nukeoptions,
                 projectgroup=self.projectgroup,
+                version=self.nukeversion,
+                renderusernumber=self.usernumber,
+                renderusername=self.username,
                 email=[1, 0, 0, 0, 1, 0],
             )
             self.tractorjob.build()
@@ -308,7 +304,6 @@ class Job(envfac.Environment):
             self.fb.write("Spool Fail, Validate first!! : {}".format(err))
 
 
-# -------------------------------------------------------------------------------------------------------------------- #
 class TractorSubmitWidget(qg.QFrame):
     def __init__(self, job, maya=None):
         super(TractorSubmitWidget, self).__init__()
@@ -464,7 +459,6 @@ def delete():
     tractor_submit_dialog = None
 
 
-# -------------------------------------------------------------------------------------------------------------------- #
 def main():
     global tractor_submit_dialog
     try:
@@ -487,5 +481,4 @@ def main():
 if __name__ == '__main__':
 
     sh.setLevel(logging.DEBUG)
-
     main()
