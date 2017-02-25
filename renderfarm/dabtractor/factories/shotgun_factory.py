@@ -149,7 +149,8 @@ class People(ShotgunBase):
                                                          c=self.cleanname(__person.get('email')),
                                                          e=__person.get('email'),
                                                          d=__person.get('department').get('name')))
-    def cleanname(self,email):
+    @staticmethod
+    def cleanname(email):
         _nicename = email.split("@")[0]
         _compactnicename = _nicename.lower().translate(None, string.whitespace)
         _cleancompactnicename = _compactnicename.translate(None, string.punctuation)

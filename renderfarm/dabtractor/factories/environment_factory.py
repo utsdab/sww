@@ -9,10 +9,7 @@
 """
 import os
 import json
-import inspect
-import utils_factory as utils
-import user_factory as ufac
-import sww.renderfarm.dabtractor as dt
+import shotgun_factory as sgt
 import sww.renderfarm as rf
 import tractor.api.author as author
 import tractor.api.query as tq
@@ -189,9 +186,9 @@ class FarmJob(ConfigBase):
         super(FarmJob, self).__init__()
         self.author=author
         self.tq=tq
-        __utsuser=ufac.FarmUser()
-        self.username=__utsuser.name
-        self.usernumber=__utsuser.number
+        __utsuser=sgt.Person()
+        self.username=__utsuser.dabname
+        self.usernumber=__utsuser.dabnumber
         self.hostname = str(self.getdefault("tractor","engine"))
         self.port= int(self.getdefault("tractor","port"))
         self.jobowner=str(self.getdefault("tractor","jobowner"))

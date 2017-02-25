@@ -13,7 +13,6 @@ import sys
 import string
 import time
 import subprocess
-import utils_factory as utils
 import environment_factory as envfac
 import tractor.api.author as author
 import shotgun_factory as sgt
