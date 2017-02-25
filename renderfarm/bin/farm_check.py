@@ -37,7 +37,7 @@ try:
 except UserWarning, err:
     logger.critical("USER NOT REGISTERED IN SHOTGUN %s" % (err))
 else:
-    logger.info("User in Shotgun >>> {} {}".format(su.login,su.dabname))
+    logger.info("CHECK {:-^20} {} {}".format("[shotgun login]",su.login,su.dabname))
 
 ## TODO  check there are userprefs
 try:
@@ -46,7 +46,7 @@ try:
 except Exception, err:
     logger.critical("USERPREFS ### %s" % (err))
 else:
-    logger.info("USERPREFS >>> {}".format(up))
+    logger.info("CHECK {:-^20} {}".format("[user_prefs]",up))
 
 
 ## TODO  check user prefs has a config setup
@@ -56,7 +56,7 @@ try:
 except Exception, err:
     logger.critical("USERPREFS ### Config Link ERROR {} : {}".format (config, err))
 else:
-    logger.info("USERPREFS >>> config link : {}".format (config))
+    logger.info("CHECK {:-^20} {}".format ("[config link]",config))
 
 
 ## TODO  check maya prefs has a config setup
@@ -66,7 +66,7 @@ try:
 except Exception, err:
     logger.critical("USERPREFS ### mayaprefs link ERROR {} : {}".format (mayaprefs, err))
 else:
-    logger.info("USERPREFS >>> mayaprefs : {}".format (mayaprefs))
+    logger.info("CHECK {:-^20} {}".format ("[mayprefs]",mayaprefs))
 
 
 ## TODO  check there is a user_work area
@@ -76,26 +76,11 @@ try:
 except Exception, err:
     logger.critical("USER_WORK ### ERROR %s" % (err))
 else:
-    logger.info("USER_WORK >>> {}".format (uw))
+    logger.info("CHECK {:-^20} {}".format ("[user_work]",uw))
 
 
 ## TODO  check permissions are ok
 
-
-# logger.info("USER_WORK permissions {}".format (uw))
-
-# Use os.access() with flags os.R_OK, os.W_OK, and os.X_OK.
-# >>> import os
-# >>> statinfo = os.stat('somefile.txt')
-# >>> statinfo
-# os.stat_result(st_mode=33188, st_ino=7876932, st_dev=234881026,
-# st_nlink=1, st_uid=501, st_gid=501, st_size=264, st_atime=1297230295,
-# st_mtime=1297230027, st_ctime=1297230027)
-# >>> statinfo.st_size
-# 264
-# statinfo = os.stat(up)
-# print statinfo.st_gid, statinfo.st_uid
-# print stat.S_IFDIR, stat.S_IFLNK,stat.S_IMODE(statinfo.st_mode)
 
 mode = os.stat(uw).st_mode
 stat_info = os.stat(uw)
@@ -110,21 +95,16 @@ groupRead  = bool(mode & 0040)
 otherRead  = bool(mode & stat.S_IROTH)
 otherWrite = bool(mode & stat.S_IWOTH)
 otherExec  = bool(mode & stat.S_IXOTH)
-# os.chmod(uw,stat.S_IWOTH)
 
-logger.info("      GROUP PERMISSIONS: {} {} {} ".format(groupRead,groupWrite,groupExec))
-logger.info("      OTHER PERMISSIONS: {} {} {} ".format(otherRead,otherWrite,otherExec))
-logger.info("      UID GID: {} {}".format(uid, gid))
-
-
-# try:
-#     os.chmod(uw,0775) # -rwxr-xr-x octal
-# except Exception, err:
-#     print "failed",err
-# else:
-#     print uw
+logger.info("CHECK {:-^20} {} {} {} ".format("[user_work g rwx]",groupRead,groupWrite,groupExec))
+logger.info("CHECK {:-^20} {} {} {} ".format("[user_work o rwx]",otherRead,otherWrite,otherExec))
+logger.info("CHECK {:-^20} {} {}".format("[user UID GID]",uid, gid))
 
 ## TODO  check in tractor crewlist
+
+## TODO  check group special bit
+
+
 
 
 
