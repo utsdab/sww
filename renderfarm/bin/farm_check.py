@@ -19,7 +19,7 @@ logger.addHandler(sh)
 # ##############################################################
 
 
-logger.info(">>>>>>> Checking if you are a Farm User <<<<<<<<")
+logger.info("{:+^70}".format(" Checking if you are a Farm User "))
 # #  Check if user has an LDAP account
 # try:
 #     a = uf.UtsUser()
@@ -38,6 +38,7 @@ except UserWarning, err:
     logger.critical("USER NOT REGISTERED IN SHOTGUN %s" % (err))
 else:
     logger.info("CHECK {:-^20} {} {}".format("[shotgun login]",su.login,su.dabname))
+
 
 ## TODO  check there are userprefs
 try:
@@ -80,8 +81,6 @@ else:
 
 
 ## TODO  check permissions are ok
-
-
 mode = os.stat(uw).st_mode
 stat_info = os.stat(uw)
 uid = stat_info.st_uid

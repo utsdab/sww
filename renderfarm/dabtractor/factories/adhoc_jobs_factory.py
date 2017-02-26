@@ -175,11 +175,12 @@ class SimpleCommand(JobBase):
         task_thisjob.serialsubtasks = 1
 
 
-        cleancmd = self.farmjob.author.Command(argv=["makeworkareas.py"])
+        workareacmd = self.farmjob.author.Command(argv=["makeworkareas.py"])
+        userprefscmd = self.farmjob.author.Command(argv=["makeuserprefs.py"])
 
         task_notify = self.farmjob.author.Task(title="Cleanup", service="ShellServices")
-        task_notify.addCommand(cleancmd)
-
+        task_notify.addCommand(workareacmd)
+        task_notify.addCommand(userprefscmd)
         task_thisjob.addChild(task_notify)
 
         self.job.addChild(task_thisjob)

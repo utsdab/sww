@@ -20,6 +20,11 @@
     "env"            : "/Volumes/dabrender/sww"
   },
 
+  "CONFIG" : {
+    "version"         : "CONFIG_V4.0",
+    "template"        : "/Volumes/dabrender/assets/CONFIG/CONFIG_V4.0"
+  },
+
   "DABRENDER" : {
     "env"            : "/Volumes/dabrender",
     "usermapfile"     : "etc/map/user_map.json",
