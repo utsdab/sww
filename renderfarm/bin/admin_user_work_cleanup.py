@@ -3,7 +3,8 @@ from sww.renderfarm.dabtractor.factories import adhoc_jobs_factory as ah
 
 # ##############################################################
 import logging
-
+import os
+# print os.environ["PYTHONPATH"]
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
