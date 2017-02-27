@@ -15,7 +15,6 @@ import os
 import sys
 import shutil
 import sww.renderfarm.dabtractor.factories.shotgun_factory as sgt
-import sww.renderfarm.dabtractor.factories.environment_factory as envfac
 
 people=sgt.People()
 
@@ -42,7 +41,6 @@ def main():
     makedirectorytree(dabuserprefs,peoplelist)
     deprecatedirectory(dabuserprefs,peoplelist)
 
-    # setupconfig()
 
 def makedirectorytree(rootpath,rootnames=[]):
     """Make the template directory tree"""
@@ -83,7 +81,7 @@ def setupconfig(path):
             _config=os.path.join(path,"config")
             os.symlink(dest,_config)
         except Exception, err:
-            logger.warn("Cant link config {}".format(err))
+            logger.warn("Cant make config link: {}".format(err))
         else:
             logger.info("Linking {} to {}".format(dest,_config))
 

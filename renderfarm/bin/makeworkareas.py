@@ -111,7 +111,17 @@ def diff(first, second):
 
 def setpermissionsontree(rootpath):
     pass
+    """ drwxrws--- 2 root terminator  6 28 mai   11:15 test
+        chgrp terminator test
 
+        chmod 770 test
+        chmod g+s
+    """
+    os.chmod('pixar', 0o2770)
+    os.chmod('pixar', 5327)  #2755 decimal  www.rapidtables.com/convert/number/decimal-to-octal.htm
+
+    # import os
+    # os.chmod('test', 02770)
 
 
 # #################################################################################################
