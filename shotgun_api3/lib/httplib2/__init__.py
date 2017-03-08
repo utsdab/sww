@@ -827,7 +827,7 @@ def proxy_info_from_environment(method='http'):
 
 def proxy_info_from_url(url, method='http'):
     """
-    Construct a ProxyInfo from a URL (such as http_proxy farmjob var)
+    Construct a ProxyInfo from a URL (such as http_proxy fj var)
     """
     url = urlparse.urlparse(url)
     username = None

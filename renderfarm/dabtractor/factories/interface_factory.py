@@ -4,10 +4,7 @@ import sys
 import PySide.QtCore as qc
 import PySide.QtGui as qg
 
-# print os.path.abspath(qc.__file__)
-# print os.path.abspath(qg.__file__)
-
-import adhoc_jobs_factory as adhoc
+import command_factory as cmdfac
 import user_factory as ufac
 import environment_factory as envfac
 from sww.renderfarm.dabtractor.utils.sendmail import Mail
@@ -23,8 +20,6 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 # ##############################################################
 
-
-# -------------------------------------------------------------------------------------------------------------------- #
 CFG = ufac.FarmUser()
 WIDTH = 400
 WIDTH_SMALL = WIDTH*0.3
@@ -880,7 +875,7 @@ class BugWidget(qg.QWidget):
         m.send()
 
     def mailjob(self):
-        TEST = adhoc.SendMail(mailbody=self.bug_widget.toPlainText(),
+        TEST = cmdfac.SendMail(mailbody=self.bug_widget.toPlainText(),
                               mailsubject="mail subject",
                               mailcc="mail cc",
                               mailfrom="tractor",

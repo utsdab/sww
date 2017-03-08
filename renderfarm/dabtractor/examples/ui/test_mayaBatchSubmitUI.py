@@ -6,12 +6,12 @@ from Tkinter import *
 import ttk
 import tkMessageBox
 import datetime
-import dabtractor.api.author as author
+import tractor.api.author as author
 import sys
 import os
 
 
-'''
+
 class Window:
     def __init__(self, master):
         self.filename=""
@@ -47,11 +47,10 @@ class Window:
 
                 Matrix = [[0 for x in xrange(NumColumns)] for x in xrange(rownum)]
 
-root = Tk()
-window=Window(root)
-root.mainloop()
+# root = Tk()
+# window=Window(root)
+# root.mainloop()
 
-'''
 
 fields = 'Maya Version', 'Maya Project Full Path', 'Scene', 'Start', 'End', 'By', 'Chunks', 'Batch Options'
 

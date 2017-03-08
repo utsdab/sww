@@ -1,10 +1,8 @@
 #!/usr/bin/env python
-from sww.renderfarm.dabtractor.factories import adhoc_jobs_factory as ah
+from sww.renderfarm.dabtractor.factories import command_factory as comfac
 
 # ##############################################################
 import logging
-import os
-# print os.environ["PYTHONPATH"]
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
@@ -16,9 +14,22 @@ logger.addHandler(sh)
 
 logger.info(">>>>>>> The farm will run a job to cleanup the user_work area <<<<<<<<")
 
-JOB=ah.SimpleCommand()
-JOB.build()
-JOB.validate()
-JOB.spool()
+USERPREFS=comfac.Bash(projectgroup="admin",command="makeuserprefs.py")
+USERPREFS.build()
+USERPREFS.validate()
+
+USERWORK=comfac.Bash(projectgroup="admin",command="makeworkareas.py")
+USERWORK.build()
+USERWORK.validate()
+
+try:
+    USERPREFS.spool()
+except Exception, err:
+    logger.warn("Spool Error {e}".format(e=err))
+
+try:
+    USERWORK.spool()
+except Exception, err:
+    logger.warn("Spool Error {e}".format(e=err))
 
 

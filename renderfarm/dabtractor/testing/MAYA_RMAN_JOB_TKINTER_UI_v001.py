@@ -1,4 +1,4 @@
-#!/opt/pixar/Tractor-2.0/bin/rmanpy
+#!/usr/bin/env rmanpy
 
 ###############################################################
 import logging
@@ -11,155 +11,269 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 ###############################################################
 
-__author__ = '120988'
-__version__ = '1.01'
-
-from Tkinter import *
+import Tkinter as tk
 import ttk
-import tkMessageBox
+import tkMessageBox as tmb
 import datetime
-import tkFileDialog, Tkconstants
 import tractor.api.author as author
 import sys
 import os
+import Tkconstants as tc
+import tkFileDialog as tfd
+import sww.renderfarm.dabtractor.factories.environment_factory as envfac
 
-author.setEngineClientParam(hostname="tractor-engine", port=5600, user="mattg", debug=True)
-user = os.getenv("USER")
+class NotebookPanel(tk.Frame):
+    """ NotebookPanel """
+    def __init__(self, isapp=True, name='notebookpanel'):
+        tk.Frame.__init__(self, name=name,bg="red", borderwidth=4 )
+        self.pack(expand=tc.Y, fill=tc.BOTH)
+        self.isapp = isapp
+        self._create_widgets()
 
+    def _create_widgets(self):
+        self._create_tabbed_panel()
+
+    def _create_tabbed_panel(self):
+        Panel = tk.Frame(self, name='demo')
+        Panel.pack(side=tc.TOP, fill=tc.BOTH, expand=tk.Y)
+
+        # create the notebook
+        nb = ttk.Notebook(Panel, name='notebook')
+
+        # extend bindings to top level window allowing
+        #   CTRL+TAB - cycles thru tabs
+        #   SHIFT+CTRL+TAB - previous tab
+        #   ALT+K - select tab using mnemonic (K = underlined letter)
+        nb.enable_traversal()
+
+        nb.pack(fill=tc.BOTH, expand=tc.Y, padx=2, pady=3)
+        self._rmf_tab(nb)
+        self._create_bash_tab(nb)
+        self._create_nuke_tab(nb)
+
+    def _rmf_tab(self, nb):
+        """ renderman for maya tab """
+        frame = tk.Frame(nb, name='rmf')
+
+        # widgets to be displayed on 'Description' tab
+        msg = [
+            "Ttk is the new Tk themed widget set. One of the widgets ",
+            "it includes is the notebook widget, which provides a set ",
+            "of tabs that allow the selection of a group of panels, ",
+            "each with distinct content. They are a feature of many ",
+            "modern user interfaces. Not only can the tabs be selected ",
+            "with the mouse, but they can also be switched between ",
+            "using Ctrl+Tab when the notebook page heading itself is ",
+            "selected. Note that the second tab is disabled, and cannot "
+            "be selected."]
+
+        lbl = tk.Label(frame, wraplength='4i', justify=tk.LEFT, anchor=tk.N,
+                        text=''.join(msg))
+        neatVar = tk.StringVar()
+        btn = tk.Button(frame, text='Neat!', underline=0,
+                         command=lambda v=neatVar: self._say_neat(v))
+        neat = tk.Label(frame, textvariable=neatVar, name='neat')
+
+        # position and set resize behaviour
+        lbl.grid(row=0, column=0, columnspan=2, sticky='new', pady=5)
+        btn.grid(row=1, column=0, pady=(2,4))
+        neat.grid(row=1, column=1,  pady=(2,4))
+        frame.rowconfigure(1, weight=1)
+        frame.columnconfigure((0,1), weight=1, uniform=1)
+
+        # bind for button short-cut key
+        # (must be bound to toplevel window)
+        self.winfo_toplevel().bind('<Alt-n>', lambda e, v=neatVar: self._say_neat(v))
+
+        # add to notebook (underline = index for short-cut character)
+        nb.add(frame, text='RMF', underline=0, padding=2)
+
+    def _say_neat(self, v):
+        v.set('Yeah, I know...')
+        self.update()
+        self.after(500, v.set(''))
+
+    # =============================================================================
+    def _create_bash_tab(self, nb):
+        # Populate the second pane. Note that the content doesn't really matter
+        frame = tk.Frame(nb)
+        nb.add(frame, text='Disabled', state='disabled')
+
+    # =============================================================================
+    def _create_nuke_tab(self, nb):
+        # populate the third frame with a text widget
+        frame = tk.Frame(nb)
+
+        txt = tk.Text(frame, wrap=tk.WORD, width=40, height=10)
+        vscroll = tk.Scrollbar(frame, orient=tk.VERTICAL, command=txt.yview)
+        txt['yscroll'] = vscroll.set
+        vscroll.pack(side=tk.RIGHT, fill=tk.Y)
+        txt.pack(fill=tk.BOTH, expand=tk.Y)
+
+        # add to notebook (underline = index for short-cut character)
+        nb.add(frame, text='Nuke', underline=0)
+
+class WindowBase(object):
+    def __init__(self):
+        """ Base the main window interface """
+        self.fj = envfac.FarmJob()
+        self.env = envfac.Environment2()
+
+
+class Window2(WindowBase):
+    def __init__(self, master):
+        """ Construct the main window interface """
+        super(Window2, self).__init__()
+        self.master = master
+        self.master.title("Farm Submit {n} {d}".format(n=self.fj.username,d=datetime.date.today()))
+        self.dirtext = 'Select your project folder, or...'
+        self.workspacetext = 'Select the workspace.mel file in your project'
+        self.workspaceerrortext = 'Warning - no workspace.mel found!'
+        self.filetext = 'Select your maya scene file'
+
+        self.button_opt = {'fill': tc.BOTH, 'padx': 5, 'pady': 5}
+        self.frame_opt  = {'side': tc.TOP}
+
+        self.topframe=tk.Frame(self.master, bg="green", borderwidth=4)
+
+        self.label1=tk.Label(self.topframe, text="Project Dir").grid(row=1, column=0)
+        self.dirbut = tk.Button(self.topframe, text=self.dirtext, fg='black', command=self.opendirectory)
+        self.dirbut.pack(**self.button_opt)  ## must pack separately to get the value to dirbut
+        self.dirbut.grid(row=1, column=1, sticky=tc.W + tc.E)
+
+        self.topframe.pack(**self.frame_opt)
+
+        self.bottomframe=tk.Frame(self.master,bg="red", borderwidth=10)
+        self.nb=NotebookPanel()
+        self.bottomframe.pack(**self.frame_opt)
+
+    def opendirectory(self):
+        self.dirname = tfd.askdirectory(parent=self.master, initialdir=self.fj.dabwork,title=self.dirtext)
+        self.dirbut["text"] = str(self.dirname) if self.dirname else self.dirtext
+        _possible = "%s/workspace.mel" % (self.dirname)
+        if os.path.exists(_possible):
+            self.workspace = _possible
+            self.workspacebut["text"] = str(self.workspace) if self.workspace else self.workspacetext
+        else:
+            self.workspacebut["text"] = self.workspaceerrortext
+
+    def openfile(self):
+        self.filename = tfd.askopenfilename(\
+            parent=self.master, initialdir=self.dirname,title=self.filetext,
+            filetypes=[('maya ascii', '.ma'),('maya binary', '.mb')])  ## filename not filehandle
+        self.filebut["text"] = str(self.filename) if self.filename else self.filetext
 
 class Window(object):
     def __init__(self, master):
         """Construct the main window interface
         """
         self.master = master
+        self.fj = envfac.FarmJob()
         self.dirtext = 'Select your project folder, or...'
         self.filetext = 'Select your maya scene file'
         self.workspacetext = 'Select the workspace.mel file in your project'
         self.workspaceerrortext = 'Warning - no workspace.mel found!'
         self.filename=""
         self.test = False
-
+        self.env=envfac.Environment2()
         # vcmd = (self.register(self._validate), '%s', '%P')
         # okayCommand = self.register(isOkay)
 
-        if self.test:
-            self.dabrender = "/Volumes/testrender"
-            self.initialProjectPath = "/Volumes/testrender/"
-        else:
-            self.dabrender = "/Volumes/dabrender"
-            self.initialProjectPath = "/Volumes/dabrender/"
-
-        if os.path.ismount(self.dabrender):
-            logger.info("Found %s" % self.dabrender)
-        else:
-            self.initialProjectPath = None
-            logger.critical("Cant find central filer mounted %s" % self.dabrender)
-            raise Exception, "dabrender not a valid mount point"
-
         # Options for buttons
-        self.button_opt = {'fill': Tkconstants.BOTH, 'padx': 5, 'pady': 5}
+        self.button_opt = {'fill': tc.BOTH, 'padx': 5, 'pady': 5}
 
-        Label(master, text="Project Dir").grid(row=1, column=0)
-        self.dirbut = Button(self.master, text=self.dirtext, fg='black', command=self.opendirectory)
+        tk.Label(master, text="Project Dir").grid(row=1, column=0)
+        self.dirbut = tk.Button(self.master, text=self.dirtext, fg='black', command=self.opendirectory)
         self.dirbut.pack(**self.button_opt)  ## must pack separately to get the value to dirbut
-        self.dirbut.grid(row=1, column=1, sticky=W + E)
+        self.dirbut.grid(row=1, column=1, sticky=tc.W + tc.E)
 
-        Label(master, text="Workspace.mel").grid(row=2, column=0)
-        self.workspacebut = Button(self.master, text=self.workspacetext, fg='black', command=self.openworkspace)
+        tk.Label(master, text="Workspace.mel").grid(row=2, column=0)
+        self.workspacebut = tk.Button(self.master, text=self.workspacetext, fg='black', command=self.openworkspace)
         self.workspacebut.pack(**self.button_opt)  ## must pack separately to get the value to dirbut
-        self.workspacebut.grid(row=2, column=1, sticky=W + E)
+        self.workspacebut.grid(row=2, column=1, sticky=tc.W + tc.E)
 
-        Label(master, text="Scene File").grid(row=3, column=0)
-        self.filebut = Button(self.master, text=self.filetext, fg='black',
-                              command=self.openfile)
+        tk.Label(master, text="Scene File").grid(row=3, column=0)
+        self.filebut = tk.Button(self.master, text=self.filetext, fg='black',command=self.openfile)
         self.filebut.pack(**self.button_opt)
-        self.filebut.grid(row=3, column=1, sticky=W + E)
+        self.filebut.grid(row=3, column=1, sticky=tc.W + tc.E)
 
-        Label(master, text="Frame Start").grid(row=6, column=0)
-        self.sf = StringVar()
+        tk.Label(master, text="Frame Start").grid(row=6, column=0)
+        self.sf = tk.StringVar()
         self.sf.set("1")
-        self.bar3 = Entry(self.master, textvariable=self.sf, width=8).grid(row=6, column=1, sticky=W)
+        self.bar3 = tk.Entry(self.master, textvariable=self.sf, width=8).grid(row=6, column=1, sticky=tc.W)
 
-        Label(master, text="Frame End").grid(row=7, column=0)
-        self.ef = StringVar()
+        tk.Label(master, text="Frame End").grid(row=7, column=0)
+        self.ef = tk.StringVar()
         self.ef.set("100")
-        self.bar4 = Entry(self.master, textvariable=self.ef, width=8).grid(row=7, column=1, sticky=W)
+        self.bar4 = tk.Entry(self.master, textvariable=self.ef, width=8).grid(row=7, column=1, sticky=tc.W)
 
-        Label(master, text="By").grid(row=8, column=0)
-        self.bf = StringVar()
+        tk.Label(master, text="By").grid(row=8, column=0)
+        self.bf = tk.StringVar()
         self.bf.set("1")
-        self.bar5 = Entry(self.master, textvariable=self.bf, width=8).grid(row=8, column=1, sticky=W)
+        self.bar5 = tk.Entry(self.master, textvariable=self.bf, width=8).grid(row=8, column=1, sticky=tc.W)
 
-        Label(master, text="Frame Chunks").grid(row=9, column=0)
-        self.fch = StringVar()
+        tk.Label(master, text="Frame Chunks").grid(row=9, column=0)
+        self.fch = tk.StringVar()
         self.fch.set("5")
-        self.bar6 = Entry(self.master, textvariable=self.fch, width=8).grid(row=9, column=1, sticky=W)
+        self.bar6 = tk.Entry(self.master, textvariable=self.fch, width=8).grid(row=9, column=1, sticky=tc.W)
 
-        # Label(self.master, text="Maya Version").grid(row=10, column=0)
-        # self.mversion = StringVar()
-        # self.mversion.set("2015")
-        # combobox = ttk.Combobox(master, textvariable=self.mversion)
-        # combobox.config(values=("2015"))
-        # combobox.grid(row=10, column=1, sticky=W)
+        tk.Label(self.master, text="Maya Version").grid(row=10, column=0)
+        self.mversion = tk.StringVar()
+        self.mversion.set("2015")
+        combobox = ttk.Combobox(master, textvariable=self.mversion)
+        combobox.config(values=("2015"))
+        combobox.grid(row=10, column=1, sticky=tc.W)
 
-        # Label(self.master, text="Renderer").grid(row=11, column=0)
-        # self.renderer = StringVar()
-        # self.renderer.set("rman")
-        #
-        # okayCommand = master.register(self.isOkay)
-        #
-        # combobox1 = ttk.Combobox(master, textvariable=self.renderer, postcommand=lambda: self.optionspostcommand(),
-        #                             # validate='all', validatecommand=lambda: self.optionscommand())
-        #                             validate='all', validatecommand=(okayCommand, '%P', '%V', '%s', '%S'))
-        #
-        #
-        # combobox1.config(values=("mr", "maya", "rman"))
-        # combobox1.grid(row=11, column=1, sticky=W)
+        tk.Label(self.master, text="Renderer").grid(row=11, column=0)
+        self.renderer = tk.StringVar()
+        self.renderer.set("rman")
+        okayCommand = master.register(self.isOkay)
+        combobox1 = ttk.Combobox(master, textvariable=self.renderer, postcommand=lambda: self.optionspostcommand(),
+                                    # validate='all', validatecommand=lambda: self.optionscommand())
+                                    validate='all', validatecommand=(okayCommand, '%P', '%V', '%s', '%S'))
+        combobox1.config(values=("mr", "maya", "rman"))
+        combobox1.grid(row=11, column=1, sticky=W)
 
-        Label(self.master, text="Output").grid(row=12, column=0)
-        self.outputname = StringVar()
+        tk.Label(self.master, text="Output").grid(row=12, column=0)
+        self.outputname = tk.StringVar()
         self.outputname.set("<Scene>/<Scene>")
         combobox = ttk.Combobox(master, textvariable=self.outputname)
         combobox.config(values=("<Scene>/<Scene>",
                                 "<Scene>/<Scene>-<Camera>",
                                 "<Scene>/<Scene>-<Camera>-<Layer>"))
-        combobox.grid(row=12, column=1, sticky=W + E)
+        combobox.grid(row=12, column=1, sticky=tc.W + tc.E)
 
-        Label(self.master, text="Resolution").grid(row=13, column=0)
-        self.resolution = StringVar()
+        tk.Label(self.master, text="Resolution").grid(row=13, column=0)
+        self.resolution = tk.StringVar()
         self.resolution.set("720p")
         combobox = ttk.Combobox(master, textvariable=self.resolution)
-        combobox.config(values=("720p",
-                                "1080p",
-                                "540p",
-                                ""))
-        combobox.grid(row=13, column=1, sticky=W + E)
+        combobox.config(values=("720p","1080p","540p", ""))
+        combobox.grid(row=13, column=1, sticky=tc.W + tc.E)
 
-        Label(master, text="Other Options").grid(row=14, column=0)
-        self.options = StringVar()
+        tk.Label(master, text="Other Options").grid(row=14, column=0)
+        self.options = tk.StringVar()
         self.options.set("")
-        self.bar7 = Entry(self.master, textvariable=self.options, width=40).grid(row=14, column=1, sticky=W + E)
+        self.bar7 = tk.Entry(self.master, textvariable=self.options, width=40).grid(\
+            row=14, column=1, sticky=tc.W+tc.E)
 
 
         # Buttons
-        self.cbutton = Button(self.master, text='SUBMIT', command=lambda: self.submit())
-        self.cbutton.grid(row=15, column=3, sticky=W + E)
+        self.cbutton = tk.Button(self.master, text='SUBMIT', command=lambda: self.submit())
+        self.cbutton.grid(row=15, column=3, sticky=tc.W + tc.E)
 
-        self.vbutton = Button(self.master, text='VALIDATE', command=lambda: self.validate())
-        self.vbutton.grid(row=15, column=1, sticky=W + E)
+        self.vbutton = tk.Button(self.master, text='VALIDATE', command=lambda: self.validate())
+        self.vbutton.grid(row=15, column=1, sticky=tc.W + tc.E)
 
-        self.vbutton = Button(self.master, text='CANCEL', command=lambda: self.cancel())
-        self.vbutton.grid(row=15, column=0, sticky=W + E)
+        self.vbutton = tk.Button(self.master, text='CANCEL', command=lambda: self.cancel())
+        self.vbutton.grid(row=15, column=0, sticky=tc.W + tc.E)
 
     def openfile(self):
-        self.filename = tkFileDialog.askopenfilename(parent=self.master, initialdir=self.dirname,
-                                                     title=self.filetext,
-                                                     filetypes=[('maya ascii', '.ma'),
-                                                                ('maya binary', '.mb')])  ## filename not filehandle
+        self.filename = tfd.askopenfilename(parent=self.master, initialdir=self.dirname,title=self.filetext,
+                         filetypes=[('maya ascii', '.ma'), ('maya binary', '.mb')])  ## filename not filehandle
         self.filebut["text"] = str(self.filename) if self.filename else self.filetext
 
     def opendirectory(self):
-        self.dirname = tkFileDialog.askdirectory(parent=self.master, initialdir=self.initialProjectPath,
+        self.dirname = tfd.askdirectory(parent=self.master, initialdir=self.env.environ["DABWORK"],
                                                  title=self.dirtext)
         self.dirbut["text"] = str(self.dirname) if self.dirname else self.dirtext
         _possible = "%s/workspace.mel" % (self.dirname)
@@ -169,13 +283,9 @@ class Window(object):
         else:
             self.workspacebut["text"] = self.workspaceerrortext
 
-
-
     def openworkspace(self):
-        self.workspace = tkFileDialog.askopenfilename(parent=self.master, initialdir=self.initialProjectPath,
-                                                      title=self.workspacetext,
-                                                      filetypes=[
-                                                          ('maya workspace', '.mel')])  ## filename not filehandle
+        self.workspace = tfd.askopenfilename(parent=self.master, initialdir=self.fj.dabwork,title=self.workspacetext,
+                filetypes=[('maya workspace', '.mel')])  ## filename not filehandle
         self.dirname = os.path.dirname(self.workspace)
         self.workspacebut["text"] = str(self.workspace) if self.workspace else self.workspacetext
         self.dirbut["text"] = str(self.dirname) if self.dirname else self.dirtext
@@ -243,6 +353,11 @@ class MayaBatchJob(object):
         self.localhost = "localhost"
         self.localworkarea = "/scratch2/dabRenderJobs/"
         self.centralworkarea = "138.25.195.200"
+        self.fj=envfac.FarmJob()
+        self.job = self.fj.author.Job(title="Render Job - (maya)",
+                      priority=100,
+                      envkey=["maya%s" % self.mayaversion],
+                      service="PixarRender")
 
     def getValues(entries):
         for entry in entries:
@@ -275,30 +390,20 @@ class MayaBatchJob(object):
         self.__mayascenefullpath = "%s/%s" % (self.mayaprojectpath, self.mayascene)
         self.__mayascenebase = os.path.splitext(self.mayascene)[0]
 
-        self.job = author.Job(title="Render Job - (maya)",
-                              priority=100,
-                              envkey=["maya%s" % self.mayaversion],
-                              service="PixarRender")
+        env = self.fj.author.Command(argv = ["printenv"])
+        pwd = self.fj.author.Command(argv = ["pwd"])
 
-        # ############## general commands ############
-        env = author.Command(argv = ["printenv"])
-        pwd = author.Command(argv = ["pwd"])
-
-        # ############## task 1 ##############
         task1 = author.Task(title="Make output directory", service="PixarRender")
-        makediectory = author.Command(
-            argv=["mkdir", os.path.join(self.mayaprojectpath, "images")])
+        makediectory = author.Command(argv=["mkdir", os.path.join(self.mayaprojectpath, "images")])
         task1.addCommand(makediectory)
         self.job.addChild(task1)
 
-        # ############## task 2 ###########
         task2 = author.Task(title="Copy Project Locally", service="PixarRender")
         copyin = author.Command(argv=["scp", "%s:%s" % (self.centralworkarea, self.mayaprojectpath),
                                       "%s:%s" % (self.localhost, self.localworkarea)])
         task2.addCommand(copyin)
         self.job.addChild(task2)
 
-        # ############## task 3 ##############
         if self.renderer == "mr":
             pass
         elif self.renderer == "rman":
@@ -315,9 +420,7 @@ class MayaBatchJob(object):
             chunkend = self.startframe + self.framechunks
 
         chunkstart = self.startframe
-
         while self.endframe >= chunkstart:
-
             if chunkend >= self.endframe:
                 chunkend = self.endframe
 
@@ -336,11 +439,8 @@ class MayaBatchJob(object):
                 self.expandArgumentString(self.options),
                 self.__mayascenefullpath
                 ]
-
             finalargs = commonargs + rendererspecificargs
-
             render = author.Command(argv=finalargs)
-
             task3.addCommand(render)
             chunkstart = chunkend + 1
             chunkend += self.framechunks
@@ -358,7 +458,7 @@ class MayaBatchJob(object):
 
     def spool(self):
         try:
-            logger("Spooled correctly")
+            logger.info("Spooled correctly")
             # all jobs owner by pixar user on the farm
             self.job.spool(owner="pixar")
         except Exception, spoolerror:
@@ -366,27 +466,30 @@ class MayaBatchJob(object):
 
 
 if __name__ == '__main__':
-    root = Tk()
-    root.title("Tractor Maya-RenderMan Batch Submit {u} {f}".format(u=user, f="DAB"))
-    window = Window(root)
+
+    # NotebookDemo().mainloop()
+
+    root = tk.Tk()
+    window = Window2(root)
     root.mainloop()
 
     job = MayaBatchJob()
 
     try:
-        job.mayascene = window.filename
-        job.mayaprojectpath = window.dirname
-        job.framechunks = int(window.fch.get())
-        job.startframe = int(window.sf.get())
-        job.endframe = int(window.ef.get())
-        job.byframe = int(window.bf.get())
-        # job.renderer = window.renderer.get()
-        job.renderdirectory = "%s/images" % window.dirname
-        job.imagetemplate = window.outputname.get()
-        job.options = window.options.get()
-
-        job.build()
+        # job.mayascene = window.filename
+        # job.mayaprojectpath = window.dirname
+        # job.framechunks = int(window.fch.get())
+        # job.startframe = int(window.sf.get())
+        # job.endframe = int(window.ef.get())
+        # job.byframe = int(window.bf.get())
+        # # job.renderer = window.renderer.get()
+        # job.renderdirectory = "%s/images" % window.dirname
+        # job.imagetemplate = window.outputname.get()
+        # job.options = window.options.get()
+        #
+        # job.build()
         # j.spool()
+        pass
     except Exception, err:
         logger.warn("Something wrong %s" % err)
     try:

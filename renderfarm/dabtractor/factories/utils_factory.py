@@ -86,27 +86,6 @@ def getfrompathlist(filetoget, iconpath="ICONPATH"):
     return _icon
 
 
-# def frompathgetuserhome(inputpath):
-#     try:
-#         dabrender = config.ConfigBase.getdefault("dabrender")
-#
-#     except:
-#         print "err"
-#
-#     _pathbits = inputpath.split("/")
-#     _testbits = os.path.join(dabrender, "work").split("/")
-#
-#
-#     for i, bit in enumerate(_pathbits):
-#         # print i, bit, _testbits[i]
-#         try:
-#             # print i, bit, _testbits[i]
-#             if not bit == _testbits[i]:
-#                 pass
-#         except:
-#             return os.path.join(dabrender,"work",bit)
-
-
 def getvalues(entries):
     for entry in entries:
         field = entry[0]
@@ -140,9 +119,7 @@ def getfloat(inputstring):
     :param inputstring:
     :return:
     """
-    # print "inputstring = >>>%s<<<" % inputstring
     cleanstring = inputstring.strip(string.punctuation)
-    # print "cleaned = >>>%s<<" % cleanstring
     return cleanstring
 
 def getnow():
@@ -165,17 +142,12 @@ def truncatepath(inputpath,truncatebit):
         _truncated = []
         _matched = False
         for i,bit in enumerate(_pathbits):
-            # print i, bit
-            # _truncated.append(bit)
             if bit == truncatebit:
                 _matched = True
                 break
             print i, bit
             _truncated.append(bit)
         _truncatedpath="/".join(_truncated)
-        # print inputpath
-        # print bit
-        # print _truncatedpath
         if os.path.isdir(_truncatedpath):
             return _truncatedpath
     else:
@@ -214,10 +186,6 @@ class RenderOutput(object):
                     y.append(x)
                 else:
                     z.append(x)
-
-
-
-
 
             for j, each in enumerate( zip(y,z) ):
                 print j,each

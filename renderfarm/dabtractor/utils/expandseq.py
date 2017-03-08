@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# expandseq/condenseseq - two command line utilities that expose the basic
+# expandseq.py.py/condenseseq.py.py - two command line utilities that expose the basic
 # functionality of the python-module "seqLister.py" functions "expandSeq()"
 # and "condenseSeq()".  These functions translate back and forth between a
 # condensed form for listing sequences of integers and plain lists of integers.
@@ -9,8 +9,8 @@
 # management tools (like smedge), image sequence viewers (like rv) or "ls"
 # commands (like lsseq) to list frames from CG-animation or video footage
 # which has been saved as a sequence of individually numbered frames.
-# 
-# The "expandseq" and "condenseseq" commands enhance the simple behavior of
+#
+# The "expandseq.py.py" and "condenseseq.py.py" commands enhance the simple behavior of
 # the "expandSeq()" and "condenseSeq()" python functions by adding the ability
 # to print out the lists in various forms.  eg.; comma, space or newline
 # separators as well as sorting the lists, reversing order, and mixing and
@@ -24,20 +24,20 @@
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
 # met:
-# 
+#
 # - Redistributions of source code must retain the above copyright
-#     notice, this list of conditions and the following disclaimer.
-# 
+# notice, this list of conditions and the following disclaimer.
+#
 #   - Redistributions in binary form must reproduce the above copyright
 #     notice, this list of conditions and the following disclaimer in
 #     the documentation and/or other materials provided with the
 #     distribution.
-# 
+#
 #   - Neither the name of "Orange Imagination & Concepts, Inc."  nor the
 #     names of its contributors may be used to endorse or promote
 #     products derived from this software without specific prior written
 #     permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 # LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -52,11 +52,9 @@
 
 import argparse
 import os
-import subprocess
 
 import sys
-import seqLister
-from operator import itemgetter
+import usr.bin.seqLister
 
 
 EXPAND_MODE = True
@@ -76,8 +74,8 @@ def indexNegNumber(argList):
 
 def main():
     # Redefine the exception handling routine so that it does NOT
-    # do a trace dump if the user types ^C while expandseq or
-    # condenseseq are running.
+    # do a trace dump if the user types ^C while expandseq.py.py or
+    # condenseseq.py.py are running.
     #
     old_excepthook = sys.excepthook
 
@@ -90,12 +88,12 @@ def main():
     sys.excepthook = new_hook
 
     global EXPAND_MODE
-    if os.path.basename(sys.argv[0]) == "expandseq":
+    if os.path.basename(sys.argv[0]) == "expandseq.py.py":
         EXPAND_MODE = True
-    elif os.path.basename(sys.argv[0]) == "condenseseq":
+    elif os.path.basename(sys.argv[0]) == "condenseseq.py.py":
         EXPAND_MODE = False
     else:
-        print >> sys.stderr, os.path.basename(sys.argv[0]) + ": must be named either expandseq or condenseseq"
+        print >> sys.stderr, os.path.basename(sys.argv[0]) + ": must be named either expandseq.py.py or condenseseq.py.py"
         sys.exit(1)
 
     if EXPAND_MODE:
@@ -104,13 +102,13 @@ def main():
 	    of the form 'A-B' or 'A-BxN' into a list of integers.  A-BxN means \
 	    list every Nth integer starting at A ending at the highest integer \
 	    less than or equal to B. Numbers will only be listed once each.\
-	    That is; '2-4 1-6' yeilds the list '2 3 4 1 5 6'.  (Also see condenseseq).",
+	    That is; '2-4 1-6' yeilds the list '2 3 4 1 5 6'.  (Also see condenseseq.py.py).",
             usage="%(prog)s [OPTION]... [INTEGER SEQUENCE]...")
     else:
         p = argparse.ArgumentParser(
             description="Condenses a list of integers and/or integer sequences \
 	    of the form 'A-B' or 'A-BxN' into the most minimal sequence format \
-	    possible to represent the full list of numbers. (Also see expandseq).",
+	    possible to represent the full list of numbers. (Also see expandseq.py.py).",
             usage="%(prog)s [OPTION]... [INTEGER SEQUENCE]...")
 
     p.add_argument("--version", action="version", version=VERSION)
@@ -141,7 +139,7 @@ def main():
 
     sysArgs = sys.argv[1:]  # Copy the command line args (except prog name)
     remainingArgs = []
-    result = seqLister.expandSeq(sysArgs, remainingArgs)
+    result = usr.bin.seqLister.expandSeq(sysArgs, remainingArgs)
     args = p.parse_args(remainingArgs)
 
     if EXPAND_MODE:
@@ -149,9 +147,9 @@ def main():
             result.sort()
     else:
         if args.onlyOnes:
-            result = seqLister.condenseSeqOnes(result)
+            result = usr.bin.seqLister.condenseSeqOnes(result)
         else:
-            result = seqLister.condenseSeq(result)
+            result = usr.bin.seqLister.condenseSeq(result)
 
     if args.reverseList:
         result.reverse()

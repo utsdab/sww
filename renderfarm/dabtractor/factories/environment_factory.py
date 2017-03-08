@@ -170,7 +170,7 @@ class ConfigBase(object):
         _haspath = []
         for group in self.groups.keys():
             for attribute in self.groups.get(group).keys():
-                if attribute=="farmjob":
+                if attribute=="fj":
                     _haspath.append(group)
         return _haspath
 
@@ -193,6 +193,8 @@ class FarmJob(ConfigBase):
         self.port= int(self.getdefault("tractor","port"))
         self.jobowner=str(self.getdefault("tractor","jobowner"))
         self.engine=str(self.getdefault("tractor","engine"))
+        self.useremail=__utsuser.email
+        self.dabwork=self.getdefault("DABWORK","env")
 
         self.author.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
         self.tq.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
@@ -306,7 +308,7 @@ class Environment2(ConfigBase):
     """
     This class adds to the environment is oe.environ it replaces Environment Class
 
-    1. read the environment that needs to be there in the config json file ie (has a "farmjob" attribute
+    1. read the environment that needs to be there in the config json file ie (has a "fj" attribute
     2. if not founf then add it to the environment os.environ
 
     """

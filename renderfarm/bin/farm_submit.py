@@ -52,7 +52,7 @@ except Exception, err:
              "matt - "
              "matthew.gidney@uts.edu.au".format(_thisuser))
 ################################
-# print farmjob.groups
+# print fj.groups
 author.setEngineClientParam(hostname=farmjob.engine,
                             port=farmjob.port,
                             user=farmjob.jobowner,

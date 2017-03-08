@@ -157,8 +157,7 @@ class RenderPrman(RenderBase):
                     "PROJECT={}".format(self.envproject),
                     "SCENE={}".format(self.envscene),
                     "SCENENAME={}".format(self.scenebasename)],
-              metadata="user={} username={} usernumber={}".format( self.user, self.renderusername,
-                                                                   self.renderusernumber),
+              metadata="user={} username={} usernumber={}".format( self.user, self.renderusername,self.renderusernumber),
               comment="LocalUser is {} {} {}".format(self.user,self.renderusername,self.renderusernumber),
               projects=[str(self.projectgroup)],
               tier=str(self.farmjob.getdefault("renderjob","rendertier")),
@@ -425,7 +424,7 @@ class RenderPrman(RenderBase):
                 self.job.spool(owner=self.farmjob.getdefault("tractor","jobowner"),
                                port=int(self.farmjob.getdefault("tractor","port")))
                 # self.job.spool(owner=self.user,
-                #                port=int(self.farmjob.getdefault("tractor","port")))
+                #                port=int(self.fj.getdefault("tractor","port")))
 
             except Exception, spoolerr:
                 logger.warn("A spool error %s" % spoolerr)
