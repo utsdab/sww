@@ -40,8 +40,7 @@ import sys
 from PySide import QtCore as qc
 from PySide import QtGui as qg
 
-
-from sww.renderfarm.dabtractor.factories import interface_pyside_factory as ifac
+from sww.renderfarm.dabtractor.factories.legacy import interface_pyside_factory as ifac
 from sww.renderfarm.dabtractor.factories import render_prman_factory as rmsfac
 from sww.renderfarm.dabtractor.factories import render_maya_factory as mrfac
 from sww.renderfarm.dabtractor.factories import render_nuke_factory as nukefac

@@ -78,7 +78,6 @@ class RenderPrman(object):
         self.rendermaxsamples=self.job.optionmaxsamples
         self.threads = self.job.jobthreads
         self.threadmemory = self.job.jobthreadmemory
-        # self.job.envprojectname = os.path.basename(self.mayaprojectpath)
         self.ribpath = "{}/rib".format(self.rendermanpath)
         self.finaloutputimagebase = "{}/{}".format(self.rendermanpath,self.scenebasename)
         # self.proxyoutput = "$DABRENDER/$TYPE/$SHOW/$PROJECT/movies/$SCENENAME_{}.mov".format("datehere")
@@ -115,11 +114,10 @@ class RenderPrman(object):
         # ############## 5 NOTIFY JOB START ###############
         if self.optionsendjobstartemail:
             logger.info("email = {}".format(self.job.useremail))
-            task_notify = self.job.env.author.Task(title="Notify", service="ShellServices")
-            task_notify.addCommand(self.mail("JOB", "START", "{}".format(self.mayascenefilefullpath)))
-            task_thisjob.addChild(task_notify)
+            task_notify_start = self.job.env.author.Task(title="Notify Start", service="ShellServices")
+            task_notify_start.addCommand(self.mail("JOB", "START", "{}".format(self.mayascenefilefullpath)))
+            task_thisjob.addChild(task_notify_start)
 
-        self.renderjob.addChild(task_thisjob)
 
         # ############## 1 PREFLIGHT ##############
         task_preflight = self.job.env.author.Task(title="Preflight")
@@ -271,18 +269,12 @@ class RenderPrman(object):
                                             atleast=int(self.threads),
                                             atmost=int(self.threads),
                                             service="PixarRender")
-
             task_render_rib.addCommand(command_render)
 
             # ############## 5 NOTIFY Task END ###############
             if self.optionsendtaskendemail:
-                # logger.info("email = {}".format(self.job.useremail))
-                # task_notify = self.job.env.author.Task(title="Notify", service="ShellServices")
-                task_render_rib.addCommand(self.mail("TASK FRAME {}".format(frame), "END", "{}".format(
-                    self.mayascenefilefullpath)))
-                # task_thisjob.addChild(task_notify)
+                task_render_rib.addCommand(self.mail("TASK FRAME {}".format(frame), "END", "{}".format(self.mayascenefilefullpath)))
 
-            self.renderjob.addChild(task_thisjob)
             task_render_frames.addChild(task_render_rib)
 
         task_render_allframes.addChild(task_render_frames)
@@ -291,7 +283,6 @@ class RenderPrman(object):
 
         # ############## 5 PROXY ###############
         if self.makeproxy:
-
             '''
             rvio cameraShape1/StillLife.####.exr  -v -fps 25
             -rthreads 4
@@ -332,16 +323,10 @@ class RenderPrman(object):
                               self.projectgroup,
                               self.thedate)
 
-
                 _output = "-o %s" % _outmov
-
                 _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (_seq, _option1, _option2, _option3, _output)) ]
-
                 task_proxy = self.job.env.author.Task(title="Proxy Generation")
-                proxycommand = author.Command(argv=_rvio_cmd,
-                                      service="Transcoding",
-                                      tags=["rvio", "theWholeFarm"],
-                                      envkey=["rvio"])
+                proxycommand = author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"], envkey=["rvio"])
                 task_proxy.addCommand(proxycommand)
                 task_thisjob.addChild(task_proxy)
 
@@ -354,9 +339,9 @@ class RenderPrman(object):
         # ############## 5 NOTIFY JOB END ###############
         if self.optionsendjobendemail:
             logger.info("email = {}".format(self.job.useremail))
-            task_notify = self.job.env.author.Task(title="Notify", service="ShellServices")
-            task_notify.addCommand(self.mail("JOB", "COMPLETE", "{}".format(self.mayascenefilefullpath)))
-            task_thisjob.addChild(task_notify)
+            task_notify_end = self.job.env.author.Task(title="Notify End", service="ShellServices")
+            task_notify_end.addCommand(self.mail("JOB", "COMPLETE", "{}".format(self.mayascenefilefullpath)))
+            task_thisjob.addChild(task_notify_end)
 
         self.renderjob.addChild(task_thisjob)
 

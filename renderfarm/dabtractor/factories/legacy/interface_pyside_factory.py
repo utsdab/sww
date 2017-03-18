@@ -4,9 +4,9 @@ import sys
 import PySide.QtCore as qc
 import PySide.QtGui as qg
 
-import command_factory as cmdfac
-import user_factory as ufac
-import environment_factory as envfac
+import sww.renderfarm.dabtractor.factories.command_factory as cmdfac
+import sww.renderfarm.dabtractor.factories.user_factory as ufac
+import sww.renderfarm.dabtractor.factories.environment_factory as envfac
 from sww.renderfarm.dabtractor.utils.sendmail import Mail
 
 # ##############################################################
