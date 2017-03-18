@@ -25,8 +25,13 @@ class ShotgunBase(object):
         self.serverpath = str(self.env.getdefault("shotgun", "serverpath"))
         self.scriptname = str(self.env.getdefault("shotgun", "scriptname"))
         self.scriptkey  = str(self.env.getdefault("shotgun", "scriptkey"))
-        self.sg = Shotgun( self.serverpath, self.scriptname, self.scriptkey)
-        logger.info("SHOTGUN: talking to shotgun ...... %s" % self.serverpath)
+        try:
+            self.sg = Shotgun( self.serverpath, self.scriptname, self.scriptkey)
+        except Exception, err:
+            logger.warn("SHOTGUN: Cant talk to shotgun")
+            self.sg=None
+        else:
+            logger.info("SHOTGUN: talking to shotgun ...... %s" % self.serverpath)
 
 class Person(ShotgunBase):
     """
@@ -139,16 +144,19 @@ class People(ShotgunBase):
         try:
             __people=self.sg.find("HumanUser",filters=__filters,fields=__fields)
         except Exception, err:
-            logger.warn("%s"%err)
+            logger.warn("Cant get Human user info from shotgun %s"%err)
             raise
         else:
             self.people=__people
             for __person in self.people:
-                logger.debug("{l:12} # {d:9}{c:24}{n:24}{e:40}".format(l=__person.get('login'),
+                try:
+                    logger.info("{l:12} # {d:9}{c:24}{n:24}{e:40}".format(l=__person.get('login'),
                                                          n=__person.get('name'),
                                                          c=self.cleanname(__person.get('email')),
                                                          e=__person.get('email'),
                                                          d=__person.get('department').get('name')))
+                except:
+                    logger.warn("Problem with user {}".format(__person))
     @staticmethod
     def cleanname(email):
         _nicename = email.split("@")[0]
@@ -268,13 +276,15 @@ if __name__ == "__main__":
     # c.shots(89,48)
 
     p=Person()
-    logger.info("Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email}".format(\
-        name=p.dabname,number=p.dabnumber,email=p.email))
+    logger.info("Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(\
+        name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department))
     logger.info("-------------------------------FINISHED TESTING")
 
 
     pe=People()
-    pe.writetractorcrewfile("/Users/120988/Desktop/crew.list.txt")
+    print pe.people
+
+    # pe.writetractorcrewfile("/Users/120988/Desktop/crew.list.txt")
 
     # print p.sg.schema_field_read('HumanUser')
     # s=ShotgunBase()

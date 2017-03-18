@@ -22,7 +22,10 @@ logger.addHandler(sh)
 def printdict(dict):
     if type(dict) == type({"a": "1"}):
         for i, key in enumerate(dict.keys()):
-            logger.debug("DICT %s %s: %s" % (i, key, dict.get(key)))
+            try:
+                logger.info("DICT {:3} {:20}: {}".format(i, key, dict.get(key)))
+            except:
+                logger.info("Skipping {}").format(key)
 
 
 def ensure_dir(f):

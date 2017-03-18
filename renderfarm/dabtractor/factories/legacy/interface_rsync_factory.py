@@ -238,23 +238,23 @@ class WindowRsync(WindowBase):
     # def openfile(self):
     #     self.filename = tkFileDialog.askopenfilename(parent=self.master,
     #                                                  initialdir=self.dirname,
-    #                                                  title=self.filetext,
+    #                                                  title=self.msg_selectscene,
     #                                                  filetypes=[('maya ascii', '.ma'),
     #                                                             ('maya binary', '.mb')])
     #                                                             # filename not filehandle
-    #     self.filebut["text"] = str(self.filename) if self.filename else self.filetext
+    #     self.filebut["text"] = str(self.filename) if self.filename else self.msg_selectscene
     #
     # def opendirectory(self):
     #     self.dirname = tkFileDialog.askdirectory(parent=self.master,
     #                                              initialdir=self.initialProjectPath,
-    #                                              title=self.dirtext)
-    #     self.dirbut["text"] = str(self.dirname) if self.dirname else self.dirtext
+    #                                              title=self.msg_selectproject)
+    #     self.dirbut["text"] = str(self.dirname) if self.dirname else self.msg_selectproject
     #     _possible = "%s/workspace.mel" % self.dirname
     #     if os.path.exists(_possible):
     #         self.workspace = _possible
-    #         self.workspacebut["text"] = str(self.workspace) if self.workspace else self.workspacetext
+    #         self.workspacebut["text"] = str(self.workspace) if self.workspace else self.msg_workspaceok
     #     else:
-    #         self.workspacebut["text"] = self.workspaceerrortext
+    #         self.workspacebut["text"] = self.msg_workspacebad
 
     def opensourcedirectory(self):
         self.sdirname = tkFileDialog.askdirectory(parent=self.master,

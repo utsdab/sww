@@ -44,10 +44,12 @@ def makedirectorytree(rootpath,rootnames=[]):
         for i, root in enumerate(rootnames):
             roottomake=os.path.join(rootpath,"user_work",root)
             if not os.path.exists(roottomake):
-                logger.info("Someone missing: Making directory {}".format(roottomake))
+                logger.warn("Someone missing: Making directory {}".format(roottomake))
                 os.mkdir(roottomake)
+            else:
+                logger.info("All Good for  {}".format(roottomake))
 
-            if os.environ["DABDEV"] == "development" and i>1:
+            if os.environ["DABDEV"] == "development" and i>1000:
                 sys.exit("development cap")
 
     except Exception, err:

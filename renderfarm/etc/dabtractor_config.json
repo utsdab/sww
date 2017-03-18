@@ -56,35 +56,35 @@
   },
 
   "maya": {
-    "versions"     : [ "2017" ],
+    "version"     : [ "2017" ],
     "mayarenderer" : [ "sw"]
   },
 
   "nuke": {
-    "versions"     : [ "10.0v5" ]
+    "version"     : [ "10.0v5" ]
   },
 
   "houdini": {
-    "versions"     : [ "15.5.480" ]
+    "version"     : [ "15.5.480" ]
   },
 
   "renderman": {
-    "versions"     : [ "21.2" ],
-    "integrators"  : [ "FROMFILE", "pxr", "vcm", "visualiser"]
+    "version"     : [ "21.2" , "21.3"],
+    "integrator"  : [ "FROMFILE", "pxr", "vcm", "visualiser", "occlusion"]
   },
 
   "renderjob": {
-    "rendertier"   : [ "batch", "rush", "admin" ],
-    "projectgroup" : [ "yr1", "yr2", "yr3", "yr4", "masters", "personal", "admin" ]
+    "tier"   : [ "batch", "low","default","preview","rush", "admin" ],
+    "projectgroup" : [ "Year1", "Year2", "Year3", "Year4", "Masters", "Staff" ]
   },
 
   "render": {
-    "threads"      : [ "4", "16", "8", "2", "1" ],
-    "chunks"       : [ "4", "16", "8", "2", "1" ],
-    "maxsamples"   : [ "256", "FROMFILE", "1024", "512", "128", "64", "32", "16" ],
-    "rendermemory" : [ "4000", "8000", "2000" ],
-    "resolution"   : [ "720p", "FROMFILE", "1080p", "540p", "108p" ],
-    "outformat"    : [ "exr", "png", "jpg", "iff", "tif" ]
+    "threads"      : [ "2", "4", "8", "16", "32","64", "1" ],
+    "chunks"       : [ "1", "2", "4", "8", "16" ],
+    "maxsamples"   : [ "64", "128","256", "512", "FROMFILE", "1024", "32", "16" ],
+    "memory" : [ "4000", "8000", "2000" ],
+    "resolution"   : [ "108p" ,"540p","720p", "1080p","FROMFILE" ],
+    "outformat"    : [ "exr", "png", "jpg", "iff", "tif" , "tga"]
   }
 
 

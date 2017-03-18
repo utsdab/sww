@@ -105,6 +105,38 @@ class ConfigBase(object):
         finally:
             return str(_return)
 
+    def getenvordefault(self,group, key):
+        """
+        Returns the envar OR first index if a list or just the vale if not a list
+        :param group:
+        :param key:
+        :return:
+        """
+
+        _return = None
+        if key == "env":
+            try:
+                _return = os.environ[group]
+            except Exception,err:
+                logger.debug("Cant get envar {} {}".format(group,err))
+            else:
+                return str(_return)
+        else:
+            try:
+                _type = type(self.groups.get(group).get(key))
+            except Exception, err:
+                logger.warn("Default - Group <%s> or Attribute <%s> not in config.json file, %s" % (group, key, err))
+                logger.debug("ALL DEFAULTS = %s" % self.getalldefaults())
+            else:
+                if _type==type([]):
+                    _return = self.groups.get(group).get(key)[0]
+                elif _type==type(u''):
+                    _return = self.groups.get(group).get(key)
+                else:
+                    logger.warn("%s not a list or a string" % key)
+            finally:
+                return str(_return)
+
     def getgroups(self):
         """
         Returns all attribute groups
@@ -186,16 +218,21 @@ class FarmJob(ConfigBase):
         super(FarmJob, self).__init__()
         self.author=author
         self.tq=tq
-        __utsuser=sgt.Person()
-        self.username=__utsuser.dabname
-        self.usernumber=__utsuser.dabnumber
+        try:
+            __utsuser=sgt.Person()
+        except Exception, err:
+            logger.warn("Cant get person from Shotgun")
+        else:
+            self.username=__utsuser.dabname
+            self.usernumber=__utsuser.dabnumber
+            self.useremail=__utsuser.email
+            self.department= __utsuser.department
+
         self.hostname = str(self.getdefault("tractor","engine"))
         self.port= int(self.getdefault("tractor","port"))
         self.jobowner=str(self.getdefault("tractor","jobowner"))
         self.engine=str(self.getdefault("tractor","engine"))
-        self.useremail=__utsuser.email
-        self.dabwork=self.getdefault("DABWORK","env")
-
+        self.dabwork=self.getenvordefault("DABWORK","env")
         self.author.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
         self.tq.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
 
@@ -366,8 +403,9 @@ if __name__ == '__main__':
     CB=ConfigBase()
     print CB.getallenvgroups()
     print CB.getalldefaults()
+    print CB.getattributes()
 
     FJ=FarmJob()
-    print FJ.getalldefaults()
+
 
 

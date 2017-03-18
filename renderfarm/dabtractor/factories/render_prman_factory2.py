@@ -28,113 +28,57 @@ import tractor.api.query as tq
 import os
 import time
 import sys
-import user_factory as ufac
+# import user_factory as ufac
 import utils_factory as utils
-import environment_factory as envfac
-
-class RenderBase(object):
-    ''' Base class for all batch jobs'''
-
-    def __init__(self):
-        self.user = os.getenv("USER")
-        self.spooljob = False
-        self.testing=False
-        self.farmjob=envfac.FarmJob()
-
-        try:
-            # get the names of the central render location for the user
-            ru = ufac.FarmUser()
-        except Exception, erroruser:
-            logger.warn("Cant get the users name and number back %s" % erroruser)
-            sys.exit("Cant get the users name")
-        else:
-            self.renderusernumber = ru.number
-            self.renderusername = ru.name
-
-        # if os.path.ismount(self.dabrender):
-        #     logger.info("Found mount %s" % self.dabrender)
-
-        # if os.path.isdir(self.dabrender):
-        #     logger.info("Yet found directory %s" % self.dabrender)
-        # else:
-        #     self.initialProjectPath = None
-        #     logger.critical("Cant find central filer mounted %s" % self.dabrender)
-        #     raise Exception, "dabrender not a valid mount point"
+# import environment_factory as envfac
 
 
-class RenderPrman(RenderBase):
+class RenderPrman(object):
     ''' Renderman job defined using the tractor api '''
 
-    def __init__(self,
-                 envdabwork="",
-                 envtype="",        # user_work
-                 envshow="",        # matthewgidney
-                 envproject="",     # mayaproject
-                 envscene="",       # mayascenename - noextension ### not needed
-                 mayaprojectpath="",    # /Users/Shared/UTS_Dev/dabrender/user_work/matthewgidney/matt_maya_project
-                 mayascenerelpath="", # scene/mayascene.ma
-                 mayascenefilefullpath="", ####### not needed
-                 mayaversion="",
-                 rendermanversion="",
-                 startframe=1,
-                 endframe=10,
-                 byframe=1,
-                 projectgroup="",
-                 outformat="",
-                 resolution="720p",
-                 skipframes=0,
-                 sendmail=0,
-                 makeproxy=0,
-                 sendtoshotgun=0,
-                 cleanup=0,
-                 options="",
-                 threadmemory=4000,
-                 threads=4,
-                 rendermaxsamples=64,
-                 ribgenchunks=1,
-                 email=[]
-    ):
+    def __init__(self, job):
         super(RenderPrman, self).__init__()
-        self.envdabwork = envdabwork
-        self.envtype=envtype
-        self.envproject=envproject
-        self.envshow=envshow
-        self.envscene=envscene
+        self.job=job
+
+        utils.printdict( self.job.__dict__)
+
+        self.job.dabwork="$DABWORK"
+
         self.mayaprojectpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT"
-        self.mayaprojectpath = os.path.join(self.envdabwork, self.envtype, self.envshow, self.envproject)
-        self.mayaprojectnamealias = "$PROJECT"
-        self.mayaprojectname = envproject
+        self.mayaprojectpath = os.path.join(self.job.dabwork, self.job.envtype, self.job.envshow, self.job.envproject)
+        self.job.envprojectalias = "$PROJECT"
         self.mayascenefilefullpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/$SCENE"
-        self.mayascenefilefullpath = os.path.join( self.envdabwork, self.envtype, self.envshow, self.envproject,
-                                                   self.envscene)
-        self.scenename = os.path.split(envscene)[-1:][0]
+        self.mayascenefilefullpath = os.path.join( self.job.dabwork, self.job.envtype, self.job.envshow,
+                                                   self.job.envproject,self.job.envscene)
+        self.scenename = os.path.basename(self.job.envscene)
         self.scenebasename = os.path.splitext(self.scenename)[0]
         self.sceneext = os.path.splitext(self.scenename)[1]
-        self.rendermanpath = os.path.join( self.envdabwork, self.envtype, self.envshow, self.envproject,
+        self.rendermanpath = os.path.join( self.job.dabwork, self.job.envtype, self.job.envshow, self.job.envproject,
                                            "renderman", self.scenebasename)
         self.rendermanpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/renderman/$SCENENAME"
         self.renderdirectory = os.path.join(self.rendermanpath,"images")
         self.renderimagesalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/renderman/$SCENENAME/images"
-        self.mayaversion = mayaversion,
-        self.rendermanversion = rendermanversion,
-        self.envkey_rms = "rms-{}-maya-{}".format(self.rendermanversion[0], self.mayaversion[0])
+        self.mayaversion = self.job.mayaversion,
+        self.rendermanversion = self.job.rendermanversion,
+        # self.envkey_rms = "rms-{}-maya-{}".format(self.rendermanversion[0], self.mayaversion[0])
         self.envkey_rfm = "rfm-{}-maya-{}".format(self.rendermanversion[0], self.mayaversion[0])
-        self.startframe = int(startframe)
-        self.endframe = int(endframe)
-        self.byframe = int(byframe)
-        self.ribgenchunks = int(ribgenchunks)  # pixar jobs are one at a time
-        self.projectgroup = projectgroup
-        self.options = options
-        self.email = email
-        self.resolution = resolution
-        self.outformat = outformat
-        self.makeproxy = makeproxy
-        self.sendmail = sendmail
-        self.skipframes = skipframes
-        self.rendermaxsamples=rendermaxsamples
-        self.threads = threads
-        self.threadmemory = threadmemory
-        self.mayaprojectname = os.path.basename(self.mayaprojectpath)
+        self.startframe = int(self.job.jobstartframe)
+        self.endframe = int(self.job.jobendframe)
+        self.byframe = int(self.job.jobbyframe)
+        self.chunks = int(self.job.jobchunks)  # pixar jobs are one at a time
+        self.projectgroup = self.job.department
+        self.options = ""
+        self.resolution = self.job.optionresolution
+        self.outformat = "exr"
+        self.makeproxy = self.job.optionmakeproxy
+        self.optionsendjobstartemail = self.job.optionsendjobstartemail
+        self.optionsendtaskendemail = self.job.optionsendtaskendemail
+        self.optionsendjobendemail = self.job.optionsendjobendemail
+        self.skipframes = self.job.optionskipframe
+        self.rendermaxsamples=self.job.optionmaxsamples
+        self.threads = self.job.jobthreads
+        self.threadmemory = self.job.jobthreadmemory
+        # self.job.envprojectname = os.path.basename(self.mayaprojectpath)
         self.ribpath = "{}/rib".format(self.rendermanpath)
         self.finaloutputimagebase = "{}/{}".format(self.rendermanpath,self.scenebasename)
         # self.proxyoutput = "$DABRENDER/$TYPE/$SHOW/$PROJECT/movies/$SCENENAME_{}.mov".format("datehere")
@@ -147,33 +91,42 @@ class RenderPrman(RenderBase):
         :return:
         '''
         # ################ 0 JOB ################
-        self.job = self.farmjob.author.Job(title="RM: {} {} {}-{}".format(
-              self.renderusername,self.scenename,self.startframe,self.endframe),
+        self.renderjob = self.job.env.author.Job(title="RM: {} {} {}-{}".format(
+              self.job.username,self.scenename,self.startframe,self.endframe),
               priority=10,
               envkey=[self.envkey_rfm,"ProjectX",
-                    "TYPE={}".format(self.envtype),
-                    "SHOW={}".format(self.envshow),
-                    "PROJECT={}".format(self.envproject),
-                    "SCENE={}".format(self.envscene),
+                    "TYPE={}".format(self.job.envtype),
+                    "SHOW={}".format(self.job.envshow),
+                    "PROJECT={}".format(self.job.envproject),
+                    "SCENE={}".format(self.job.envscene),
                     "SCENENAME={}".format(self.scenebasename)],
-              metadata="user={} username={} usernumber={}".format( self.user, self.renderusername,self.renderusernumber),
-              comment="LocalUser is {} {} {}".format(self.user,self.renderusername,self.renderusernumber),
+              metadata="username={} usernumber={}".format(self.job.username,self.job.usernumber),
+              comment="LocalUser is {} {}".format(self.job.username,self.job.usernumber),
               projects=[str(self.projectgroup)],
-              tier=str(self.farmjob.getdefault("renderjob","rendertier")),
+              tier=str(self.job.farmtier),
               tags=["theWholeFarm", ],
               service="")
 
 
         # ############## 0 ThisJob #################
-        task_thisjob = self.farmjob.author.Task(title="Renderman Job")
+        task_thisjob = self.job.env.author.Task(title="Renderman Job")
         task_thisjob.serialsubtasks = 1
 
+        # ############## 5 NOTIFY JOB START ###############
+        if self.optionsendjobstartemail:
+            logger.info("email = {}".format(self.job.useremail))
+            task_notify = self.job.env.author.Task(title="Notify", service="ShellServices")
+            task_notify.addCommand(self.mail("JOB", "START", "{}".format(self.mayascenefilefullpath)))
+            task_thisjob.addChild(task_notify)
+
+        self.renderjob.addChild(task_thisjob)
+
         # ############## 1 PREFLIGHT ##############
-        task_preflight = self.farmjob.author.Task(title="Preflight")
+        task_preflight = self.job.env.author.Task(title="Preflight")
         task_preflight.serialsubtasks = 1
         task_thisjob.addChild(task_preflight)
-        task_generate_rib_preflight = self.farmjob.author.Task(title="Generate RIB Preflight")
-        command_ribgen = self.farmjob.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,
+        task_generate_rib_preflight = self.job.env.author.Task(title="Generate RIB Preflight")
+        command_ribgen = self.job.env.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,
                                               "-command",
                                               "renderManBatchGenRibForLayer {layerid} {start} {end} {phase}".format(
                                                   layerid=0, start=self.startframe, end=self.endframe, phase=1),
@@ -199,13 +152,13 @@ class RenderPrman(RenderBase):
         task_preflight.addChild(task_render_preflight)
 
         # ############## 3 RIBGEN ##############
-        task_render_allframes = self.farmjob.author.Task(title="ALL FRAMES {}-{}".format(self.startframe, self.endframe))
+        task_render_allframes = self.job.env.author.Task(title="ALL FRAMES {}-{}".format(self.startframe,self.endframe))
         task_render_allframes.serialsubtasks = 1
-        task_ribgen_allframes = self.farmjob.author.Task(title="RIB GEN {}-{}".format(self.startframe, self.endframe))
+        task_ribgen_allframes = self.job.env.author.Task(title="RIB GEN {}-{}".format(self.startframe, self.endframe))
 
         # divide the frame range up into chunks
         _totalframes=int(self.endframe-self.startframe+1)
-        _chunks = int(self.ribgenchunks)
+        _chunks = int(self.chunks)
         _framesperchunk=_totalframes
         if _chunks < _totalframes:
             _framesperchunk=int(_totalframes/_chunks)
@@ -240,7 +193,7 @@ class RenderPrman(RenderBase):
 
 
         # ############### 4 RENDER ##############
-        task_render_frames = self.farmjob.author.Task(title="RENDER Frames {}-{}".format(self.startframe, self.endframe))
+        task_render_frames = self.job.env.author.Task(title="RENDER Frames {}-{}".format(self.startframe,self.endframe))
         task_render_frames.serialsubtasks = 0
 
         for frame in range(self.startframe, (self.endframe + 1), self.byframe):
@@ -251,7 +204,7 @@ class RenderPrman(RenderBase):
             _ribfile = "{proj}/rib/{frame:04d}/{frame:04d}.rib".format(
                 proj=self.rendermanpath, frame=frame)
 
-            task_render_rib = self.farmjob.author.Task(title="RENDER Frame {}".format(frame),
+            task_render_rib = self.job.env.author.Task(title="RENDER Frame {}".format(frame),
                                           preview="sho {}".format(_imgfile),
                                           metadata="statsfile={} imgfile={}".format(_statsfile, _imgfile))
             commonargs = ["prman", "-cwd", self.mayaprojectpath]
@@ -313,14 +266,23 @@ class RenderPrman(RenderBase):
             ])
             userspecificargs = [ utils.expandargumentstring(self.options),"{}".format(_ribfile)]
             finalargs = commonargs + rendererspecificargs + userspecificargs
-            command_render = self.farmjob.author.Command(argv=finalargs,
-                                            #envkey=[self.envkey_prman],
+            command_render = self.job.env.author.Command(argv=finalargs,
                                             tags=["prman", "theWholeFarm"],
                                             atleast=int(self.threads),
                                             atmost=int(self.threads),
                                             service="PixarRender")
 
             task_render_rib.addCommand(command_render)
+
+            # ############## 5 NOTIFY Task END ###############
+            if self.optionsendtaskendemail:
+                # logger.info("email = {}".format(self.job.useremail))
+                # task_notify = self.job.env.author.Task(title="Notify", service="ShellServices")
+                task_render_rib.addCommand(self.mail("TASK FRAME {}".format(frame), "END", "{}".format(
+                    self.mayascenefilefullpath)))
+                # task_thisjob.addChild(task_notify)
+
+            self.renderjob.addChild(task_thisjob)
             task_render_frames.addChild(task_render_rib)
 
         task_render_allframes.addChild(task_render_frames)
@@ -361,21 +323,21 @@ class RenderPrman(RenderBase):
                            end=self.endframe)
                 _option2 = "-out8 -outgamma 2.2"
                 _option3 = "-overlay frameburn 0.5 1.0 30 -leader simpleslate UTS_BDES_ANIMATION Type={} Show={} Project={} File={} Student={}-{} Group={} Date={}".format(
-                                                                      self.envtype,
-                                                                      self.envshow,
-                                                                      self.envproject,
-                                                                      self.scenebasename,
-                                                                      self.user,
-                                                                      self.renderusername,
-                                                                      self.projectgroup,
-                                                                      self.thedate)
+                              self.job.envtype,
+                              self.job.envshow,
+                              self.job.envproject,
+                              self.scenebasename,
+                              self.job.usernumber,
+                              self.job.username,
+                              self.projectgroup,
+                              self.thedate)
 
 
                 _output = "-o %s" % _outmov
 
                 _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (_seq, _option1, _option2, _option3, _output)) ]
 
-                task_proxy = self.farmjob.author.Task(title="Proxy Generation")
+                task_proxy = self.job.env.author.Task(title="Proxy Generation")
                 proxycommand = author.Command(argv=_rvio_cmd,
                                       service="Transcoding",
                                       tags=["rvio", "theWholeFarm"],
@@ -389,28 +351,22 @@ class RenderPrman(RenderBase):
         else:
             logger.info("make proxy = {}".format(self.makeproxy))
 
-        # ############## 5 NOTIFY ###############
-        if self.sendmail:
-
-            # get the jid of this job
-            # query info
-            # compose mail
-
-            logger.info("email = {}".format(self.email))
-            task_notify = self.farmjob.author.Task(title="Notify", service="ShellServices")
-            task_notify.addCommand(self.mail("JOB", "COMPLETE", "email details still wip"))
+        # ############## 5 NOTIFY JOB END ###############
+        if self.optionsendjobendemail:
+            logger.info("email = {}".format(self.job.useremail))
+            task_notify = self.job.env.author.Task(title="Notify", service="ShellServices")
+            task_notify.addCommand(self.mail("JOB", "COMPLETE", "{}".format(self.mayascenefilefullpath)))
             task_thisjob.addChild(task_notify)
 
-        self.job.addChild(task_thisjob)
+        self.renderjob.addChild(task_thisjob)
 
     def validate(self):
-        logger.info("\n\n{:_^80}\n{}\n{:_^80}".format("snip", self.job.asTcl(), "snip"))
+        logger.info("\n\n{:_^80}\n{}\n{:_^80}".format("snip", self.renderjob.asTcl(), "snip"))
 
     def mail(self, level="Level", trigger="Trigger", body="Render Progress Body"):
         bodystring = "Prman Render Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
-        subjectstring = "FARM JOB: %s %s" % (str(self.scenebasename), self.renderusername)
-        mailcmd = author.Command(argv=["sendmail.py", "-t", "%s@uts.edu.au" % self.user,
-                                       "-b", bodystring, "-s", subjectstring], service="ShellServices")
+        subjectstring = "FARM JOB: {} {} {} {}".format(level,trigger, str(self.scenebasename), self.job.username)
+        mailcmd = author.Command(argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
         return mailcmd
 
     def spool(self):
@@ -420,10 +376,8 @@ class RenderPrman(RenderBase):
             try:
                 logger.info("Spooled correctly")
                 # all jobs owner by pixar user on the farm
-                self.job.spool(owner=self.farmjob.getdefault("tractor","jobowner"),
-                               port=int(self.farmjob.getdefault("tractor","port")))
-                # self.job.spool(owner=self.user,
-                #                port=int(self.fj.getdefault("tractor","port")))
+                self.renderjob.spool(owner=self.job.env.getdefault("tractor","jobowner"),
+                               port=int(self.job.env.getdefault("tractor","port")))
 
             except Exception, spoolerr:
                 logger.warn("A spool error %s" % spoolerr)
@@ -442,33 +396,8 @@ if __name__ == "__main__":
     logger.setLevel(logging.INFO)
     logger.info("START TESTING")
 
-    TEST = RenderPrman(
-                       envdabwork="/Volumes/dabrender/work",
-                       envproject="testFarm",
-                       envshow="matthewgidney",
-                       envscene="dottyrms.ma",
-                       envtype="user_work",
-                       mayascenefilefullpath="/usr/local/tmp/scene/file.ma",
-                       mayaprojectpath="/usr/local/tmp/",
-                       mayaversion="2016",
-                       rendermanversion="20.2",
-                       startframe=1,
-                       endframe=4,
-                       byframe=1,
-                       outformat="exr",
-                       resolution="540p",
-                       options="",
-                       skipframes=1,
-                       makeproxy=1,
-                       threadmemory="4000",
-                       rendermaxsamples="128",
-                       threads="4",
-                       ribgenchunks=2,
-                       email=[1, 0, 0, 0, 1, 0]
-    )
-    TEST.build()
-    TEST.validate()
-    logger.info("FINISHED TESTING")
+
+
 
 
 

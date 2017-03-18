@@ -135,7 +135,7 @@ class RenderMantra(RenderBase):
         self.startframe = int(startframe)
         self.endframe = int(endframe)
         self.byframe = int(byframe)
-        # self.ribgenchunks = int(ribgenchunks)  # pixar jobs are one at a time
+        # self.chunks = int(chunks)  # pixar jobs are one at a time
         self.projectgroup = projectgroup
         self.options = options
         self.email = email

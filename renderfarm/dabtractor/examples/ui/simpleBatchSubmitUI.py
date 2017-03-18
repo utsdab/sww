@@ -109,10 +109,10 @@ class Window(object):
 
     # def openfile(self):
     #     self.filename = tkFileDialog.askopenfilename(parent=self.master, initialdir=self.dirname,
-    #                                                  title=self.filetext,
+    #                                                  title=self.msg_selectscene,
     #                                                  filetypes=[('maya ascii', '.ma'),
     #                                                             ('maya binary', '.mb')])  ## filename not filehandle
-    #     self.filebut["text"] = str(self.filename) if self.filename else self.filetext
+    #     self.filebut["text"] = str(self.filename) if self.filename else self.msg_selectscene
 
 
 
