@@ -1,12 +1,11 @@
 #!/usr/bin/env rmanpy
-"""
-To do:
-    cleanup routine for rib
-    create a ribgen then prman version
-    check and test options
-    run farmuser to check is user is valid
 
-"""
+# TODO move this into a tabbed single interface
+# TODO handle layers
+# TODO handle integrators
+# TODO handle ribgen only
+
+
 ###############################################################
 import logging
 logger = logging.getLogger(__name__)
@@ -26,7 +25,7 @@ import os
 import sys
 import sww.renderfarm.dabtractor as dabtractor
 import sww.renderfarm.dabtractor.factories.environment_factory as envfac
-import sww.renderfarm.dabtractor.factories.render_prman_factory2 as rfac
+import sww.renderfarm.dabtractor.factories.render_rfm_factory as rfac
 
 
 class Job(object):

@@ -32,16 +32,8 @@ import os
 import sys
 import tractor.api.author as author
 from sww.renderfarm.dabtractor.factories import user_factory as ufac
-# from sww.maya.uts_tools import tractor_submit_maya_UI as ts
-from sww.renderfarm.dabtractor.factories import interface_maya_ribgen_prman_factory as ui
+from sww.renderfarm.dabtractor.factories import interface_renderman_for_maya_factory as ui
 
-
-
-################################
-_thisuser = os.getenv("USER")
-# (_usernumber,_username) =  ufac.FarmUser(_thisuser).query()
-# env = envfac.Environment()
-# farmjob = envfac.FarmJob()
 
 try:
     u = ufac.FarmUser()
@@ -51,7 +43,7 @@ except Exception, err:
     logger.warn(err)
     sys.exit("Sorry you dont appear to be a registered farm user {}, try running farm_adduser.py and then contact "
              "matt - "
-             "matthew.gidney@uts.edu.au".format(_thisuser))
+             "matthew.gidney@uts.edu.au".format(os.environ["USER"]))
 ################################
 
 if __name__ == '__main__':
