@@ -12,9 +12,9 @@ import subprocess
 import sys
 import time
 
-from software.renderfarm.dabtractor import proxys as pt
-from software.renderfarm.dabtractor.factories import utils_factory as utils
-from software.renderfarm.dabtractor.factories import environment_factory as envfac
+from sww.renderfarm.dabtractor import proxys as pt
+from sww.renderfarm.dabtractor.factories import utils_factory as utils
+from sww.renderfarm.dabtractor.factories import environment_factory as env
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -51,7 +51,6 @@ class ImageSequence(object):
     '''
 
     def __init__(self, inputthing):
-        self.env=envfac.Environment()
         try:
             if os.path.isdir(inputthing):
                 self.startingpath = inputthing
@@ -69,7 +68,7 @@ class ImageSequence(object):
             _lsseqpath = "lsseq"
             _env['PATH'] = '{}:{}'.format(_lsseqpath,_env["PATH"])
             p = subprocess.Popen(["lsseq", "-R", "-O", "-p", "--format", "nuke", self.startingpath],
-                                 # farmjob=_env,
+                                 # fj=_env,
                                  stdout=subprocess.PIPE)
             out= p.communicate()[0]
             # output = [ [moviepath, nukefilename, range ], [], [] ]
@@ -85,11 +84,11 @@ class ImageSequence(object):
 
     def buildcommand(self, proxytemplate, commandprefixlist=[], commansuffixlist=[]):
         # prepend and post pend more list items to build up a full command to pass to tractor
-        self.dabrender = self.env.getdefault("dabrender","path")
+        self.dabrender = config.CurrentConfiguration().dabrender
 
         _nuke_proxy_template_path = Proxytemplate("nuke_proxy_720p_prores_v003.py").proxytouse
 
-        _nuke_version = "Nuke{}".format(self.env.getdefault("nuke","version"))
+        _nuke_version = "Nuke{}".format(config.ConfigBase.getdefault("nukeversion"))
         _nuke_executable = "/Applications/{n}/{n}.app/Contents/MacOS/{n}".format(n=_nuke_version)
         _date = time.strftime("%Y_%m_%d__%H-%M")
 
@@ -163,7 +162,7 @@ class ImageSequence(object):
 
             try:
                 logger.info("Runing command {}".format(" ".join(seq)))
-                # p1 = subprocess.Popen(seq, farmjob=_env, stdout=subprocess.PIPE, shell=True)
+                # p1 = subprocess.Popen(seq, fj=_env, stdout=subprocess.PIPE, shell=True)
 
                 p2 = subprocess.Popen(seq,
                                       env=_env,

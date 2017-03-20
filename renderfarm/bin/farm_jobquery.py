@@ -37,15 +37,6 @@ import tractor.api.query as tq
 
 ################################
 _thisuser = os.getenv("USER")
-# (_usernumber,_username) =  ufac.FarmUser(_thisuser).query()
-# try:
-#     u = ufac.FarmUser()
-#     _usernumber = u.number
-#     _username = u.name
-# except:
-#     sys.exit("Sorry you dont appear to be a registered farm user {}, try running farm_adduser.py and then contact matt - "
-#              "matthew.gidney@uts.edu.au".format(_thisuser))
-################################
 
 tq.setEngineClientParam(hostname="tractor-engine", port=5600, user="pixar", debug=True)
 
@@ -83,7 +74,6 @@ def gettimes():
         # done=errors.get("numdone")
         # tasks=errors.get("numtasks")
         for i,inv in enumerate(invocation):
-            # print i,j.values()
             try:
                 totalseconds=totalseconds+(inv.get("elapsedreal")*inv.get("numslots"))
             except:
@@ -121,7 +111,6 @@ def getstuff(days=1):
 
 
         for i,inv in enumerate(invocation):
-            # print i,j.values()
             try:
                 totalseconds=totalseconds+(inv.get("elapsedreal")*inv.get("numslots"))
             except:

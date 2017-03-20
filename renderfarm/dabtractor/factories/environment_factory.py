@@ -9,10 +9,7 @@
 """
 import os
 import json
-import inspect
-import utils_factory as utils
-import user_factory as ufac
-import sww.renderfarm.dabtractor as dt
+import shotgun_factory as sgt
 import sww.renderfarm as rf
 import tractor.api.author as author
 import tractor.api.query as tq
@@ -108,6 +105,38 @@ class ConfigBase(object):
         finally:
             return str(_return)
 
+    def getenvordefault(self,group, key):
+        """
+        Returns the envar OR first index if a list or just the vale if not a list
+        :param group:
+        :param key:
+        :return:
+        """
+
+        _return = None
+        if key == "env":
+            try:
+                _return = os.environ[group]
+            except Exception,err:
+                logger.debug("Cant get envar {} {}".format(group,err))
+            else:
+                return str(_return)
+        else:
+            try:
+                _type = type(self.groups.get(group).get(key))
+            except Exception, err:
+                logger.warn("Default - Group <%s> or Attribute <%s> not in config.json file, %s" % (group, key, err))
+                logger.debug("ALL DEFAULTS = %s" % self.getalldefaults())
+            else:
+                if _type==type([]):
+                    _return = self.groups.get(group).get(key)[0]
+                elif _type==type(u''):
+                    _return = self.groups.get(group).get(key)
+                else:
+                    logger.warn("%s not a list or a string" % key)
+            finally:
+                return str(_return)
+
     def getgroups(self):
         """
         Returns all attribute groups
@@ -173,7 +202,7 @@ class ConfigBase(object):
         _haspath = []
         for group in self.groups.keys():
             for attribute in self.groups.get(group).keys():
-                if attribute=="farmjob":
+                if attribute=="fj":
                     _haspath.append(group)
         return _haspath
 
@@ -189,14 +218,21 @@ class FarmJob(ConfigBase):
         super(FarmJob, self).__init__()
         self.author=author
         self.tq=tq
-        __utsuser=ufac.FarmUser()
-        self.username=__utsuser.name
-        self.usernumber=__utsuser.number
+        try:
+            __utsuser=sgt.Person()
+        except Exception, err:
+            logger.warn("Cant get person from Shotgun")
+        else:
+            self.username=__utsuser.dabname
+            self.usernumber=__utsuser.dabnumber
+            self.useremail=__utsuser.email
+            self.department= __utsuser.department
+
         self.hostname = str(self.getdefault("tractor","engine"))
         self.port= int(self.getdefault("tractor","port"))
         self.jobowner=str(self.getdefault("tractor","jobowner"))
         self.engine=str(self.getdefault("tractor","engine"))
-
+        self.dabwork=self.getenvordefault("DABWORK","env")
         self.author.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
         self.tq.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
 
@@ -309,7 +345,7 @@ class Environment2(ConfigBase):
     """
     This class adds to the environment is oe.environ it replaces Environment Class
 
-    1. read the environment that needs to be there in the config json file ie (has a "farmjob" attribute
+    1. read the environment that needs to be there in the config json file ie (has a "fj" attribute
     2. if not founf then add it to the environment os.environ
 
     """
@@ -367,8 +403,9 @@ if __name__ == '__main__':
     CB=ConfigBase()
     print CB.getallenvgroups()
     print CB.getalldefaults()
+    print CB.getattributes()
 
     FJ=FarmJob()
-    print FJ.getalldefaults()
+
 
 
