@@ -130,7 +130,7 @@ class WindowPrman(WindowBase):
         __row = 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor3, text="Maya RIB generation then Prman").grid(row=__row, column=0, columnspan=5, sticky=tk.W + tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor3, text="Nuke Batch Render").grid(row=__row, column=0, columnspan=5, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
@@ -176,7 +176,7 @@ class WindowPrman(WindowBase):
         __row += 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor3,text="Maya Generic Details").grid(row=__row, column=0, columnspan=4, rowspan=1, sticky=tk.W + tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor3,text="Nuke Generic Details").grid(row=__row, column=0, columnspan=4, rowspan=1, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
