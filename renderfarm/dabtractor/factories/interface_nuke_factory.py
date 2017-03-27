@@ -25,65 +25,7 @@ import os
 import sys
 import sww.renderfarm.dabtractor as dabtractor
 import sww.renderfarm.dabtractor.factories.environment_factory as envfac
-import sww.renderfarm.dabtractor.factories.render_rfm_factory as rfac
-
-
-class Job(object):
-    """ job parameters - variants should be derived by calling factories as needed
-    """
-    def __init__(self):
-        """ The payload of gui-data needed to describe a farm render job
-        """
-        self.usernumber=None
-        self.username=None
-        self.useremail=None
-
-        try:
-            self.env=envfac.FarmJob()
-            self.usernumber=self.env.usernumber
-            self.username=self.env.username
-            self.useremail=self.env.useremail
-            self.department=self.env.department
-            self.dabwork=self.env.dabwork
-
-        except Exception, err:
-            logger.warn("Cant get user credentials: {}".format(err))
-
-        self.mayaprojectfullpath=None
-        self.mayascenefullpath=None
-
-        self.farmtier=None
-
-        if self.env.department in self.env.getoptions("renderjob", "projectgroup"):
-            logger.info("Department {}".format(self.env.department))
-        else:
-            self.department="Other"
-
-        self.farmpriority=None
-        self.farmcrew=None
-
-        self.jobtitle=None
-        self.jobenvkey=None
-        self.jobfile=None
-        self.jobstartframe=None
-        self.jobendframe=None
-        self.jobchunks=None
-        self.jobthreads=None
-        self.jobthreadmemory=None
-
-        self.optionskipframe=None
-        self.optionmakeproxy=None
-        # self.optionsendemail=None
-        self.optionresolution=None
-        self.optionmaxsamples=None
-
-        self.envtype=None
-        self.envshow=None
-        self.envproject=None
-        self.envscene=None
-
-        self.mayaversion=None
-        self.rendermanversion=None
+import sww.renderfarm.dabtractor.factories.render_nuke_factory as rfac
 
 
 class WindowBase(object):
@@ -92,19 +34,19 @@ class WindowBase(object):
         self.spooljob = False
         self.validatejob = False
         self.master = tk.Tk()
-        self.job=Job()
+        self.job=rfac.Job()
 
 
-class WindowPrman(WindowBase):
+class Window(WindowBase):
     """ Ui Class for render submit  """
     def __init__(self):
         """ Construct the main window interface  """
-        super(WindowPrman, self).__init__()
-        self.msg_selectproject = 'Select your maya project'
-        self.msg_selectscene = 'Select your maya scene file'
+        super(Window, self).__init__()
+        self.msg_selectproject = 'Select your project'
+        self.msg_selectscene = 'Select your nuke script file'
         self.msg_selectshow = 'Select your SHOW'
         self.msg_workspaceok = 'workspace.mel FOUND'
-        self.msg_workspacebad = 'WARNING - no workspace.mel in your project'
+        # self.msg_workspacebad = 'WARNING - no workspace.mel in your project'
         self.filefullpath = ""
         self.projfullpath = ""
         self.workspace = ""
@@ -158,19 +100,14 @@ class WindowPrman(WindowBase):
         __row += 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1, text="$PROJECT MayaProj").grid(row=__row, column=0, sticky=tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor1, text="$PROJECT").grid(row=__row, column=0, sticky=tk.E)
         self.envproj = tk.StringVar()
         self.envprojbut = tk.Button(self.canvas, text=self.msg_selectproject, bg=self.bgcolor1, fg='black', command=self.setproject)
         self.envprojbut.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
-        self.workspacelab = tk.Label(self.canvas, bg=self.bgcolor1, text=self.msg_workspaceok, fg='black')
-        self.workspacelab.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        __row += 1
-
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="$SCENE (Maya Scene)").grid(row=__row, column=0, sticky=tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor1,text="$SCENE (Nuke Script)").grid(row=__row, column=0, sticky=tk.E)
         self.envscenebut = tk.Button(self.canvas, text=self.msg_selectscene, fg='black', command=self.setscene)
         self.envscenebut.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
@@ -180,12 +117,12 @@ class WindowPrman(WindowBase):
         __row += 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="Maya Version").grid(row=__row, column=0, sticky=tk.E)
-        self.mayaversion = tk.StringVar()
-        self.mayaversion.set(self.job.env.getdefault("maya","version"))
-        self.mayaversionbox = ttk.Combobox(self.canvas, textvariable=self.mayaversion)
-        self.mayaversionbox.config(values=self.job.env.getoptions("maya","version"), justify=tk.CENTER)
-        self.mayaversionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor1,text="Nuke Version").grid(row=__row, column=0, sticky=tk.E)
+        self.nukeversion = tk.StringVar()
+        self.nukeversion.set(self.job.env.getdefault("nuke","version"))
+        self.nukeversionbox = ttk.Combobox(self.canvas, textvariable=self.nukeversion)
+        self.nukeversionbox.config(values=self.job.env.getoptions("nuke","version"), justify=tk.CENTER)
+        self.nukeversionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
@@ -234,31 +171,31 @@ class WindowPrman(WindowBase):
         __row += 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="Renderman Version").grid(row=__row, column=0, sticky=tk.E)
-        self.rendermanversion = tk.StringVar()
-        self.rendermanversion.set(self.job.env.getdefault("renderman","version"))
-        self.rendermanversionbox = ttk.Combobox(self.canvas, textvariable=self.rendermanversion)
-        self.rendermanversionbox.config(values=self.job.env.getoptions("renderman","version"), justify=tk.CENTER)
-        self.rendermanversionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        __row += 1
+        # tk.Label(self.canvas, bg=self.bgcolor1,text="Renderman Version").grid(row=__row, column=0, sticky=tk.E)
+        # self.rendermanversion = tk.StringVar()
+        # self.rendermanversion.set(self.job.env.getdefault("renderman","version"))
+        # self.rendermanversionbox = ttk.Combobox(self.canvas, textvariable=self.rendermanversion)
+        # self.rendermanversionbox.config(values=self.job.env.getoptions("renderman","version"), justify=tk.CENTER)
+        # self.rendermanversionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        # __row += 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="Intergrator").grid(row=__row, column=0, sticky=tk.E)
-        self.integrator = tk.StringVar()
-        self.integrator.set(self.job.env.getdefault("renderman","integrator"))
-        self.integratorbox = ttk.Combobox(self.canvas, textvariable=self.integrator)
-        self.integratorbox.config(values=self.job.env.getoptions("renderman","integrator"), justify=tk.CENTER)
-        self.integratorbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        __row += 1
+        # tk.Label(self.canvas, bg=self.bgcolor1,text="Intergrator").grid(row=__row, column=0, sticky=tk.E)
+        # self.integrator = tk.StringVar()
+        # self.integrator.set(self.job.env.getdefault("renderman","integrator"))
+        # self.integratorbox = ttk.Combobox(self.canvas, textvariable=self.integrator)
+        # self.integratorbox.config(values=self.job.env.getoptions("renderman","integrator"), justify=tk.CENTER)
+        # self.integratorbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        # __row += 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="Max Samples").grid(row=__row, column=0, sticky=tk.E)
-        self.maxsamples = tk.StringVar()
-        self.maxsamples.set(self.job.env.getdefault("render","maxsamples"))
-        self.maxsamplesbox = ttk.Combobox(self.canvas, textvariable=self.maxsamples)
-        self.maxsamplesbox.config(values=self.job.env.getoptions("render","maxsamples"), justify=tk.CENTER)
-        self.maxsamplesbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        __row += 1
+        # tk.Label(self.canvas, bg=self.bgcolor1,text="Max Samples").grid(row=__row, column=0, sticky=tk.E)
+        # self.maxsamples = tk.StringVar()
+        # self.maxsamples.set(self.job.env.getdefault("render","maxsamples"))
+        # self.maxsamplesbox = ttk.Combobox(self.canvas, textvariable=self.maxsamples)
+        # self.maxsamplesbox.config(values=self.job.env.getoptions("render","maxsamples"), justify=tk.CENTER)
+        # self.maxsamplesbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        # __row += 1
 
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1,text="Render Threads").grid(row=__row, column=0, sticky=tk.E)
@@ -298,7 +235,7 @@ class WindowPrman(WindowBase):
         tk.Label(self.canvas, bg=self.bgcolor1, text="Other Options").grid(row=__row, column=0)
         self.options = tk.StringVar()
         self.options.set("")
-        self.bar7 = tk.Entry(self.canvas, bg=self.bgcolor2, textvariable=self.options, width=40).grid(row=__row,column=1, columnspan=4,sticky=tk.W + tk.E)
+        self.optionsbar = tk.Entry(self.canvas, bg=self.bgcolor2, textvariable=self.options, width=40).grid(row=__row,column=1, columnspan=4,sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
@@ -309,8 +246,7 @@ class WindowPrman(WindowBase):
         _txt="Make Movie from Finished Frames"
         self.makeproxy = tk.IntVar()
         self.makeproxy.set(1)
-        tk.Checkbutton(self.canvas, bg=self.bgcolor1, text=_txt, variable=self.makeproxy).grid(row=__row, column=1,
-                                                                                            sticky=tk.W)
+        tk.Checkbutton(self.canvas, bg=self.bgcolor1, text=_txt, variable=self.makeproxy).grid(row=__row, column=1,sticky=tk.W)
         __row += 1
 
         # ###################################################################
@@ -335,7 +271,6 @@ class WindowPrman(WindowBase):
         self.emailtaskendbut=tk.Checkbutton(self.canvas, variable=self.emailtaskend, bg=self.bgcolor1, text="Each Frame End").grid(row=__row, column=1, sticky=tk.W)
         __row += 1
 
-
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor3, text="Submit Job To Tractor").grid(\
             row=__row, column=0, columnspan=4, sticky=tk.W + tk.E)
@@ -356,7 +291,7 @@ class WindowPrman(WindowBase):
     def setscene(self):
         self.filefullpath = tkFileDialog.askopenfilename(\
             parent=self.master,initialdir=self.projfullpath,title=self.msg_selectscene,
-            filetypes=[('maya ascii', '.ma'),('maya binary', '.mb')]) # filename not filehandle
+            filetypes=[('nuke script', '.nk')]) # filename not filehandle
 
         _projfullpath=os.path.join(self.job.dabwork,self.job.envtype,self.job.envshow,self.job.envproject)
         _scenerelpath=os.path.relpath(self.filefullpath,_projfullpath)
@@ -367,8 +302,6 @@ class WindowPrman(WindowBase):
     def settype(self,event):
         # Just bind the virtual event <<ComboboxSelected>> to the Combobox widget
         self.job.envtype=self.envtype.get()
-        self.workspacelab["text"] = self.msg_workspacebad
-        self.workspacelab["bg"] = self.bgcolor1
 
         if self.job.envtype == "user_work":
             self.job.envshow=self.job.username
@@ -383,7 +316,6 @@ class WindowPrman(WindowBase):
         self.job.envscene=None
 
     def setshow(self):
-        __initialdir=self.job.dabwork
         if self.job.envtype == "user_work":
             self.job.envshow=self.job.username
             self.envshowbut["text"]=self.job.envshow
@@ -405,38 +337,23 @@ class WindowPrman(WindowBase):
     def setproject(self):
         __initialdir=os.path.join(self.job.dabwork,self.job.envtype,self.job.envshow)
         self.projfullpath = tkFileDialog.askdirectory(parent=self.master, initialdir=__initialdir, title=self.msg_selectproject)
-        _typefullpath = os.path.join(self.job.dabwork,self.job.envtype,self.job.envshow)
-        _projectrelpath=os.path.relpath(self.projfullpath,_typefullpath)
+        _typefullpath = os.path.join(self.job.dabwork, self.job.envtype, self.job.envshow)
+        _projectrelpath = os.path.relpath(self.projfullpath, _typefullpath)
 
-        _possible = "%s/workspace.mel" % self.projfullpath
-        print _possible
-        if os.path.exists(_possible):
-            print "ok"
-            self.envprojbut["text"] = str(_projectrelpath)  #if self.projfullpath else self.msg_selectproject
-            self.workspacelab["text"] = self.msg_workspaceok
-            self.workspacelab["bg"] = self.bgcolor3
-            self.job.envproject=_projectrelpath
-        else:
-            print "not ok"
-            self.workspacelab["text"] = self.msg_workspacebad
-            self.workspacelab["bg"] = self.bgcolor1
-            self.envprojbut["text"] = self.msg_selectproject
-            self.envscenebut["text"] = self.msg_selectscene
-
-            self.job.envproject=None
-            self.job.envscene=None
+        self.job.envproject=_projectrelpath
+        self.envprojbut["text"]= _projectrelpath
 
     def consolidate(self):
         try:
-            self.job.mayaprojectfullpath=self.projfullpath
-            self.job.mayascenefullpath=self.filefullpath
+            self.job.projectfullpath=self.projfullpath
+            self.job.nukescriptfullpath=self.filefullpath
             self.job.optionskipframe=self.skipframes.get()  # gets from the tk object
             self.job.optionmakeproxy=self.makeproxy.get()
             self.job.optionresolution=self.resolution.get()
             self.job.optionsendjobstartemail=self.emailjobstart.get()
             self.job.optionsendjobendemail=self.emailjobend.get()
             self.job.optionsendtaskendemail=self.emailtaskend.get()
-            self.job.optionmaxsamples=self.maxsamples.get()  # gets from the tk object
+            self.job.options=self.options.get()  # gets from the tk object
             self.job.farmtier=self.tier.get()
             self.job.jobthreads=self.threads.get()
             self.job.jobstartframe=self.sf.get()
@@ -444,34 +361,33 @@ class WindowPrman(WindowBase):
             self.job.jobbyframe=self.bf.get()
             self.job.jobthreadmemory=self.memory.get()
             self.job.jobchunks=self.chunks.get()
-            self.job.mayaversion=self.mayaversion.get()
-            self.job.rendermanversion=self.rendermanversion.get()
+            self.job.softwareversion=self.nukeversion.get()
         except Exception,err:
-            logger.warn(err)
+            logger.warn("consolidate %s"%err)
 
     def validate(self):
-        try:
-            logger.info("Validate")
-            logger.info("Project: %s" % self.projfullpath)
-            logger.info("SceneFile: %s" % self.filefullpath)
-            logger.info("Start: %s" % self.sf.get())
-            logger.info("End: %s" % self.ef.get())
-            logger.info("By: %s" % self.bf.get())
-            logger.info("Skip Existing Frames:" % self.skipframes)
-            logger.info("Make Proxy:" % self.makeproxy)
-            self.consolidate()
-            rj=rfac.RenderPrman(self.job)
-            rj.build()
-            rj.validate()
+        self.consolidate()
+        logger.info("Validate")
+        logger.info("Project: %s" % self.projfullpath)
+        logger.info("SceneFile: %s" % self.filefullpath)
+        logger.info("Start: %s" % self.sf.get())
+        logger.info("End: %s" % self.ef.get())
+        logger.info("By: %s" % self.bf.get())
+        logger.info("Skip Existing Frames: %s" % self.skipframes.get())
 
+        try:
+            rj=rfac.Render(self.job)
         except Exception, validateError:
             logger.warn("Problem validating %s" % validateError)
+        else:
+            rj.build()
+            rj.validate()
 
     def submit(self):
         try:
             self.consolidate()
             self.master.destroy()
-            rj=rfac.RenderPrman(self.job)
+            rj=rfac.Render(self.job)
             rj.build()
             rj.validate()
             rj.spool()
@@ -486,7 +402,7 @@ class WindowPrman(WindowBase):
 
 if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
-    w=WindowPrman()
+    w=Window()
     # for key in w.job.__dict__.keys():
     #     print "{:20} = {}".format(key,w.job.__dict__.get(key))
 

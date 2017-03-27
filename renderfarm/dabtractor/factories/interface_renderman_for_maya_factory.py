@@ -460,7 +460,7 @@ class WindowPrman(WindowBase):
             logger.info("Skip Existing Frames:" % self.skipframes)
             logger.info("Make Proxy:" % self.makeproxy)
             self.consolidate()
-            rj=rfac.RenderPrman(self.job)
+            rj=rfac.Render(self.job)
             rj.build()
             rj.validate()
 
@@ -471,7 +471,7 @@ class WindowPrman(WindowBase):
         try:
             self.consolidate()
             self.master.destroy()
-            rj=rfac.RenderPrman(self.job)
+            rj=rfac.Render(self.job)
             rj.build()
             rj.validate()
             rj.spool()
