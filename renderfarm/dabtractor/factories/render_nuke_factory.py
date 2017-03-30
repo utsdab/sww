@@ -78,7 +78,7 @@ class Render(object):
     def __init__(self,job):
         self.job=job
         print job.__dict__
-        # self.job.dabwork="$DABWORK"
+        # self.job.dabworkalias="$DABWORK"
         self.projectpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT"
         self.projectpath = os.path.join(self.job.dabwork, self.job.envtype, self.job.envshow, self.job.envproject)
         self.job.envprojectalias = "$PROJECT"

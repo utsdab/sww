@@ -550,7 +550,7 @@ if __name__ == '__main__':
 
     try:
         # job.mayascene = window.filename
-        # job.mayaprojectpath = window.dirname
+        # job.projectpath = window.dirname
         # job.framechunks = int(window.fch.get())
         # job.startframe = int(window.sf.get())
         # job.endframe = int(window.ef.get())

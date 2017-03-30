@@ -42,10 +42,8 @@ class Window(WindowBase):
         """ Construct the main window interface  """
         super(Window, self).__init__()
         self.msg_selectproject = 'Select your project'
-        self.msg_selectscene = 'Select an image in your sequence'
+        self.msg_selectscene = 'Select an image of form name.####.exr'
         self.msg_selectshow = 'Select your SHOW'
-        # self.msg_workspaceok = 'workspace.mel FOUND'
-        # self.msg_workspacebad = 'WARNING - no workspace.mel in your project'
         self.filefullpath = ""
         self.projfullpath = ""
         self.workspace = ""
@@ -347,7 +345,6 @@ class Window(WindowBase):
             self.job.projectfullpath=self.projfullpath
             self.job.nukescriptfullpath=self.filefullpath
             self.job.optionskipframe=self.skipframes.get()  # gets from the tk object
-            # self.job.optionmakeproxy=self.makeproxy.get()
             self.job.optionresolution=self.resolution.get()
             self.job.optionsendjobstartemail=self.emailjobstart.get()
             self.job.optionsendjobendemail=self.emailjobend.get()
@@ -360,9 +357,8 @@ class Window(WindowBase):
             self.job.jobbyframe=self.bf.get()
             self.job.jobthreadmemory=self.memory.get()
             self.job.jobchunks=self.chunks.get()
-            # self.job.softwareversion=self.nukeversion.get()
         except Exception,err:
-            logger.warn("consolidate %s"%err)
+            logger.warn("Consolidate Job Error %s"%err)
 
     def validate(self):
         self.consolidate()
@@ -391,8 +387,8 @@ class Window(WindowBase):
             rj.validate()
             rj.spool()
 
-        except Exception, submiterror:
-            logger.warn("Problem submitting %s" % submiterror)
+        except Exception, submitError:
+            logger.warn("Problem submitting %s" % submitError)
 
     def cancel(self):
         logger.info("Camcelled")
@@ -402,6 +398,6 @@ class Window(WindowBase):
 if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
     w=Window()
-    # for key in w.job.__dict__.keys():
-    #     print "{:20} = {}".format(key,w.job.__dict__.get(key))
+    for key in w.job.__dict__.keys():
+        print "{:20} = {}".format(key,w.job.__dict__.get(key))
 

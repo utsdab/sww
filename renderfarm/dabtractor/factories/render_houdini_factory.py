@@ -119,13 +119,13 @@ class RenderMantra(RenderBase):
         # self.mayaprojectnamealias       = "$PROJECT"
         # self.mayaprojectname = envproject
         # self.mayascenefilefullpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/$SCENE"
-        # self.mayascenefilefullpath = os.path.join( self.envdabrender, self.envtype, self.envshow, self.envproject,
+        # self.seqfullpath = os.path.join( self.envdabrender, self.envtype, self.envshow, self.envproject,
         #                                            self.envscene)
         self.scenename = os.path.split(envscene)[-1:][0]
         self.scenebasename = os.path.splitext(self.scenename)[0]
         self.sceneext = os.path.splitext(self.scenename)[1]
         # self.rendermanpath = os.path.join( self.envdabrender, self.envtype, self.envshow, self.envproject,
-        #                                    "renderman", self.scenebasename)
+        #                                    "renderman", self.seqbasename)
         # self.rendermanpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/renderman/$SCENENAME"
         # self.renderdirectory = os.path.join(self.rendermanpath,"images")
         # self.renderimagesalias  = "$DABRENDER/$TYPE/$SHOW/$PROJECT/renderman/$SCENENAME/images"
@@ -149,7 +149,7 @@ class RenderMantra(RenderBase):
         self.threadmemory = threadmemory
         # self.mayaprojectname = os.path.basename(self.mayaprojectpath)
         # self.ribpath = "{}/rib".format(self.rendermanpath)
-        # self.finaloutputimagebase = "{}/{}".format(self.rendermanpath,self.scenebasename)
+        # self.finaloutputimagebase = "{}/{}".format(self.rendermanpath,self.seqbasename)
         # self.proxyoutput = "$DABRENDER/$TYPE/$SHOW/$PROJECT/movies/$SCENENAME_{}.mov".format("datehere")
 
     def build(self):
@@ -218,7 +218,7 @@ if __name__ == "__main__":
                        envshow="matthewgidney",
                        envscene="dottyrms.ma",
                        envtype="user_work",
-                       # mayascenefilefullpath="/usr/local/tmp/scene/file.ma",
+                       # seqfullpath="/usr/local/tmp/scene/file.ma",
                        # mayaprojectpath="/usr/local/tmp/",
                        # mayaversion="2016",
                        # rendermanversion="20.2",
