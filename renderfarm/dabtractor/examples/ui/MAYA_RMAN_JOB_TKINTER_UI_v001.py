@@ -169,8 +169,8 @@ class TabbedPanel(Frame):
 class WindowBase(object):
     def __init__(self):
         """ Base the main window interface """
-        self.fj = envfac.FarmJob()
-        self.env = envfac.Environment2()
+        self.fj = envfac.TractorJob()
+        self.env = envfac.Environment()
 
 
 class Window2(WindowBase):
@@ -241,14 +241,14 @@ class Window(object):
         """Construct the main window interface
         """
         self.master = master
-        self.fj = envfac.FarmJob()
+        self.fj = envfac.TractorJob()
         self.dirtext = 'Select your project folder'
         self.filetext = 'Select your maya scene file'
         self.workspacetext = 'Select the workspace.mel file in your project'
         self.workspaceerrortext = 'Warning - no workspace.mel found!'
         self.filename=""
         self.test = False
-        self.env=envfac.Environment2()
+        self.env=envfac.Environment()
         # vcmd = (self.register(self._validate), '%s', '%P')
         # okayCommand = self.register(isOkay)
 
@@ -426,7 +426,7 @@ class MayaBatchJob(object):
         self.localhost = "localhost"
         self.localworkarea = "/scratch2/dabRenderJobs/"
         self.centralworkarea = "138.25.195.200"
-        self.fj=envfac.FarmJob()
+        self.fj=envfac.TractorJob()
         self.job = self.fj.author.Job(title="Render Job - (maya)",
                       priority=100,
                       envkey=["maya%s" % self.mayaversion],

@@ -32,7 +32,7 @@ class WindowBase(object):
     """
 
     def __init__(self):
-        self.fj=envfac.FarmJob()
+        self.fj=envfac.TractorJob()
         # self.user = os.getenv("USER")
         # self.user=self.fj.username
         self.spooljob = False

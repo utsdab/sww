@@ -22,7 +22,8 @@ import time
 import sys
 import user_factory as ufac
 import utils_factory as utils
-import environment_factory as envfac
+import sww.renderfarm.dabtractor.factories.environment_factory as envfac
+
 
 class Job(object):
     """ job parameters - variants should be derived by calling factories as needed
@@ -34,7 +35,7 @@ class Job(object):
         self.username=None
         self.useremail=None
         try:
-            self.env=envfac.FarmJob()
+            self.env=envfac.TractorJob()
         except Exception, err:
             logger.warn("Cant get user credentials: {}".format(err))
         else:
@@ -46,7 +47,7 @@ class Job(object):
         self.projectfullpath=None
         self.nukescriptfullpath=None
         self.farmtier=None
-        if self.env.department in self.env.getoptions("renderjob", "projectgroup"):
+        if self.env.department in self.env.config.getoptions("renderjob", "projectgroup"):
             logger.info("Department {}".format(self.env.department))
         else:
             self.department="Other"

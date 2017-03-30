@@ -13,8 +13,8 @@ import sys
 import string
 import time
 import subprocess
-import environment_factory as envfac
-import tractor.api.author as author
+# import environment_factory as envfac
+# import tractor.api.author as author
 import shotgun_factory as sgt
 
 # ##############################################################
@@ -28,7 +28,7 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 # ##############################################################
 
-class UtsUser(object):
+class UtsldapUser(object):
     """
     This class represents the UTS user account.  Data is queried from the
     LDAP server at UTS to build a model of the student.  This requires the
@@ -41,17 +41,14 @@ class UtsUser(object):
     It could be that this file is a serialised file.
     """
     def __init__(self):
-        """
-
-        """
         self.name=None
         self.number = os.getenv("USER")
-        self.job=None
-        self.farmjob=envfac.FarmJob()
-        self.env=envfac.Environment2()
+        # self.job=None
+        # self.farmjob=envfac.TractorJob()
+        # self.config=envfac.Environment()
         self.year=time.strftime("%Y")
         logger.info("Current Year is %s" % self.year)
-
+        logger.info("Talking to UTS LDAP server")
 
         try:
             p = subprocess.Popen(["ldapsearch", "-h", "moe-ldap1.itd.uts.edu.au", "-LLL", "-D",
@@ -73,26 +70,21 @@ class UtsUser(object):
             sys.exit("UTS doesnt seem to know you")
 
 
-
-
-class FarmUser(object):
-    def __init__(self):
-        """ The user details as defined in the map, each user has data held in a
-        dictionary """
-        self.env=envfac.Environment2()
-        self.user = self.env.environ["USER"]
-
-        try:
-            __sgt = sgt.Person()
-        except Exception,err:
-            logger.critical("Problem creating User: {}".format(err))
-            sys.exit(err)
-        else:
-            self.name=__sgt.dabname
-            self.number=__sgt.dabnumber
-
-
-
+# class FarmUser(object):
+#     def __init__(self):
+#         """ The user details as defined in the map, each user has data held in a
+#         dictionary """
+#         self.config = envfac.Environment()
+#         self.user = self.config.environ["USER"]
+#
+#         try:
+#             __sgt = sgt.Person()
+#         except Exception,err:
+#             logger.critical("Problem creating User: {}".format(err))
+#             sys.exit(err)
+#         else:
+#             self.name=__sgt.dabname
+#             self.number=__sgt.dabnumber
 
 
 if __name__ == '__main__':
@@ -104,7 +96,7 @@ if __name__ == '__main__':
 
     ###############################################
 
-    uts = UtsUser()
+    uts = UtsldapUser()
     logger.debug( uts.name)
     logger.debug( uts.number)
 

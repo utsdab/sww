@@ -22,7 +22,7 @@ class Base(object):
     def __init__(self):
         self.spooljob = False
         self.testing = False
-        self.fj=envfac.FarmJob()
+        self.fj=envfac.TractorJob()
 
 class Bash(Base):
     """ A simple bash command """

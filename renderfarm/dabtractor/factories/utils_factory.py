@@ -51,10 +51,7 @@ def sendmail(mailto,
              mailsubject,
              mailbody,
              mailfrom):
-    logger.debug("%s %s %s %s" % (mailto,
-                                  mailsubject,
-                                  mailbody,
-                                  mailfrom))
+    logger.debug("%s %s %s %s" % (mailto, mailsubject, mailbody, mailfrom))
 
     sendmail_location = "/usr/sbin/sendmail"  # sendmail location
     p = os.popen("%s -t" % sendmail_location, "w")
@@ -79,7 +76,7 @@ def getfrompathlist(filetoget, iconpath="ICONPATH"):
     try:
         _iconpath_paths = os.environ[iconpath].split(os.pathsep)
     except KeyError,e:
-        logger("Something wrong with icon path variable {}".format(iconpath))
+        logger.warn("Something wrong with icon path variable {}".format(iconpath))
 
     for i, _path in enumerate(_iconpaths):
         if os.path.isfile(os.path.join(_path, filetoget)):

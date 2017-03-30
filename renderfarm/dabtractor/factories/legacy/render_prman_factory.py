@@ -39,7 +39,7 @@ class RenderBase(object):
         self.user = os.getenv("USER")
         self.spooljob = False
         self.testing=False
-        self.farmjob=envfac.FarmJob()
+        self.farmjob=envfac.TractorJob()
 
         try:
             # get the names of the central render location for the user

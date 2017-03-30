@@ -1,14 +1,14 @@
 #!/usr/bin/env python
-import pprint
+
+# import pprint
 import string
-import os
 import sys
+import logging
+import os
 from sww.shotgun_api3 import Shotgun
-import environment_factory as envfac
+from sww.renderfarm.dabtractor.factories.configuration_factory import JsonConfig
 
 # ##############################################################
-import logging
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
@@ -21,10 +21,13 @@ logger.addHandler(sh)
 class ShotgunBase(object):
     # base object
     def __init__(self):
-        self.env=envfac.Environment2()
-        self.serverpath = str(self.env.getdefault("shotgun", "serverpath"))
-        self.scriptname = str(self.env.getdefault("shotgun", "scriptname"))
-        self.scriptkey  = str(self.env.getdefault("shotgun", "scriptkey"))
+        pass
+
+    def touchbase(self):
+        self.config=JsonConfig()
+        self.serverpath = str(self.config.getdefault("shotgun", "serverpath"))
+        self.scriptname = str(self.config.getdefault("shotgun", "scriptname"))
+        self.scriptkey  = str(self.config.getdefault("shotgun", "scriptkey"))
         try:
             self.sg = Shotgun( self.serverpath, self.scriptname, self.scriptkey)
         except Exception, err:
@@ -43,6 +46,7 @@ class Person(ShotgunBase):
         :param shotgunlogin: optional name to use - defaults to $USER
         """
         super(Person, self).__init__()
+        self.touchbase()
         if not shotgunlogin:
             self.shotgunlogin=os.environ["USER"]
         __fields = ['login','name','firstname','lastname','department','email','sg_tractor']
@@ -56,7 +60,6 @@ class Person(ShotgunBase):
         else:
             if __person.has_key('sg_tractor'):
                 self.tractor=__person.get('sg_tractor')
-
             if __person.has_key('name'):
                 self.shotgunname=__person.get('name')
             if __person.has_key('email'):
@@ -84,6 +87,7 @@ class Person(ShotgunBase):
 class Projects(ShotgunBase):
     def __init__(self):
         super(Projects, self).__init__()
+        self.touchbase()
         __fields = ['id', 'name']
         __filters = [['id','greater_than',0]]
 
@@ -93,9 +97,8 @@ class Projects(ShotgunBase):
             logger.warn("%s"%err)
         else:
             logger.info("Found %d Projects" % (len(self.projects)))
-            # logger.debug(self.projects)
             for project in self.projects:
-                logger.info("   %s %s"%(project['id'],project['name']))
+                logger.info("  Id = {:4} - {:20}".format(project['id'],project['name']))
 
     def assets(self):
         pass
@@ -137,6 +140,7 @@ class Projects(ShotgunBase):
 class People(ShotgunBase):
     def __init__(self):
         super(People, self).__init__()
+        self.touchbase()
         __fields = ['login','name','firstname','lastname','department','email','sg_tractor']
         __filters =  [['sg_tractor','is', True]]
         __people=None
@@ -190,12 +194,6 @@ class People(ShotgunBase):
             _file.close()
         finally:
             logger.info("Wrote tractor crew file: {}".format(self.crewfilefullpath))
-
-
-
-
-
-
 
 
 
@@ -275,14 +273,14 @@ if __name__ == "__main__":
     # c.sequences(89)
     # c.shots(89,48)
 
-    p=Person()
-    logger.info("Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(\
-        name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department))
-    logger.info("-------------------------------FINISHED TESTING")
+    # p=Person()
+    # logger.info("Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(\
+    #     name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department))
+    # logger.info("-------------------------------FINISHED TESTING")
 
 
-    pe=People()
-    print pe.people
+    # pe=People()
+    # print pe.people
 
     # pe.writetractorcrewfile("/Users/120988/Desktop/crew.list.txt")
 
@@ -294,46 +292,39 @@ if __name__ == "__main__":
     # print p.sg.schema_read()
 
 
-
-'''
-
 # ----------------------------------------------
 # Find Character Assets in Sequence WRF_03 in projectX
 # ----------------------------------------------
-fields = ['id', 'code', 'sg_asset_type']
-sequence_id = 48 # Sequence "WFR_03"
-filters = [
-    ['project', 'is', projectx],
-    ['sg_asset_type', 'is', 'Character'],
-    ['sequences', 'is', {'type': 'Sequence', 'id': sequence_id}]
-    ]
-
-assets= sg.find("Asset",filters,fields)
-
-if len(assets) < 1:
-    print "couldn't find any Assets"
-else:
-    print "Found %d Assets" % (len(assets))
-    print assets
+# fields = ['id', 'code', 'sg_asset_type']
+# sequence_id = 48 # Sequence "WFR_03"
+# filters = [
+#     ['project', 'is', projectx],
+#     ['sg_asset_type', 'is', 'Character'],
+#     ['sequences', 'is', {'type': 'Sequence', 'id': sequence_id}]
+#     ]
+#
+# assets= sg.find("Asset",filters,fields)
+#
+# if len(assets) < 1:
+#     print "couldn't find any Assets"
+# else:
+#     print "Found %d Assets" % (len(assets))
+#     print assets
 
 
 # ----------------------------------------------
 # Find Projects id and name
 # ----------------------------------------------
-fields = ['id', 'name']
-filters = [['id','greater_than',0]]
 
-projects= sg.find("Project",filters,fields)
 
-if len(projects) < 1:
-    print "couldn't find any Assets"
-else:
-    print "Found %d Assets" % (len(projects))
-    pprint.pprint(projects)
+# projects = Projects()
+# pprint.pprint(projects.projects)
+
+
 ############################################################
 
 
 ####  make playlist
 ####  add version to playlist
 
-'''
+

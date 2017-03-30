@@ -27,7 +27,7 @@ import os
 import time
 import sys
 import utils_factory as utils
-import sww.renderfarm.dabtractor.factories.environment_factory as envfac
+import environment_factory as envfac
 
 
 class Job(object):
@@ -41,7 +41,7 @@ class Job(object):
         self.useremail=None
 
         try:
-            self.env=envfac.FarmJob()
+            self.env=envfac.TractorJob()
             self.usernumber=self.env.usernumber
             self.username=self.env.username
             self.useremail=self.env.useremail

@@ -20,8 +20,7 @@ import os
 import sys
 import user_factory as ufac
 import utils_factory as utils
-import environment_factory as envfac
-
+import sww.renderfarm.dabtractor.factories.environment_factory as envfac
 
 class RenderBase(object):
     """
@@ -32,7 +31,7 @@ class RenderBase(object):
         self.user = os.getenv("USER")
         self.spooljob = False
         self.testing = False
-        self.farmjob=envfac.FarmJob()
+        self.farmjob=envfac.TractorJob()
 
         try:
             # get the names of the central render location for the user

@@ -29,8 +29,8 @@ def main():
     """
     peoplelist=[]
     try:
-        dabuserprefs = people.env.environ["DABUSERPREFS"]
-        dabassets =people.env.environ["DABASSETS"]
+        dabuserprefs = people.config.environ["DABUSERPREFS"]
+        dabassets =people.config.environ["DABASSETS"]
     except Exception, err:
         logger.critical("Cant find DABUSERPREFS or DABASSETS: {}".format(err))
         sys.exit(1)
@@ -67,8 +67,8 @@ def makedirectorytree(rootpath,rootnames=[]):
         pass
 
 def setupconfig(path):
-    # dabassets = people.env.environ["DABASSETS"]
-    template = people.env.getdefault("CONFIG","template")
+    # dabassets = people.config.environ["DABASSETS"]
+    template = people.config.getdefault("CONFIG", "template")
     dest = os.path.join(path,os.path.basename(template))
     if os.path.exists(path) and os.path.exists(template):
         try:

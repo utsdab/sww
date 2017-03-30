@@ -116,9 +116,9 @@ class Window(WindowBase):
         # # ###################################################################
         # tk.Label(self.canvas, bg=self.bgcolor1,text="Nuke Version").grid(row=__row, column=0, sticky=tk.E)
         # self.nukeversion = tk.StringVar()
-        # self.nukeversion.set(self.job.env.getdefault("nuke","version"))
+        # self.nukeversion.set(self.job.config.getdefault("nuke","version"))
         # self.nukeversionbox = ttk.Combobox(self.canvas, textvariable=self.nukeversion)
-        # self.nukeversionbox.config(values=self.job.env.getoptions("nuke","version"), justify=tk.CENTER)
+        # self.nukeversionbox.config(values=self.job.config.getoptions("nuke","version"), justify=tk.CENTER)
         # self.nukeversionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         # __row += 1
 
@@ -131,9 +131,9 @@ class Window(WindowBase):
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1,text="Farm Tier").grid(row=__row, column=0, sticky=tk.E)
         self.tier = tk.StringVar()
-        self.tier.set(self.job.env.getdefault("renderjob","tier"))
+        self.tier.set(self.job.env.config.getdefault("renderjob","tier"))
         self.tierbox = ttk.Combobox(self.canvas, textvariable=self.tier)
-        self.tierbox.config(values=self.job.env.getoptions("renderjob","tier"), justify=tk.CENTER)
+        self.tierbox.config(values=self.job.env.config.getoptions("renderjob","tier"), justify=tk.CENTER)
         self.tierbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
@@ -157,9 +157,9 @@ class Window(WindowBase):
 
         tk.Label(self.canvas, bg=self.bgcolor1,text="Resolution").grid(row=__row, column=0, sticky=tk.E)
         self.resolution = tk.StringVar()
-        self.resolution.set(self.job.env.getdefault("render", "resolution"))
+        self.resolution.set(self.job.env.config.getdefault("render", "resolution"))
         self.resolutionbox = ttk.Combobox(self.canvas, textvariable=self.resolution)
-        self.resolutionbox.config(values=self.job.env.getoptions("render", "resolution"), justify=tk.CENTER)
+        self.resolutionbox.config(values=self.job.env.config.getoptions("render", "resolution"), justify=tk.CENTER)
         self.resolutionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
@@ -170,54 +170,54 @@ class Window(WindowBase):
         # ###################################################################
         # tk.Label(self.canvas, bg=self.bgcolor1,text="Renderman Version").grid(row=__row, column=0, sticky=tk.E)
         # self.rendermanversion = tk.StringVar()
-        # self.rendermanversion.set(self.job.env.getdefault("renderman","version"))
+        # self.rendermanversion.set(self.job.config.getdefault("renderman","version"))
         # self.rendermanversionbox = ttk.Combobox(self.canvas, textvariable=self.rendermanversion)
-        # self.rendermanversionbox.config(values=self.job.env.getoptions("renderman","version"), justify=tk.CENTER)
+        # self.rendermanversionbox.config(values=self.job.config.getoptions("renderman","version"), justify=tk.CENTER)
         # self.rendermanversionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         # __row += 1
 
         # ###################################################################
         # tk.Label(self.canvas, bg=self.bgcolor1,text="Intergrator").grid(row=__row, column=0, sticky=tk.E)
         # self.integrator = tk.StringVar()
-        # self.integrator.set(self.job.env.getdefault("renderman","integrator"))
+        # self.integrator.set(self.job.config.getdefault("renderman","integrator"))
         # self.integratorbox = ttk.Combobox(self.canvas, textvariable=self.integrator)
-        # self.integratorbox.config(values=self.job.env.getoptions("renderman","integrator"), justify=tk.CENTER)
+        # self.integratorbox.config(values=self.job.config.getoptions("renderman","integrator"), justify=tk.CENTER)
         # self.integratorbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         # __row += 1
 
         # ###################################################################
         # tk.Label(self.canvas, bg=self.bgcolor1,text="Max Samples").grid(row=__row, column=0, sticky=tk.E)
         # self.maxsamples = tk.StringVar()
-        # self.maxsamples.set(self.job.env.getdefault("render","maxsamples"))
+        # self.maxsamples.set(self.job.config.getdefault("render","maxsamples"))
         # self.maxsamplesbox = ttk.Combobox(self.canvas, textvariable=self.maxsamples)
-        # self.maxsamplesbox.config(values=self.job.env.getoptions("render","maxsamples"), justify=tk.CENTER)
+        # self.maxsamplesbox.config(values=self.job.config.getoptions("render","maxsamples"), justify=tk.CENTER)
         # self.maxsamplesbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         # __row += 1
 
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1,text="Render Threads").grid(row=__row, column=0, sticky=tk.E)
         self.threads = tk.StringVar()
-        self.threads.set(self.job.env.getdefault("render","threads"))
+        self.threads.set(self.job.env.config.getdefault("render","threads"))
         self.threadsbox = ttk.Combobox(self.canvas, textvariable=self.threads)
-        self.threadsbox.config(values=self.job.env.getoptions("render","threads"), justify=tk.CENTER)
+        self.threadsbox.config(values=self.job.env.config.getoptions("render","threads"), justify=tk.CENTER)
         self.threadsbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1,text="Render Memory").grid(row=__row, column=0, sticky=tk.E)
         self.memory = tk.StringVar()
-        self.memory.set(self.job.env.getdefault("render","memory"))
+        self.memory.set(self.job.env.config.getdefault("render","memory"))
         self.memorybox = ttk.Combobox(self.canvas, textvariable=self.memory)
-        self.memorybox.config(values=self.job.env.getoptions("render","memory"), justify=tk.CENTER)
+        self.memorybox.config(values=self.job.env.config.getoptions("render","memory"), justify=tk.CENTER)
         self.memorybox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1,text="Render Chunks").grid(row=__row, column=0, sticky=tk.E)
         self.chunks = tk.StringVar()
-        self.chunks.set(self.job.env.getdefault("render","chunks"))
+        self.chunks.set(self.job.env.config.getdefault("render","chunks"))
         self.chunksbox = ttk.Combobox(self.canvas, textvariable=self.chunks)
-        self.chunksbox.config(values=self.job.env.getoptions("render","chunks"), justify=tk.CENTER)
+        self.chunksbox.config(values=self.job.env.config.getoptions("render","chunks"), justify=tk.CENTER)
         self.chunksbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
