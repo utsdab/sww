@@ -1,0 +1,259 @@
+#!/usr/bin/env rmanpy
+'''
+To do:
+
+
+'''
+
+# ##############################################################
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+sh = logging.StreamHandler()
+sh.setLevel(logging.INFO)
+formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
+sh.setFormatter(formatter)
+logger.addHandler(sh)
+# ##############################################################
+
+import os
+import time
+import sys
+import utils_factory as utils
+import sww.renderfarm.dabtractor.factories.environment_factory as envfac
+
+
+class Job(object):
+    """ job parameters - variants should be derived by calling factories as needed
+    """
+    def __init__(self):
+        """ The payload of gui-data needed to describe a farm render job
+        """
+        self.usernumber=None
+        self.username=None
+        self.useremail=None
+        try:
+            self.env=envfac.FarmJob()
+        except Exception, err:
+            logger.warn("Cant get user credentials: {}".format(err))
+        else:
+            self.usernumber=self.env.usernumber
+            self.username=self.env.username
+            self.useremail=self.env.useremail
+            self.department=self.env.department
+            self.dabwork=self.env.dabwork
+        self.projectfullpath=None
+        self.nukescriptfullpath=None
+        self.farmtier=None
+        if self.env.department in self.env.getoptions("renderjob", "projectgroup"):
+            logger.info("Department {}".format(self.env.department))
+        else:
+            self.department="Other"
+        self.farmpriority=None
+        self.farmcrew=None
+        self.jobtitle=None
+        self.jobenvkey=None
+        self.jobfile=None
+        self.jobstartframe=None
+        self.jobendframe=None
+        self.jobchunks=None
+        self.jobthreads=None
+        self.jobthreadmemory=None
+        self.optionskipframe=None
+        # self.optionmakeproxy=None
+        self.optionresolution=None
+        self.options=None
+        self.envtype=None
+        self.envshow=None
+        self.envproject=None
+        self.envscene=None
+        # self.softwareversion=None
+
+
+
+class Render_RV(object):
+    ''' Renderman job defined using the tractor api '''
+
+    def __init__(self, job):
+        self.job=job
+
+        utils.printdict( self.job.__dict__)
+
+        self.job.dabwork="$DABWORK"
+
+        self.mayaprojectpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT"
+        self.mayaprojectpath = os.path.join(self.job.dabwork, self.job.envtype, self.job.envshow, self.job.envproject)
+        self.job.envprojectalias = "$PROJECT"
+        self.mayascenefilefullpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/$SCENE"
+        self.mayascenefilefullpath = os.path.join( self.job.dabwork, self.job.envtype, self.job.envshow, self.job.envproject,self.job.envscene)
+        self.scenename = os.path.basename(self.job.envscene)
+        self.scenebasename = os.path.splitext(os.path.splitext(self.scenename)[0])[0]
+        self.sceneext = os.path.splitext(self.scenename)[1]
+        self.startframe = int(self.job.jobstartframe)
+        self.endframe = int(self.job.jobendframe)
+        self.byframe = int(self.job.jobbyframe)
+        self.chunks = int(self.job.jobchunks)  # pixar jobs are one at a time
+        self.projectgroup = self.job.department
+        self.options = ""
+        self.resolution = self.job.optionresolution
+        # self.outformat = "exr"
+        self.optionsendjobstartemail = self.job.optionsendjobstartemail
+        self.optionsendtaskendemail = self.job.optionsendtaskendemail
+        self.optionsendjobendemail = self.job.optionsendjobendemail
+        self.skipframes = self.job.optionskipframe
+        self.threads = self.job.jobthreads
+        self.threadmemory = self.job.jobthreadmemory
+        self.thedate=time.strftime("%d-%B-%Y")
+
+
+    def build(self):
+        '''
+        Main method to build the job
+        :return:
+        '''
+        # ################ 0 JOB ################
+        self.renderjob = self.job.env.author.Job(title="PROXY: {} {} {}-{}".format(
+              self.job.username,self.scenename,self.startframe,self.endframe),
+              priority=10,
+              envkey=["ProjectX",
+                    "TYPE={}".format(self.job.envtype),
+                    "SHOW={}".format(self.job.envshow),
+                    "PROJECT={}".format(self.job.envproject),
+                    "SCENE={}".format(self.job.envscene),
+                    "SCENENAME={}".format(self.scenebasename)],
+              metadata="username={} usernumber={}".format(self.job.username,self.job.usernumber),
+              comment="LocalUser is {} {}".format(self.job.username,self.job.usernumber),
+              projects=[str(self.projectgroup)],
+              tier=str(self.job.farmtier),
+              tags=["theWholeFarm", ],
+              service="")
+
+        # ############## 0 ThisJob #################
+        task_thisjob = self.job.env.author.Task(title="Proxy Make Job")
+        task_thisjob.serialsubtasks = 1
+
+        # ############## 5 NOTIFY JOB START ###############
+        if self.optionsendjobstartemail:
+            logger.info("email = {}".format(self.job.useremail))
+            task_notify_start = self.job.env.author.Task(title="Notify Start", service="ShellServices")
+            task_notify_start.addCommand(self.mail("JOB", "START", "{}".format(self.mayascenefilefullpath)))
+            task_thisjob.addChild(task_notify_start)
+
+        # ############## 1 PREFLIGHT ##############
+        task_preflight = self.job.env.author.Task(title="Preflight")
+        task_preflight.serialsubtasks = 1
+        task_thisjob.addChild(task_preflight)
+
+        _outmov = "{}/movies/{}.mov".format(self.mayaprojectpath, self.scenebasename,utils.getnow())
+        _inseq = "{}.####.exr".format(self.scenebasename)    #cameraShape1/StillLife.####.exr"
+        _directory = os.path.dirname(self.mayascenefilefullpath)
+        _seq = os.path.join(_directory, _inseq)
+
+        _mkdir_cmd = [ utils.expandargumentstring("mkdir %s" % (_seq, os.path.dirname(_outmov))) ]
+        task_proxy = self.job.env.author.Task(title="Make output directory")
+        proxycommand = self.job.env.author.Command(argv=_mkdir_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"], envkey=["rvio"])
+        task_proxy.addCommand(proxycommand)
+
+        # ############## 5 PROXY ###############
+        '''
+        rvio cameraShape1/StillLife.####.exr  -v -fps 25
+        -rthreads 4
+        -outres 1280 720 -out8
+        -leader simpleslate "UTS" "Artist=Anthony" "Show=Still_Life" "Shot=Testing"
+        -overlay frameburn .4 1.0 30.0
+        -overlay matte 2.35 0.3
+        -overlay watermark "UTS 3D LAB" .2
+        -outgamma 2.2
+        -o cameraShape1_StillLife.mov
+        '''
+
+
+
+        # TODO this needs to be a subjob
+        try:
+            utils.makedirectoriesinpath(os.path.dirname(_outmov))
+        except Exception, err:
+            logger.warn(err)
+
+        try:
+            _option1 = "-v -fps 25 -rthreads {threads} -outres {xres} {yres} -t {start}-{end}".format(
+                       threads="4",
+                       xres="1280",
+                       yres = "720",
+                       start=self.startframe,
+                       end=self.endframe)
+            _option2 = "-out8 -outgamma 2.2"
+            _option3 = "-overlay frameburn 0.5 1.0 30 -leader simpleslate UTS_BDES_ANIMATION Type={} Show={} Project={} File={} Student={}-{} Group={} Date={}".format(
+                          self.job.envtype,
+                          self.job.envshow,
+                          self.job.envproject,
+                          self.scenebasename,
+                          self.job.usernumber,
+                          self.job.username,
+                          self.projectgroup,
+                          self.thedate)
+
+            _output = "-o %s" % _outmov
+            _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (_seq, _option1, _option2, _option3, _output)) ]
+            task_proxy = self.job.env.author.Task(title="RVIO Proxy Generation")
+            proxycommand = self.job.env.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"], envkey=["rvio"])
+            task_proxy.addCommand(proxycommand)
+            task_thisjob.addChild(task_proxy)
+
+        except Exception, proxyerror:
+            logger.warn("Cant make a proxy {}".format(proxyerror))
+
+
+        # ############## 5 NOTIFY JOB END ###############
+        if self.optionsendjobendemail:
+            logger.info("email = {}".format(self.job.useremail))
+            task_notify_end = self.job.env.author.Task(title="Notify End", service="ShellServices")
+            task_notify_end.addCommand(self.mail("JOB", "COMPLETE", "{}".format(self.mayascenefilefullpath)))
+            task_thisjob.addChild(task_notify_end)
+
+        self.renderjob.addChild(task_thisjob)
+
+    def validate(self):
+        logger.info("\n\n{:_^80}\n{}\n{:_^80}".format("snip", self.renderjob.asTcl(), "snip"))
+
+    def mail(self, level="Level", trigger="Trigger", body="Render Progress Body"):
+        bodystring = "Prman Render Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
+        subjectstring = "FARM JOB: {} {} {} {}".format(level,trigger, str(self.scenebasename), self.job.username)
+        mailcmd = self.job.env.author.Command(argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
+        return mailcmd
+
+    def spool(self):
+        # double check scene file exists
+        logger.info("Double Checking: {}".format(os.path.expandvars(self.mayascenefilefullpath)))
+        if os.path.exists(os.path.expandvars(self.mayascenefilefullpath)):
+            try:
+                logger.info("Spooled correctly")
+                # all jobs owner by pixar user on the farm
+                self.renderjob.spool(owner=self.job.env.getdefault("tractor","jobowner"),
+                               port=int(self.job.env.getdefault("tractor","port")))
+
+            except Exception, spoolerr:
+                logger.warn("A spool error %s" % spoolerr)
+        else:
+            message = "Scene file non existant %s" % self.mayascenefilefullpath
+            logger.critical(message)
+            logger.critical(os.path.normpath(self.mayascenefilefullpath))
+            logger.critical(os.path.expandvars(self.mayascenefilefullpath))
+
+            sys.exit(message)
+
+
+# ##############################################################################
+
+if __name__ == "__main__":
+    logger.setLevel(logging.INFO)
+    logger.info("START TESTING")
+
+
+
+
+
+
+
+

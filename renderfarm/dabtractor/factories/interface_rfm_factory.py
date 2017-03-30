@@ -95,11 +95,11 @@ class WindowBase(object):
         self.job=Job()
 
 
-class WindowPrman(WindowBase):
+class Window(WindowBase):
     """ Ui Class for render submit  """
     def __init__(self):
         """ Construct the main window interface  """
-        super(WindowPrman, self).__init__()
+        super(Window, self).__init__()
         self.msg_selectproject = 'Select your maya project'
         self.msg_selectscene = 'Select your maya scene file'
         self.msg_selectshow = 'Select your SHOW'
@@ -486,7 +486,7 @@ class WindowPrman(WindowBase):
 
 if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
-    w=WindowPrman()
+    w=Window()
     # for key in w.job.__dict__.keys():
     #     print "{:20} = {}".format(key,w.job.__dict__.get(key))
 

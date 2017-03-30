@@ -27,6 +27,66 @@ import os
 import time
 import sys
 import utils_factory as utils
+import sww.renderfarm.dabtractor.factories.environment_factory as envfac
+
+
+class Job(object):
+    """ job parameters - variants should be derived by calling factories as needed
+    """
+    def __init__(self):
+        """ The payload of gui-data needed to describe a farm render job
+        """
+        self.usernumber=None
+        self.username=None
+        self.useremail=None
+
+        try:
+            self.env=envfac.FarmJob()
+            self.usernumber=self.env.usernumber
+            self.username=self.env.username
+            self.useremail=self.env.useremail
+            self.department=self.env.department
+            self.dabwork=self.env.dabwork
+
+        except Exception, err:
+            logger.warn("Cant get user credentials: {}".format(err))
+
+        self.mayaprojectfullpath=None
+        self.mayascenefullpath=None
+
+        self.farmtier=None
+
+        if self.env.department in self.env.getoptions("renderjob", "projectgroup"):
+            logger.info("Department {}".format(self.env.department))
+        else:
+            self.department="Other"
+
+        self.farmpriority=None
+        self.farmcrew=None
+
+        self.jobtitle=None
+        self.jobenvkey=None
+        self.jobfile=None
+        self.jobstartframe=None
+        self.jobendframe=None
+        self.jobchunks=None
+        self.jobthreads=None
+        self.jobthreadmemory=None
+
+        self.optionskipframe=None
+        self.optionmakeproxy=None
+        # self.optionsendemail=None
+        self.optionresolution=None
+        self.optionmaxsamples=None
+
+        self.envtype=None
+        self.envshow=None
+        self.envproject=None
+        self.envscene=None
+
+        self.mayaversion=None
+        self.rendermanversion=None
+
 
 class Render(object):
     ''' Renderman job defined using the tractor api '''
