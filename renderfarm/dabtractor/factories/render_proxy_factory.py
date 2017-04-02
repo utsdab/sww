@@ -65,6 +65,10 @@ class Job(object):
         self.envproject=None
         self.envscene=None
         self.seqbasename=None
+        self.shotgunProjectId=None
+        self.shotgunSequenceId=None
+        self.shotgunShotId=None
+        self.shotgunTaskId=None
         # self.softwareversion=None
 
 
