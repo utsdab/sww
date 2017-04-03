@@ -89,32 +89,44 @@ class Person(ShotgunBase):
 
     def seqFromProject(self,project_id=None):
         # project_id = _myprojects.get('YR3_2017--171') # 171 # Demo Project
-        fields = ['id', 'code']
-        filters = [['project', 'is', {'type': 'Project', 'id': project_id} ]]
-        seq = self.sg.find("Sequence",filters,fields)
-        _sequences = dictfromlistofdicts(seq,"code","id")
+        try:
+            fields = ['id', 'code']
+            filters = [['project', 'is', {'type': 'Project', 'id': project_id} ]]
+            seq = self.sg.find("Sequence",filters,fields)
+            _sequences = dictfromlistofdicts(seq,"code","id")
+        except Exception, err:
+            logger.warn("Cant find any sequences")
+            _sequences={}
         return _sequences
 
     def shotFromSeq(self,project_id=None,sequence_id=None):
         # sequence_id = _sequences.get("ssA_gp1--277")
-        fields = ['id', 'code']
-        filters = [
-            ['project', 'is', {'type': 'Project', 'id': project_id}],
-            ['sg_sequence', 'is', {'type': 'Sequence', 'id': sequence_id}]
-             ]
-        shottask = self.sg.find("Shot", filters, fields)
-        _shots=dictfromlistofdicts(shottask,"code","id")
+        try:
+            fields = ['id', 'code']
+            filters = [
+                ['project', 'is', {'type': 'Project', 'id': project_id}],
+                ['sg_sequence', 'is', {'type': 'Sequence', 'id': sequence_id}]
+                 ]
+            shottask = self.sg.find("Shot", filters, fields)
+            _shots=dictfromlistofdicts(shottask,"code","id")
+        except Exception, err:
+            logger.warn("Cant find any shots")
+            _shots={}
         return _shots
 
     def taskFromShot(self,project_id=None,shot_id=None):
         # shot_id = _shots.get('ssA_gp1_tm2_01--3127')
-        fields = ['id','cached_display_name']
-        filters = [
-            ['project', 'is', {'type': 'Project', 'id': project_id}],
-            ['entity', 'is', {'type': 'Shot', 'id': shot_id}]
-             ]
-        task = self.sg.find("Task",filters,fields)
-        _tasks=dictfromlistofdicts(task,"cached_display_name","id")
+        try:
+            fields = ['id','cached_display_name']
+            filters = [
+                ['project', 'is', {'type': 'Project', 'id': project_id}],
+                ['entity', 'is', {'type': 'Shot', 'id': shot_id}]
+                 ]
+            task = self.sg.find("Task",filters,fields)
+            _tasks=dictfromlistofdicts(task,"cached_display_name","id")
+        except Exception, err:
+            logger.warn("Cant find any tasks")
+            _tasks={}
         return _tasks
 
 
