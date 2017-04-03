@@ -17,6 +17,7 @@ logger.addHandler(sh)
 import os
 import time
 import sys
+from pprint import pprint
 import utils_factory as utils
 import sww.renderfarm.dabtractor.factories.environment_factory as envfac
 
@@ -69,8 +70,8 @@ class Job(object):
         self.shotgunSequenceId=None
         self.shotgunShotId=None
         self.shotgunTaskId=None
+        self.sendToShotgun=False
         # self.softwareversion=None
-
 
 
 class Render_RV(object):
@@ -83,13 +84,10 @@ class Render_RV(object):
 
         self.job.dabworkalias= "$DABWORK"  # this needs to be set in default environment in tractor keys
         self.job.projectpathalias = "$DABWORK/$TYPE/$SHOW/$PROJECT"
-        self.job.projectpath = os.path.join(self.job.dabworkalias, self.job.envtype, self.job.envshow,
-                                            self.job.envproject)
+        self.job.projectpath = os.path.join(self.job.dabworkalias, self.job.envtype, self.job.envshow, self.job.envproject)
         self.job.envprojectalias = "$PROJECT"
-
         self.job.seqfullpathalias = "$DABWORK/$TYPE/$SHOW/$PROJECT/$SCENE"
         self.job.seqfullpath = os.path.join(self.job.dabworkalias, self.job.envtype, self.job.envshow, self.job.envproject, self.job.envscene)
-
         self.job.selectedframename = os.path.basename(self.job.seqfullpath)  # seq1.0001.exr
         self.job.seqdirname = os.path.dirname(self.job.seqfullpath)
 
@@ -103,7 +101,6 @@ class Render_RV(object):
         '{:#^{prec}}'.format('#',prec=6)
         '######'
         '''
-
         try:
             _split = self.job.selectedframename.split(".")
             _ext = _split[-1]
@@ -118,27 +115,36 @@ class Render_RV(object):
             self.job.seqbasename = _base
             self.job.seqtemplatename = "{b}.{:#^{p}}.{e}".format('#', b=_base, p=_precision, e=_ext)
 
+        # logger.critical("wwwwwwww")
+
         self.startframe = int(self.job.jobstartframe)
         self.endframe = int(self.job.jobendframe)
+
+        # logger.critical("wwwwwwww")
+
         self.byframe = int(self.job.jobbyframe)
         self.chunks = int(self.job.jobchunks)  # pixar jobs are one at a time
         self.projectgroup = self.job.department
+
+        # logger.critical("wwwwwwww")
         self.options = ""
         self.resolution = self.job.optionresolution
         # self.outformat = "exr"
-        self.optionsendjobstartemail = self.job.optionsendjobstartemail
-        self.optionsendtaskendemail = self.job.optionsendtaskendemail
+        self.optionsendjobstartmail = self.job.optionsendjobstartemail
         self.optionsendjobendemail = self.job.optionsendjobendemail
         self.skipframes = self.job.optionskipframe
         self.threads = self.job.jobthreads
         self.threadmemory = self.job.jobthreadmemory
         self.thedate=time.strftime("%d-%B-%Y")
 
+
     def build(self):
         '''
         Main method to build the job
         '''
         # ################ 0 JOB ################
+        logger.critical("xxxxxxxxx")
+
         self.renderjob = self.job.env.author.Job(title="PROXY: {} {} {}-{}".format(
               self.job.username,self.job.seqtemplatename,self.startframe,self.endframe),
               priority=10,
@@ -160,7 +166,7 @@ class Render_RV(object):
         task_thisjob.serialsubtasks = 1
 
         # ############## 5 NOTIFY JOB START ###############
-        if self.optionsendjobstartemail:
+        if self.optionsendjobstartmail:
             logger.info("email = {}".format(self.job.useremail))
             task_notify_start = self.job.env.author.Task(title="Notify Start", service="ShellServices")
             task_notify_start.addCommand(self.mail("JOB", "START", "{}".format(self.job.seqfullpath)))
@@ -170,7 +176,6 @@ class Render_RV(object):
         task_preflight = self.job.env.author.Task(title="Preflight")
         task_preflight.serialsubtasks = 1
         task_thisjob.addChild(task_preflight)
-
 
         _inseq = self.job.seqtemplatename
         _directory = os.path.dirname(self.job.seqfullpath)
@@ -196,12 +201,7 @@ class Render_RV(object):
         -outgamma 2.2
         -o cameraShape1_StillLife.mov
         '''
-
-        # # TODO this needs to be a subjob
-        # try:
-        #     utils.makedirectoriesinpath(os.path.dirname(_outmov))
-        # except Exception, err:
-        #     logger.warn(err)
+        # TODO  options for frame rate and resolution
 
         try:
             _option1 = "-v -fps 25 -rthreads {threads} -outres {xres} {yres} -t {start}-{end}".format(
@@ -220,7 +220,6 @@ class Render_RV(object):
                           self.job.username,
                           self.projectgroup,
                           self.thedate)
-
             _output = "-o %s" % _outmov
             _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (_seq, _option1, _option2, _option3, _output)) ]
             task_proxy = self.job.env.author.Task(title="RVIO Proxy Generation")
@@ -240,6 +239,17 @@ class Render_RV(object):
             task_thisjob.addChild(task_notify_end)
 
         self.renderjob.addChild(task_thisjob)
+
+        # ############## 6 SETD TO SHOTGUN ###############
+        if self.job.sendToShotgun:
+            logger.info("Sending to Shotgun = {} {} {} {}".format(self.job.shotgunProjectId,self.job.shotgunSequenceId,
+                                                         self.job.shotgunShotId,self.job.shotgunTaskId))
+
+            # TODO  add in shotgun upload here
+
+            # task_notify_end = self.job.env.author.Task(title="Notify End", service="ShellServices")
+            # task_notify_end.addCommand(self.mail("JOB", "COMPLETE", "{}".format(self.job.seqfullpath)))
+            # task_thisjob.addChild(task_notify_end)
 
     def validate(self):
         logger.info("\n\n{:_^80}\n{}\n{:_^80}".format("snip", self.renderjob.asTcl(), "snip"))

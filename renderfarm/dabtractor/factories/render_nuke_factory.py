@@ -102,7 +102,7 @@ class Render(object):
         # self.options = ""
         # self.resolution = self.job.optionresolution
         # self.makeproxy = self.job.optionmakeproxy
-        # self.optionsendjobstartemail = self.job.optionsendjobstartemail
+        # self.optionsendjobstartmail = self.job.optionsendjobstartmail
         # self.optionsendtaskendemail = self.job.optionsendtaskendemail
         # self.optionsendjobendemail = self.job.optionsendjobendemail
         # self.skipframes = self.job.optionskipframe

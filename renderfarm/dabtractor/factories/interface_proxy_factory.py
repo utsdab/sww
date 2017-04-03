@@ -5,7 +5,6 @@
 # TODO handle integrators
 # TODO handle ribgen only
 
-
 ###############################################################
 import logging
 logger = logging.getLogger(__name__)
@@ -35,6 +34,10 @@ class WindowBase(object):
         self.master = tk.Tk()
         self.job=rfac.Job()
         self.shotgun=sgt.Person()
+        self.job.shotgunOwner_id=self.shotgun.shotgun_id
+        self.job.shotgunOwner=self.shotgun.shotgunlogin
+
+        logger.info("Shotgun Owner={} id={}".format(self.job.shotgunOwner,self.job.shotgunOwner_id))
 
 
 class Window(WindowBase):
@@ -124,6 +127,7 @@ class Window(WindowBase):
         _txt="Send the resulting proxy to Shotgun"
         self.sendToShotgun = tk.IntVar()
         self.sendToShotgun.set(1)
+        self.job.sendToShotgun = True
         self.sendtoshotgunbut=ttk.Checkbutton(self.canvas, variable=self.sendToShotgun, command=self.setSendToShotgun)
         self.sendtoshotgunbut.config(text=_txt)
         self.sendtoshotgunbut.grid(row=__row,column=1,sticky=tk.W)
@@ -291,9 +295,12 @@ class Window(WindowBase):
             self.sgtSequenceBox.configure(values=[], justify=tk.CENTER)
             self.sgtShotBox.config(values=[],justify=tk.CENTER)
             self.sgtTaskBox.config(values=[],justify=tk.CENTER)
+            self.job.sendToShotgun = False
             #set widget off too!
         else:
             self.sgtProjectBox.config(values=self.getShotgunProjectValues(), justify=tk.CENTER)
+            self.job.sendToShotgun = True
+
 
     def getShotgunProjectValues(self):
         return self.shotgun.myProjects().keys()
@@ -460,7 +467,7 @@ class Window(WindowBase):
         else:
             _ret=self.shotgun.taskFromShot(self.job.shotgunProjectId,self.job.shotgunShotId).keys()
             self.sgtTaskBox.configure(values=_ret, justify=tk.CENTER)
-        print _ret
+        # print _ret
         return _ret
 
     def setShotgunTask(self,entity):
@@ -539,7 +546,6 @@ class Window(WindowBase):
             self.job.optionresolution=self.resolution.get()
             self.job.optionsendjobstartemail=self.emailjobstart.get()
             self.job.optionsendjobendemail=self.emailjobend.get()
-            self.job.optionsendtaskendemail=self.emailtaskend.get()
             self.job.options=self.options.get()  # gets from the tk object
             self.job.farmtier=self.tier.get()
             self.job.jobthreads=self.threads.get()
@@ -554,6 +560,7 @@ class Window(WindowBase):
 
         except Exception,err:
             logger.warn("Consolidate Job Error %s"%err)
+            sys.exit()
 
     def validate(self):
         self.consolidate()

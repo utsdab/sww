@@ -51,7 +51,7 @@ class Person(ShotgunBase):
         self.touchbase()
         if not shotgunlogin:
             self.shotgunlogin=os.environ["USER"]
-        __fields = ['login','name','firstname','lastname','department','email','sg_tractor']
+        __fields = ['login','name','firstname','lastname','department','email','sg_tractor','id']
         __filters =  [['login','is', self.shotgunlogin]]
         __person=None
         try:
@@ -69,6 +69,8 @@ class Person(ShotgunBase):
                 self.dabname=self.cleanname(self.email)
             if __person.has_key('department'):
                 self.department=__person.get('department').get('name')
+            if __person.has_key('id'):
+                self.shotgun_id=__person.get('id')
             if __person.has_key('login'):
                 self.login=__person.get('login')
                 self.dabnumber=self.login
@@ -253,44 +255,37 @@ class People(ShotgunBase):
 
 
 
-
 class NewVersion(ShotgunBase):
     # new version object
     def __init__(self, media = None,
-                 projectid = 89,
-                 shotname = 'shot',
-                 taskname = 'task',
-                 versioncode = 'From Tractor',
-                 description = 'Created from Farm Job',
-                 ownerid = 38,
+                 projectid = None,
+                 shotid = None,
+                 taskid = None,
+                 versioncode = 'test colours seq.mov',
+                 description = 'Created from Proxy Farm Job',
+                 ownerid = None,
                  tag = "RenderFarm Proxy"
                  ):
         super(NewVersion, self).__init__()
+        self.touchbase()
         self.project = {'type': 'Project', 'id': projectid}
-        self.shotname = shotname
-        self.taskname = taskname
+        self.shotid=shotid
+        self.taskid=taskid
         self.versioncode = versioncode
         self.description = description
-        self.owner = {'type':'HumanUser', 'id': ownerid}
+        self.ownerid = ownerid
         self.tag = tag
         self.media = media
         logger.info("SHOTGUN: File to upload ...... %s"%self.media)
-
-        self.shotfilters = [ ['project','is', self.project],['code', 'is', self.shotname] ]
-        self.shot = self.sg.find_one('Shot', self.shotfilters)
-
-        self.taskfilters = [ ['project','is', self.project],
-                    ['entity','is',{'type':'Shot','id': self.shot['id']}],
-                    ['content','is',self.taskname] ]
-        self.task = self.sg.find_one('Task',self.taskfilters)
-
         self.data = { 'project': self.project,
-                 'code': self.versioncode,
-                 'description': self.description,
-                 'sg_status_list': 'rev',
-                 'entity': {'type':'Shot', 'id':self.shot['id']},
-                 'sg_task': {'type':'Task', 'id':self.task['id']},
-                 'user': self.owner }
+                     'code': self.versioncode,
+                     'description': self.description,
+                     'sg_status_list': 'rev',  # pending review
+                     # "sg_sequence": {"type": "Sequence", "id": 109},
+                     'entity': {'type':'Shot', 'id':self.shotid},
+                     'sg_task': {'type':'Task', 'id':self.taskid},
+                     'user': {'type': 'HumanUser', 'id': self.ownerid }
+                      }
         self.version_result = self.sg.create('Version', self.data)
         logger.info("SHOTGUN: New Version Created : %s" % self.version_result)
         logger.info("SHOTGUN: Sending then transcoding.......")
@@ -314,15 +309,17 @@ if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
     logger.info("------------------------------START TESTING")
 
-    #  upload a movie
-    # a = ShotgunBase()
-    # b=NewVersion(projectid=89,
-    #              shotname="tractortesting",
-    #              taskname='layout',
-    #              versioncode='from tractor 1',
-    #              description='test version using shotgun_repos api',
-    #              ownerid=38,
-    #              media='/Users/Shared/UTS_Dev/test_RMS_aaocean.0006.mov')
+
+    # ########################################################
+    # upload a movie example
+    a = ShotgunBase()
+    b=NewVersion(projectid=171,
+                 shotid=3130,
+                 taskid=9374,
+                 versioncode='from tractor 1',
+                 description='test version using shotgun_repos api',
+                 ownerid=381,
+                 media='/Users/Shared/UTS_Dev/Volumes/dabrender/work/user_work/matthewgidney/testing2017/movies/seq1.mov')
 
     # query projects shots etc
     # c=Projects()
@@ -396,8 +393,8 @@ if __name__ == "__main__":
 
 
     ############################################################
-    p=ShotgunBase()
-    p.touchbase()
+    # p=ShotgunBase()
+    # p.touchbase()
     # _p=p.sg.schema_field_read('HumanUser')
     #
     # for each in _p.keys():
@@ -415,11 +412,11 @@ if __name__ == "__main__":
     ####  make playlist
     ####  add version to playlist
 
-    mg=Person("120988")
-    print(mg.myProjects())
-    print mg.seqFromProject(171)
-    print mg.shotFromSeq(171,281)
-    print mg.taskFromShot(171,3143)
+    # mg=Person("120988")
+    # print(mg.myProjects())
+    # print mg.seqFromProject(171)
+    # print mg.shotFromSeq(171,281)
+    # print mg.taskFromShot(171,3143)
 
 
 
