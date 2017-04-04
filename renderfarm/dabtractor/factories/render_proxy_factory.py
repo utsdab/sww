@@ -66,6 +66,10 @@ class Job(object):
         self.envproject=None
         self.envscene=None
         self.seqbasename=None
+        self.shotgunProject=None
+        self.shotgunSequence=None
+        self.shotgunShot=None
+        self.shotgunTask=None
         self.shotgunProjectId=None
         self.shotgunSequenceId=None
         self.shotgunShotId=None
@@ -244,18 +248,27 @@ class Render_RV(object):
         if self.job.sendToShotgun:
             logger.info("Sending to Shotgun = {} {} {} {}".format(self.job.shotgunProjectId,self.job.shotgunSequenceId,
                                                          self.job.shotgunShotId,self.job.shotgunTaskId))
-
-            # TODO  add in shotgun upload here
-            _uploadcmd = ["shotgunupload.py",
-                          "-o", self.job.shotgunOwnerId,
-                          "-p", self.job.shotgunProjectId,
-                          "-s", self.job.shotgunShotId,
-                          "-t", self.job.shotgunTaskId,
-                          "-v", "name",
-                          "-d", "description",
-                          "-m", _outmov
-                          ]
-            task_upload = self.job.env.author.Task(title="Upload to shotgun as new version")
+            _version="name"
+            _description = "description"
+            _uploadcmd = ""
+            if self.job.shotgunTaskId:
+                _uploadcmd = ["shotgunupload.py",
+                              "-o", self.job.shotgunOwnerId,
+                              "-p", self.job.shotgunProjectId,
+                              "-s", self.job.shotgunShotId,
+                              "-t", self.job.shotgunTaskId,
+                              "-v", _version,
+                              "-d", _description,
+                              "-m", _outmov ]
+            elif not self.job.shotgunTaskId:
+                _uploadcmd = ["shotgunupload.py",
+                              "-o", self.job.shotgunOwnerId,
+                              "-p", self.job.shotgunProjectId,
+                              "-s", self.job.shotgunShotId,
+                              "-v", _version,
+                              "-d", _description,
+                              "-m", _outmov ]
+            task_upload = self.job.env.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSequence,self.job.shotgunShot, self.job.shotgunTask))
             uploadcommand = self.job.env.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"], envkey=["rvio"])
             task_upload.addCommand(uploadcommand)
             task_thisjob.addChild(task_upload)
