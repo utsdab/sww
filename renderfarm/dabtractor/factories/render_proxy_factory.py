@@ -83,7 +83,6 @@ class Render_RV(object):
 
     def __init__(self, job):
         self.job=job
-
         utils.printdict( self.job.__dict__)
 
         self.job.dabworkalias= "$DABWORK"  # this needs to be set in default environment in tractor keys
@@ -119,18 +118,11 @@ class Render_RV(object):
             self.job.seqbasename = _base
             self.job.seqtemplatename = "{b}.{:#^{p}}.{e}".format('#', b=_base, p=_precision, e=_ext)
 
-        # logger.critical("wwwwwwww")
-
         self.startframe = int(self.job.jobstartframe)
         self.endframe = int(self.job.jobendframe)
-
-        # logger.critical("wwwwwwww")
-
         self.byframe = int(self.job.jobbyframe)
         self.chunks = int(self.job.jobchunks)  # pixar jobs are one at a time
         self.projectgroup = self.job.department
-
-        # logger.critical("wwwwwwww")
         self.options = ""
         self.resolution = self.job.optionresolution
         # self.outformat = "exr"
@@ -143,11 +135,8 @@ class Render_RV(object):
 
 
     def build(self):
-        '''
-        Main method to build the job
-        '''
+        ''' Main method to build the job '''
         # ################ 0 JOB ################
-        logger.critical("xxxxxxxxx")
 
         self.renderjob = self.job.env.author.Job(title="PROXY: {} {} {}-{}".format(
               self.job.username,self.job.seqtemplatename,self.startframe,self.endframe),
@@ -239,9 +228,8 @@ class Render_RV(object):
         if self.optionsendjobendemail:
             logger.info("email = {}".format(self.job.useremail))
             task_notify_end = self.job.env.author.Task(title="Notify End", service="ShellServices")
-            task_notify_end.addCommand(self.mail("JOB", "COMPLETE", "{}".format(self.job.seqfullpath)))
+            task_notify_end.addCommand(self.mail("JOB", "COMPLETE", "{}".format(_seq)))
             task_thisjob.addChild(task_notify_end)
-
 
 
         # ############## 6 SETD TO SHOTGUN ###############
