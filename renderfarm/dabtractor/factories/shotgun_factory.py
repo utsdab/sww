@@ -277,15 +277,26 @@ class NewVersion(ShotgunBase):
         self.tag = tag
         self.media = media
         logger.info("SHOTGUN: File to upload ...... %s"%self.media)
-        self.data = { 'project': self.project,
-                     'code': self.versioncode,
-                     'description': self.description,
-                     'sg_status_list': 'rev',  # pending review
-                     # "sg_sequence": {"type": "Sequence", "id": 109},
-                     'entity': {'type':'Shot', 'id':self.shotid},
-                     'sg_task': {'type':'Task', 'id':self.taskid},
-                     'user': {'type': 'HumanUser', 'id': self.ownerid }
-                      }
+        if projectid and shotid and taskid:
+            self.data = { 'project': self.project,
+                         'code': self.versioncode,
+                         'description': self.description,
+                         'sg_status_list': 'rev',  # pending review
+                         # "sg_sequence": {"type": "Sequence", "id": 109},
+                         'entity': {'type':'Shot', 'id':self.shotid},
+                         'sg_task': {'type':'Task', 'id':self.taskid},
+                         'user': {'type': 'HumanUser', 'id': self.ownerid }
+                          }
+        elif projectid and shotid and not taskid:
+            self.data = { 'project': self.project,
+                         'code': self.versioncode,
+                         'description': self.description,
+                         'sg_status_list': 'rev',  # pending review
+                         # "sg_sequence": {"type": "Sequence", "id": 109},
+                         'entity': {'type':'Shot', 'id':self.shotid},
+                         # 'sg_task': {'type':'Task', 'id':self.taskid},
+                         'user': {'type': 'HumanUser', 'id': self.ownerid }
+                          }
         self.version_result = self.sg.create('Version', self.data)
         logger.info("SHOTGUN: New Version Created : %s" % self.version_result)
         logger.info("SHOTGUN: Sending then transcoding.......")

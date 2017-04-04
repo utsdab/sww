@@ -34,10 +34,10 @@ class WindowBase(object):
         self.master = tk.Tk()
         self.job=rfac.Job()
         self.shotgun=sgt.Person()
-        self.job.shotgunOwner_id=self.shotgun.shotgun_id
+        self.job.shotgunOwnerId=self.shotgun.shotgun_id
         self.job.shotgunOwner=self.shotgun.shotgunlogin
 
-        logger.info("Shotgun Owner={} id={}".format(self.job.shotgunOwner,self.job.shotgunOwner_id))
+        logger.info("Shotgun Owner={} id={}".format(self.job.shotgunOwner,self.job.shotgunOwnerId))
 
 
 class Window(WindowBase):

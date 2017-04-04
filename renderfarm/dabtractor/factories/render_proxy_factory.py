@@ -238,7 +238,7 @@ class Render_RV(object):
             task_notify_end.addCommand(self.mail("JOB", "COMPLETE", "{}".format(self.job.seqfullpath)))
             task_thisjob.addChild(task_notify_end)
 
-        self.renderjob.addChild(task_thisjob)
+
 
         # ############## 6 SETD TO SHOTGUN ###############
         if self.job.sendToShotgun:
@@ -246,10 +246,21 @@ class Render_RV(object):
                                                          self.job.shotgunShotId,self.job.shotgunTaskId))
 
             # TODO  add in shotgun upload here
+            _uploadcmd = ["shotgunupload.py",
+                          "-o", self.job.shotgunOwnerId,
+                          "-p", self.job.shotgunProjectId,
+                          "-s", self.job.shotgunShotId,
+                          "-t", self.job.shotgunTaskId,
+                          "-v", "name",
+                          "-d", "description",
+                          "-m", _outmov
+                          ]
+            task_upload = self.job.env.author.Task(title="Upload to shotgun as new version")
+            uploadcommand = self.job.env.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"], envkey=["rvio"])
+            task_upload.addCommand(uploadcommand)
+            task_thisjob.addChild(task_upload)
 
-            # task_notify_end = self.job.env.author.Task(title="Notify End", service="ShellServices")
-            # task_notify_end.addCommand(self.mail("JOB", "COMPLETE", "{}".format(self.job.seqfullpath)))
-            # task_thisjob.addChild(task_notify_end)
+        self.renderjob.addChild(task_thisjob)
 
     def validate(self):
         logger.info("\n\n{:_^80}\n{}\n{:_^80}".format("snip", self.renderjob.asTcl(), "snip"))
