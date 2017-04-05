@@ -224,15 +224,7 @@ class Render_RV(object):
             logger.warn("Cant make a proxy {}".format(proxyerror))
 
 
-        # ############## 5 NOTIFY JOB END ###############
-        if self.optionsendjobendemail:
-            logger.info("email = {}".format(self.job.useremail))
-            task_notify_end = self.job.env.author.Task(title="Notify End", service="ShellServices")
-            task_notify_end.addCommand(self.mail("JOB", "COMPLETE", "{}".format(_seq)))
-            task_thisjob.addChild(task_notify_end)
-
-
-        # ############## 6 SETD TO SHOTGUN ###############
+        # ############## 6 SEND TO SHOTGUN ###############
         if self.job.sendToShotgun:
             logger.info("Sending to Shotgun = {} {} {} {}".format(self.job.shotgunProjectId,self.job.shotgunSequenceId,
                                                          self.job.shotgunShotId,self.job.shotgunTaskId))
@@ -261,6 +253,14 @@ class Render_RV(object):
             task_upload.addCommand(uploadcommand)
             task_thisjob.addChild(task_upload)
 
+        # ############## 5 NOTIFY JOB END ###############
+        if self.optionsendjobendemail:
+            logger.info("email = {}".format(self.job.useremail))
+            task_notify_end = self.job.env.author.Task(title="Notify End", service="ShellServices")
+            task_notify_end.addCommand(self.mail("JOB", "COMPLETE", "{}".format(_seq)))
+
+            task_thisjob.addChild(task_notify_end)
+
         self.renderjob.addChild(task_thisjob)
 
     def validate(self):
@@ -279,8 +279,8 @@ class Render_RV(object):
             try:
                 logger.info("Spooled correctly")
                 # all jobs owner by pixar user on the farm
-                self.renderjob.spool(owner=self.job.env.getdefault("tractor","jobowner"),
-                               port=int(self.job.env.getdefault("tractor","port")))
+                self.renderjob.spool(owner=self.job.env.config.getdefault("tractor","jobowner"),
+                               port=int(self.job.env.config.getdefault("tractor","port")))
 
             except Exception, spoolerr:
                 logger.warn("A spool error %s" % spoolerr)
