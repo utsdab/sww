@@ -19,7 +19,7 @@ job.title = "a one-task render job"
 job.priority = 100
 job.service = "PixarRender"
 job.newTask(title="A one-command render task",
-            argv=["/usr/bin/prman", "file.rib"])
+            argv=["/usr/utils/prman", "file.rib"])
 '''
 '''
 ADDING TASKS
@@ -34,7 +34,7 @@ job = author.Job(title="a one-task render job",
                  service="PixarRender")
 
 task = author.Task(title="A one-command render task",
-                   argv=["/usr/bin/prman", "file.rib"])
+                   argv=["/usr/utils/prman", "file.rib"])
 job.addChild(task)
 
 
@@ -45,9 +45,9 @@ before another one starts, the task to run first is
 declared as a child of the second.
 '''
 parent = author.Task(title="parent runs second",
-                     argv=["/usr/bin/command"])
+                     argv=["/usr/utils/command"])
 child = author.Task(title="child runs first",
-                    argv=["/usr/bin/command"])
+                    argv=["/usr/utils/command"])
 parent.addChild(child)
 
 
@@ -57,11 +57,11 @@ For tasks to run in parallel, they need only be instantiated
 with the same parent.
 '''
 parent = author.Task(title="comp",
-                     argv=["/usr/bin/comp", "fg.tif", "bg.tif"])
+                     argv=["/usr/utils/comp", "fg.tif", "bg.tif"])
 parent.newTask(title="render fg",
-               argv=["/usr/bin/prman", "fg.rib"])
+               argv=["/usr/utils/prman", "fg.rib"])
 parent.newTask(title="render bg",
-               argv=["/usr/bin/prman", "bg.rib"])
+               argv=["/usr/utils/prman", "bg.rib"])
 
 '''
 One can optionally run all child tasks of a parent serially
@@ -76,18 +76,18 @@ ADDING INSTANCES
 Instances are implicitly determined when a task has been
 added to more than one parent task.
 '''
-render1 = author.Task(title="render rib 1", argv=["/usr/bin/prman", "1.rib"])
-render2 = author.Task(title="render rib 2", argv=["/usr/bin/prman", "2.rib"])
-ribgen = author.Task(title="rib generator", argv=["/usr/bin/ribgen", "1,2", "scene.file"])
+render1 = author.Task(title="render rib 1", argv=["/usr/utils/prman", "1.rib"])
+render2 = author.Task(title="render rib 2", argv=["/usr/utils/prman", "2.rib"])
+ribgen = author.Task(title="rib generator", argv=["/usr/utils/ribgen", "1,2", "scene.file"])
 render1.addChild(ribgen)
 render2.addChild(ribgen)
 '''
 Instances can also be explicitly defined, passing the
 title of the referred task.
 '''
-render1 = author.Task(title="render rib 1", argv=["/usr/bin/prman", "1.rib"])
-render2 = author.Task(title="render rib 2", argv=["/usr/bin/prman", "2.rib"])
-ribgen = author.Task(title="rib generator", argv=["/usr/bin/ribgen", "1,2", "scene.file"])
+render1 = author.Task(title="render rib 1", argv=["/usr/utils/prman", "1.rib"])
+render2 = author.Task(title="render rib 2", argv=["/usr/utils/prman", "2.rib"])
+ribgen = author.Task(title="rib generator", argv=["/usr/utils/ribgen", "1,2", "scene.file"])
 render1.addChild(ribgen)
 instance = author.Instance(title="rib generator")
 render2.addChild(instance)
@@ -102,10 +102,10 @@ separate steps of creating a new command and adding it as
 a child of a task. The following examples build an equivalent task.
 '''
 task = author.Task(title="render rib 1")
-command = author.Command(argv=["/usr/bin/prman", "1.rib"], service="pixarRender")
+command = author.Command(argv=["/usr/utils/prman", "1.rib"], service="pixarRender")
 task.addCommand(command)
 task = author.Task(title="render rib 1")
-command = task.newCommand(argv=["/usr/bin/prman", "1.rib"], service="pixarRender")
+command = task.newCommand(argv=["/usr/utils/prman", "1.rib"], service="pixarRender")
 
 '''
 Additionally, there is a shortcut in which a command can be
@@ -113,8 +113,8 @@ instantiated and automatically associated with a task when the task
 is created. This is done by setting the argv attribute when initializing a
 new task. This approach also works in the author.newTask() method.
 '''
-task = author.Task(title="render rib 1", argv=["/usr/bin/prman", "1.rib"], service="pixarRender")
-task = otherTask.newTask(title="render rib 1", argv=["/usr/bin/prman", "1.rib"], service="pixarRender")
+task = author.Task(title="render rib 1", argv=["/usr/utils/prman", "1.rib"], service="pixarRender")
+task = otherTask.newTask(title="render rib 1", argv=["/usr/utils/prman", "1.rib"], service="pixarRender")
 
 '''Because each command requires a service key, the API will push the assignment
 of the service attribute to the command when this shortcut is used.
@@ -136,13 +136,13 @@ of the author.Task.addCommand() or author.Task.newCommand() methods.
 task = author.Task(title="multi-command task", service="PixarRender")
 copyin = author.Command(argv=["scp", "remote:/path/file.rib", "/local/file.rib"])
 task.addCommand(copyin)
-render = author.Command(argv=["/usr/bin/prman", "/local/file.rib"])
+render = author.Command(argv=["/usr/utils/prman", "/local/file.rib"])
 task.addCommand(render)
 copyout = author.Command(argv=["scp", "/local/file.tif", "remote:/path/file.tif"])
 task.addCommand(copyout)
 task = author.Task(title="multi-command task", service="PixarRender")
 task.newCommand(argv=["scp", "remote:/path/file.rib", "/local/file.rib"])
-task.newCommand(argv=["/usr/bin/prman", "/local/file.rib"])
+task.newCommand(argv=["/usr/utils/prman", "/local/file.rib"])
 task.newCommand(argv=["scp", "/local/file.tif", "remote:/path/file.tif"])
 
 '''Exceptions

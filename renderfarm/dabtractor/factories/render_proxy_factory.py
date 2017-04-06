@@ -237,7 +237,7 @@ class Render_RV(object):
                               "-p", self.job.shotgunProjectId,
                               "-s", self.job.shotgunShotId,
                               "-t", self.job.shotgunTaskId,
-                              "-v", _version,
+                              "-n", _version,
                               "-d", _description,
                               "-m", _outmov ]
             elif not self.job.shotgunTaskId:
@@ -245,7 +245,7 @@ class Render_RV(object):
                               "-o", self.job.shotgunOwnerId,
                               "-p", self.job.shotgunProjectId,
                               "-s", self.job.shotgunShotId,
-                              "-v", _version,
+                              "-n", _version,
                               "-d", _description,
                               "-m", _outmov ]
             task_upload = self.job.env.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSequence,self.job.shotgunShot, self.job.shotgunTask))

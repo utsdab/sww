@@ -411,7 +411,7 @@ def _default_mime_types():
         '.avi'    : 'video/x-msvideo',
         '.bat'    : 'text/plain',
         '.bcpio'  : 'application/x-bcpio',
-        '.bin'    : 'application/octet-stream',
+        '.utils'    : 'application/octet-stream',
         '.bmp'    : 'image/x-ms-bmp',
         '.c'      : 'text/plain',
         # Duplicates :(

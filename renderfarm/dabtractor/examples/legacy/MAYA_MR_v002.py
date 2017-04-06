@@ -20,7 +20,7 @@ start = 1
 end = 100
 
 # this is then derived
-cmdpath = usedirmap("/usr/autodesk/maya2015-x64/bin/Render")
+cmdpath = usedirmap("/usr/autodesk/maya2015-x64/utils/Render")
 renderdirectory = usedirmap("%s/images/%s"%(proj,scene))
 renderscene = usedirmap("%s/scenes/%s"%(proj,scenefile))
 renderproject = usedirmap("%s"%proj)

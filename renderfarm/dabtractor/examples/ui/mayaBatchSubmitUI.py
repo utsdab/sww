@@ -67,7 +67,7 @@ example local queue
 maya -batch -command "renderManBatchRenderScript(0,1,1,1,0)"
      -file /Users/Shared/UTS_Jobs/MAYA///_rmsTestingShaders_pid52888_1209155904.ma
      -proj /Users/Shared/UTS_Jobs/MAYA
-/bin/rm -rf "/Users/Shared/UTS_Jobs/MAYA/_rmsTestingShaders_pid52888_1209155904.ma"
+/utils/rm -rf "/Users/Shared/UTS_Jobs/MAYA/_rmsTestingShaders_pid52888_1209155904.ma"
 
 
 

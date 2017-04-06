@@ -175,7 +175,7 @@ class RenderOutput(object):
         logger.debug("Top level filepath: {}".format(self.toplevelfilepath))
 
     def _runlsseq(self):
-        # lsseq is in tractor bin and should be in the path
+        # lsseq is in tractor utils and should be in the path
         filepath=self.toplevelfilepath
         if os.path.isdir(filepath):
             _env=dict(os.environ, my_env_prop='value')

@@ -21,7 +21,7 @@ This is a test job for UTS farm rollout
 job = author.Job(title="a one-task render job", priority=100,
                  service="PixarRender")
 job.newTask(title="A one-command render task",
-            argv=["/usr/bin/prman",
+            argv=["/usr/utils/prman",
             "file.rib"], service="pixarRender")
 print "\n{0}\n{1}".format("TCL Output",job.asTcl())
 
@@ -30,7 +30,7 @@ print "\n{0}\n{1}".format("TCL Output",job.asTcl())
 """
 Job -title {a one-task render job} -priority {100.0} -service {PixarRender} -subtasks {
   Task {A one-command render task} -cmds {
-    RemoteCmd {{/usr/bin/prman} {file.rib}} -service {pixarRender}
+    RemoteCmd {{/usr/utils/prman} {file.rib}} -service {pixarRender}
   }
 }
 """
