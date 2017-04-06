@@ -56,7 +56,7 @@ class Job(object):
 
         self.farmtier=None
 
-        if self.env.department in self.env.getoptions("renderjob", "projectgroup"):
+        if self.env.department in self.env.config.getoptions("renderjob", "projectgroup"):
             logger.info("Department {}".format(self.env.department))
         else:
             self.department="Other"
@@ -414,8 +414,8 @@ class Render(object):
             try:
                 logger.info("Spooled correctly")
                 # all jobs owner by pixar user on the farm
-                self.renderjob.spool(owner=self.job.env.getdefault("tractor","jobowner"),
-                               port=int(self.job.env.getdefault("tractor","port")))
+                self.renderjob.spool(owner=self.job.env.config.getdefault("tractor","jobowner"),
+                               port=int(self.job.env.config.getdefault("tractor","port")))
 
             except Exception, spoolerr:
                 logger.warn("A spool error %s" % spoolerr)
