@@ -228,8 +228,8 @@ class Render_RV(object):
         if self.job.sendToShotgun:
             logger.info("Sending to Shotgun = {} {} {} {}".format(self.job.shotgunProjectId,self.job.shotgunSequenceId,
                                                          self.job.shotgunShotId,self.job.shotgunTaskId))
-            _version="name"
-            _description = "description"
+            _description = "Auto Uploaded from {} {} {} {}".format(self.job.envproject,self.job.envtype,
+                                                                   self.job.envshow,self.job.envscene)
             _uploadcmd = ""
             if self.job.shotgunTaskId:
                 _uploadcmd = ["shotgunupload.py",
@@ -237,7 +237,7 @@ class Render_RV(object):
                               "-p", self.job.shotgunProjectId,
                               "-s", self.job.shotgunShotId,
                               "-t", self.job.shotgunTaskId,
-                              "-n", _version,
+                              "-n", self.job.seqbasename,
                               "-d", _description,
                               "-m", _outmov ]
             elif not self.job.shotgunTaskId:
@@ -245,7 +245,7 @@ class Render_RV(object):
                               "-o", self.job.shotgunOwnerId,
                               "-p", self.job.shotgunProjectId,
                               "-s", self.job.shotgunShotId,
-                              "-n", _version,
+                              "-n", self.job.seqbasename,
                               "-d", _description,
                               "-m", _outmov ]
             task_upload = self.job.env.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSequence,self.job.shotgunShot, self.job.shotgunTask))
