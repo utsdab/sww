@@ -34,7 +34,7 @@ import sww.renderfarm.dabtractor.factories.environment_factory as envfac
 class WindowBase(object):
     """ Base class for all batch jobs """
     def __init__(self):
-        self.fj=envfac.FarmJob()
+        self.fj=envfac.TractorJob()
         self.spooljob = False
         self.validatejob = False
         self.master = tk.Tk()

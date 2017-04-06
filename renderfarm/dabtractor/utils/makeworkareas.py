@@ -27,7 +27,7 @@ def main():
     people=sgt.People()
     peoplelist=[]
     try:
-        dabwork = people.env.environ["DABWORK"]
+        dabwork = people.config.environ["DABWORK"]
     except Exception, err:
         logger.critical("Cant find DABWORK: {}".format(err))
         sys.exit(1)

@@ -1,0 +1,465 @@
+#!/usr/bin/env perl
+use warnings;
+use strict;
+
+# mved - carefully rename multiple files
+#
+# Copyright (C) 1997-2006 raf <raf@raf.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# or visit http://www.gnu.org/copyleft/gpl.html
+#
+# 20030901 raf <raf@raf.org>
+
+=head1 NAME
+
+I<mved> - carefully rename multiple files
+
+=head1 SYNOPSIS
+
+ usage: mved [options] src dst
+ options:
+
+   -h   - Print the help message then exit
+   -m   - Print the manpage then exit
+   -w   - Print the manpage in html format then exit
+   -r   - Print the manpage in nroff format then exit
+   -n   - Don't rename anything. Just print commands
+   -f   - Force dangerous actions (Check with -n first!)
+   -q   - Don't print skipping or unlinking messages
+   -v   - Print equivalent mv commands (implied by -d)
+   -d   - Print debugging messages
+   -b # - Set depth of quote characters to check (default 4)
+
+=head1 DESCRIPTION
+
+I<mved> renames multiple files. The C<src> argument is a filename glob
+specifying the set of files to rename. The C<dst> argument is a pattern
+specifying the new names for the set of files. The C<src> argument can
+contain all of the normal shell globbing constructs (C<?>, C<*> and
+C<[...]>) as well as C<=> which is a synonym for C<*>. If any normal shell
+globbing constructs are used, they must be quoted to prevent the shell from
+performing filename expansion. This is not necessary when the only construct
+used is C<=>. There are two styles of C<dst> argument. One allows C<=> to
+represent the text matching the (positionally) corresponding glob construct
+in the C<src> argument. The other allows C<=#=> (where C<#> is an integer)
+to represent the text matching the C<#-th> glob construct in the C<src>
+argument. The two styles cannot be mixed.
+
+I<mved> creates new links to the existing files. If the C<-v> verbose option
+is supplied, the corresponding I<mv> commands are printed. If any of them
+fail, they are all unlinked and the operation is aborted. If all were
+successful, the original files are unlinked.
+
+Before renaming any files, I<mved> checks for any dubious consequences. If a
+source filename is equal to its corresponding destination filename, that
+(redundant) renaming operation is skipped. The user is informed unless the
+C<-q> quiet option is supplied. If a source filename is equal to some other
+destination filename, I<mved> gets nervous and exits unless the C<-f> force
+option is supplied. If the same filename is a destination for multiple
+source filenames, I<mved> exits unless the C<-f> force option is supplied.
+If any file to be created already exists, I<mved> exits unless the C<-f>
+force option is supplied. B<When forced, mved will unlink any existing
+destination files>. The user will be informed unless the C<-q> quiet option
+is supplied.
+
+=head1 OPTIONS
+
+=over 4
+
+=item C<-h>
+
+Print the help message then exit.
+
+=item C<-m>
+
+Print the manpage then exit. This is equivalent to executing C<man mved>
+but this works even when the manpage isn't installed properly.
+
+=item C<-w>
+
+Print the manpage in html format then exit. This lets you install the
+manpage in html format with a command like:
+
+  mkdir -p /usr/local/share/doc/mved/html &&
+  mved -w > /usr/local/share/doc/mved/html/mved.1.html
+
+=item C<-r>
+
+Print the manpage in nroff format then exit. This lets you install the
+manpage properly with a command like:
+
+  mved -r > /usr/local/share/man/man1/mved.1
+
+=item C<-n>
+
+Don't rename anything. Just print the corresponding I<mv> commands and (and
+possibly I<rm> commands) then exit.
+
+=item C<-f>
+
+Force I<mved> to obey even when it doesn't like what you are doing. B<If you
+force mved to rename a file to an existing file, the existing file will be
+unlinked first>. Never use this without using C<-n> first to see what you
+are telling I<mved> to do and verifying that it is what you really, really
+want to do.
+
+=item C<-q>
+
+Don't print "Skipping filename" messages when a source filename matches it's
+corresponding destination filename. Don't print "Unlinking filename"
+messages when forced to unlink existing files.
+
+=item C<-v>
+
+Print corresponding I<mv> commands when renaming each file. Implied by the
+C<-d> option.
+
+=item C<-d>
+
+Print debugging messages that show the C<src> and C<dst> arguments before
+and after translation from filename globs into regular expressions. Also
+print corresponding I<mv> commands when renaming each file.
+
+=item C<-b #>
+
+Specify how many backslashes to count backwards when determining whether or
+not special characters are quoted. The default is 4 which should be more
+than you'll ever need (unless you have files with consecutive backslashes in
+their names - shudder).
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item C<mved =.c~ bak/=.c.bak>
+
+    mv a.c~ bak/a.c.bak
+    mv b.c~ bak/b.c.bak
+    mv c.c~ bak/c.c.bak
+
+=item C<mved '*.[ch]' save-=.=>
+
+    mv a.c save-a.c
+    mv a.h save-a.h
+    mv b.c save-b.c
+    mv b.h save-b.h
+
+=item C<mved save-=.= =.=>
+
+    mv save-a.c a.c
+    mv save-a.o a.o
+    mv save-b.c b.c
+    mv save-b.o b.o
+
+=item C<mved note= note=.txt>
+
+    mv note1 note1.txt
+    mv note2 note2.txt
+    mv note3 note3.txt
+
+=item C<mved '[0-9][0-9][0-9][0-9][0-9][0-9]*' 19=5==6=-=3==4=-=1==2==7=>
+
+    mv 191299-app.log 1999-12-19-app.log
+    mv 211299-app.log 1999-12-21-app.log
+    mv 251299-app.log 1999-12-25-app.log
+    mv 281299-app.log 1999-12-28-app.log
+
+=back
+
+=head1 RETURNS
+
+I<mved> returns 0 (zero) upon success, 1 (one) upon failure. Upon failure,
+no files will have been renamed.
+
+=head1 BUGS
+
+Hard links are used so it is impossible to I<mved> files from one file
+system to another. Use I<mv> for this. Then rename with I<mved>. This is not
+really a bug. It is a safety feature.
+
+Doesn't handle patterns containing pipe C<'|'> characters because this
+character is used as the regular expression separator.
+
+Presumably, there are as yet unknown bugs and they will presumably cost
+files. My advice is to always use C<-n> first, never use C<-f>, and always
+keep backups.
+
+=head1 COPYING
+
+Released under the terms of the GPL (http://www.gnu.org/copyleft/gpl.html)
+
+=head1 HISTORY
+
+Many years ago on a MIPS far away, there was a program called I<mved> that
+renamed multiple files using C<=>. It was very useful but I haven't seen it
+since.
+
+=head1 SEE ALSO
+
+I<link(2)>, I<unlink(2)>, I<mv(1)>, I<rm(1)>
+
+=head1 AUTHOR
+
+20030901 raf <raf@raf.org>
+
+=head1 URL
+
+C<http://raf.org/mved/>
+
+=cut
+
+my ($name) = $0 =~ /([^\/]+)$/;
+
+sub help
+{
+	print
+		"usage: $name [options] src dst\n",
+		"options:\n",
+		"  -h   - Print the help message then exit\n",
+		"  -m   - Print the manpage then exit\n",
+		"  -w   - Print the manpage in html format then exit\n",
+		"  -r   - Print the manpage in nroff format then exit\n",
+		"  -n   - Don't rename anything. Just print commands\n",
+		"  -f   - Force dangerous actions (Check with -n first!)\n",
+		"  -q   - Don't print skipping or unlinking messages\n",
+		"  -v   - Print equivalent mv commands (implied by -d)\n",
+		"  -d   - Print debugging messages\n",
+		"  -b # - Set depth of quote characters to check (default 4)\n",
+		"\n",
+		"Mved carefully renames multiple files.\n";
+	exit;
+}
+
+sub man
+{
+	my $noquotes = (`pod2man -h 2>&1` =~ /--quotes=/) ? '--quotes=none' : '';
+	system "pod2man $noquotes $0 | nroff -man | " . ($ENV{PAGER} || 'more');
+	exit;
+}
+
+sub nroff
+{
+	my $noquotes = (`pod2man -h 2>&1` =~ /--quotes=/) ? '--quotes=none' : '';
+	system "pod2man $noquotes $0";
+	exit;
+}
+
+sub html
+{
+	system "pod2html --noindex $0";
+	unlink glob 'pod2htm*';
+	exit;
+}
+
+my %opt;
+use Getopt::Std;
+help if !getopts('hmwrnfqvdb:', \%opt) || exists $opt{h};
+man if exists $opt{m};
+nroff if exists $opt{r};
+html if exists $opt{w};
+help unless @ARGV == 2;
+my $src_glob = shift;
+my $dst_glob = shift;
+my $testing = exists $opt{n};
+my $force = exists $opt{f};
+my $quiet = exists $opt{q};
+my $verbose = exists $opt{v} || exists $opt{d};
+my $debug = exists $opt{d};
+my $backwards = exists $opt{b} ? $opt{b} : 4;
+
+print "$name: glob $src_glob $dst_glob\n" if $debug;
+
+# Construct a glob and get the list of matching files
+
+$src_glob =~ s/=/*/g;
+my @src = glob $src_glob ;
+die "$name: No such file: $src_glob\n" unless @src;
+
+# Translate src into a regular expression search
+
+my $src_re = $src_glob;
+my $unsloshed = '';
+$unsloshed = "(?<!" . $unsloshed . "\\\\)" for 1..$backwards;
+my $head = qr/(?:\^|!)/;
+my $char = qr/(?:[^\]]|\\.)/;
+my $body_part = qr/(?::\w+:|$char-$char|$char)/;
+my $body = qr/$head?$body_part+/;
+my $char_class = qr/$unsloshed\[$body$unsloshed\]/;
+my $any_char = qr/$unsloshed\?/;
+my $any_str = qr/$unsloshed(?:\*|=)/;
+my $dot = qr/\./;
+my $glob = qr/(?:$char_class|$any_str|$any_char|$dot)/;
+my @rep;
+unshift @rep, [$&, pos($src_re), length($&)] while $src_re =~ /$glob/g;
+for my $rep (@rep)
+{
+	substr($src_re, $rep->[1] - $rep->[2], $rep->[2], "($rep->[0])"), next if $rep->[0] =~ /^$char_class$/;
+	substr($src_re, $rep->[1] - $rep->[2], $rep->[2], "(.*)"), next if $rep->[0] =~ /^$any_str$/;
+	substr($src_re, $rep->[1] - $rep->[2], $rep->[2], "(.)"), next if $rep->[0] =~ /^$any_char$/;
+	substr($src_re, $rep->[1] - $rep->[2], $rep->[2], "\\."), next if $rep->[0] =~ /^$dot$/;
+	die "$name: parsing error\n";
+}
+
+$src_re =~ s/^/^/;
+$src_re =~ s/$/\$/;
+
+# Translate dst into a regular expression replacement
+
+my $dst_re = $dst_glob;
+my $explicit_target = qr/$unsloshed=(\d+)=/;
+my $implicit_target = qr/$unsloshed=(?!\d+=)/;
+
+if ($dst_re =~ /$explicit_target/)
+{
+	$dst_re =~ s/$explicit_target/\$$1/g;
+	die "Cannot mix implicit (=) and explicit (=1=) targets\n" if $dst_re =~ /$implicit_target/;
+}
+else
+{
+	for (my $i = 1; $dst_re =~ /$implicit_target/; ++$i)
+	{
+		$dst_re =~ s/$implicit_target/\$$i/;
+	}
+}
+
+print "$name: re s|$src_re|$dst_re|\n" if $debug;
+die "pattern contains '|'\n" if $src_re =~ /\|/ || $dst_re =~ /\|/;
+
+# Construct the list of dst file names
+
+my @dst;
+my $old;
+for $old (@src)
+{
+	my $new = $old;
+	print "$name: src_re = $src_re\n" if $debug;
+	print "$name: dst_re = $dst_re\n" if $debug;
+	eval "\$new =~ s|$src_re|$dst_re|;";
+	push @dst, $new;
+}
+
+# Must be ultra paranoid but helpful
+
+my $help = "Use -n to check and then -f to force it iff you are certain";
+
+my %dst_chk;
+for (my $i = 0; $i < @dst; ++$i)
+{
+	die "$name: Aborting: target $dst[$i] appears multiple times\n" if !$testing && !$force && exists $dst_chk{$dst[$i]};
+	$dst_chk{$dst[$i]} = $i;
+}
+
+for (my $i = 0; $i < @src; ++$i)
+{
+	if (exists $dst_chk{$src[$i]})
+	{
+		my $j = $dst_chk{$src[$i]};
+
+		if ($i == $j)
+		{
+			print "$name: Skipping $src[$i]\n" unless $quiet;
+			splice @src, $i, 1;
+			splice @dst, $j, 1;
+			next;
+		}
+
+		die "$name: Aborting: Nervous about src[$i]: $src[$i] and dst[$j]: $dst[$j]\n$help\n"
+			unless $testing || $force;
+	}
+}
+
+for (my $i = 0; $i < @dst; ++$i)
+{
+	die "$name: Aborting: $dst[$i] already exists\n$help\n"
+		if -e $dst[$i] && !$testing && !$force;
+}
+
+# If testing, print out corresponding mv commands then exit
+
+if ($testing)
+{
+	for (my $i = 0; $i < @src; ++$i)
+	{
+		my $r = (-d $dst[$i]) ? 'r' : '';
+		print "rm -${r}f ", $dst[$i], ' (if forced)', "\n" if -e $dst[$i];
+		print 'mv ', $src[$i], ' ', $dst[$i], "\n";
+	}
+
+	exit;
+}
+
+# If forced, first unlink any existing destination files :[
+
+if ($force)
+{
+	for (my $i = 0; $i < @src; ++$i)
+	{
+		if (-d $dst[$i])
+		{
+			print "$name: Removing directory $dst[$i]\n" unless $quiet;
+			rmdir $dst[$i] or die "$name: Failed to remove directory $dst[$i] ($!)\n";
+		}
+		elsif (-e $dst[$i])
+		{
+			print "$name: Unlinking $dst[$i]\n" unless $quiet;
+			unlink $dst[$i] or die "$name: Failed to unlink $dst[$i] ($!)\n";
+		}
+	}
+}
+
+# Try to move all of the files
+
+my $i;
+for ($i = 0; $i < @src; ++$i)
+{
+	print "mv $src[$i] $dst[$i]\n" if $verbose;
+
+	if (-d $src[$i])
+	{
+		rename $src[$i], $dst[$i] or last;
+	}
+	else
+	{
+		link $src[$i], $dst[$i] or last;
+	}
+}
+
+# If any failed, abandon and remove all destination files
+
+if ($i != @src)
+{
+	for ($i = 0; $i < @src; ++$i)
+	{
+		if (-d $dst[$i])
+		{
+			rename $dst[$i], $src[$i];
+		}
+		elsif (-e $dst[$i])
+		{
+			unlink $dst[$i];
+		}
+	}
+
+	die "$name: Aborting: Failed to mv $src[$i] $dst[$i] ($!)\n";
+}
+
+# Otherwise, remove the originals
+
+unlink @src;
+
+# vi:set ts=4 sw=4:

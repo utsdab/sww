@@ -51,10 +51,7 @@ def sendmail(mailto,
              mailsubject,
              mailbody,
              mailfrom):
-    logger.debug("%s %s %s %s" % (mailto,
-                                  mailsubject,
-                                  mailbody,
-                                  mailfrom))
+    logger.debug("%s %s %s %s" % (mailto, mailsubject, mailbody, mailfrom))
 
     sendmail_location = "/usr/sbin/sendmail"  # sendmail location
     p = os.popen("%s -t" % sendmail_location, "w")
@@ -79,7 +76,7 @@ def getfrompathlist(filetoget, iconpath="ICONPATH"):
     try:
         _iconpath_paths = os.environ[iconpath].split(os.pathsep)
     except KeyError,e:
-        logger("Something wrong with icon path variable {}".format(iconpath))
+        logger.warn("Something wrong with icon path variable {}".format(iconpath))
 
     for i, _path in enumerate(_iconpaths):
         if os.path.isfile(os.path.join(_path, filetoget)):
@@ -138,6 +135,16 @@ def makedirectoriesinpath(path):
         # sys.exit("Cant make directory")
         raise
 
+def dictfromlistofdicts(dlist=[{}],dkey="code",dvalue="id"):
+        #  used for shotgun find returns,  cherry pick dictionary values to be the key and value in a simple new
+        # dictionary
+        logger.debug("...{} Key={} Value={}".format(dlist[0].keys(),dkey,dvalue))
+        _result={}
+        for i,d in enumerate(dlist):
+            _uniqdkey="{} ({})".format(d.get(dkey),d.get(dvalue))
+            _result[_uniqdkey]=d.get(dvalue)
+        logger.debug("{}".format( _result ))
+        return _result
 
 def truncatepath(inputpath,truncatebit):
     if os.path.isdir(inputpath):

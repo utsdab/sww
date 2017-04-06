@@ -23,21 +23,75 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 # ##############################################################
 
-import tractor.api.author as author
-import tractor.api.query as tq
 import os
 import time
 import sys
-# import user_factory as ufac
 import utils_factory as utils
-# import environment_factory as envfac
+import environment_factory as envfac
 
 
-class RenderPrman(object):
+class Job(object):
+    """ job parameters - variants should be derived by calling factories as needed
+    """
+    def __init__(self):
+        """ The payload of gui-data needed to describe a farm render job
+        """
+        self.usernumber=None
+        self.username=None
+        self.useremail=None
+
+        try:
+            self.env=envfac.TractorJob()
+            self.usernumber=self.env.usernumber
+            self.username=self.env.username
+            self.useremail=self.env.useremail
+            self.department=self.env.department
+            self.dabwork=self.env.dabwork
+
+        except Exception, err:
+            logger.warn("Cant get user credentials: {}".format(err))
+
+        self.mayaprojectfullpath=None
+        self.mayascenefullpath=None
+
+        self.farmtier=None
+
+        if self.env.department in self.env.config.getoptions("renderjob", "projectgroup"):
+            logger.info("Department {}".format(self.env.department))
+        else:
+            self.department="Other"
+
+        self.farmpriority=None
+        self.farmcrew=None
+
+        self.jobtitle=None
+        self.jobenvkey=None
+        self.jobfile=None
+        self.jobstartframe=None
+        self.jobendframe=None
+        self.jobchunks=None
+        self.jobthreads=None
+        self.jobthreadmemory=None
+
+        self.optionskipframe=None
+        self.optionmakeproxy=None
+        # self.optionsendemail=None
+        self.optionresolution=None
+        self.optionmaxsamples=None
+
+        self.envtype=None
+        self.envshow=None
+        self.envproject=None
+        self.envscene=None
+
+        self.mayaversion=None
+        self.rendermanversion=None
+
+
+class Render(object):
     ''' Renderman job defined using the tractor api '''
 
     def __init__(self, job):
-        super(RenderPrman, self).__init__()
         self.job=job
 
         utils.printdict( self.job.__dict__)
@@ -135,9 +189,9 @@ class RenderPrman(object):
                                               service="RfMRibGen")
         task_generate_rib_preflight.addCommand(command_ribgen)
         task_preflight.addChild(task_generate_rib_preflight)
-        task_render_preflight = author.Task(title="Render Preflight")
+        task_render_preflight = self.job.env.author.Task(title="Render Preflight")
 
-        command_render_preflight = author.Command(argv=[
+        command_render_preflight = self.job.env.author.Command(argv=[
                 "prman","-t:{}".format(self.threads), "-Progress", "-recover", "%r", "-checkpoint", "5m",
                 "-cwd", self.mayaprojectpath,
                 "renderman/{}/rib/job/job.rib".format(self.scenebasename)],
@@ -173,9 +227,9 @@ class RenderPrman(object):
             if chunk == _chunks:
                 _chunkend = self.endframe
 
-            task_generate_rib = author.Task(title="RIB GEN chunk {} frames {}-{}".format(
+            task_generate_rib = self.job.env.author.Task(title="RIB GEN chunk {} frames {}-{}".format(
                     chunk, _chunkstart, _chunkend ))
-            command_generate_rib = author.Command(argv=[
+            command_generate_rib = self.job.env.author.Command(argv=[
                     "maya", "-batch", "-proj", self.mayaprojectpath, "-command",
                     "renderManBatchGenRibForLayer {layerid} {start} {end} {phase}".format(
                             layerid=0, start=_chunkstart, end=_chunkend, phase=2),
@@ -206,7 +260,6 @@ class RenderPrman(object):
                                           preview="sho {}".format(_imgfile),
                                           metadata="statsfile={} imgfile={}".format(_statsfile, _imgfile))
             commonargs = ["prman", "-cwd", self.mayaprojectpath]
-
             rendererspecificargs = []
 
             # ################ handle image resolution formats ###########
@@ -326,7 +379,7 @@ class RenderPrman(object):
                 _output = "-o %s" % _outmov
                 _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (_seq, _option1, _option2, _option3, _output)) ]
                 task_proxy = self.job.env.author.Task(title="Proxy Generation")
-                proxycommand = author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"], envkey=["rvio"])
+                proxycommand = self.job.env.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"], envkey=["rvio"])
                 task_proxy.addCommand(proxycommand)
                 task_thisjob.addChild(task_proxy)
 
@@ -351,7 +404,7 @@ class RenderPrman(object):
     def mail(self, level="Level", trigger="Trigger", body="Render Progress Body"):
         bodystring = "Prman Render Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
         subjectstring = "FARM JOB: {} {} {} {}".format(level,trigger, str(self.scenebasename), self.job.username)
-        mailcmd = author.Command(argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
+        mailcmd = self.job.env.author.Command(argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
         return mailcmd
 
     def spool(self):
@@ -361,8 +414,8 @@ class RenderPrman(object):
             try:
                 logger.info("Spooled correctly")
                 # all jobs owner by pixar user on the farm
-                self.renderjob.spool(owner=self.job.env.getdefault("tractor","jobowner"),
-                               port=int(self.job.env.getdefault("tractor","port")))
+                self.renderjob.spool(owner=self.job.env.config.getdefault("tractor","jobowner"),
+                               port=int(self.job.env.config.getdefault("tractor","port")))
 
             except Exception, spoolerr:
                 logger.warn("A spool error %s" % spoolerr)

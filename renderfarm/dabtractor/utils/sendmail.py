@@ -37,15 +37,8 @@ class Mail(object):
         return status
 
 
-def sendmail(mailto,
-             mailsubject,
-             mailbody,
-             mailfrom):
-    logger.debug("%s %s %s %s" % (mailto,
-                                  mailsubject,
-                                  mailbody,
-                                  mailfrom))
-
+def sendmail(mailto, mailsubject, mailbody, mailfrom):
+    logger.debug("%s %s %s %s" % (mailto, mailsubject, mailbody, mailfrom))
     sendmail_location = "/usr/sbin/sendmail"  # sendmail location
     p = os.popen("%s -t" % sendmail_location, "w")
     p.write("From: %s\n" % str(mailfrom[0]))
