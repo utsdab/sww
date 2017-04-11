@@ -86,6 +86,15 @@ class Job(object):
 
         self.mayaversion=None
         self.rendermanversion=None
+        self.shotgunProject=None
+        self.shotgunSequence=None
+        self.shotgunShot=None
+        self.shotgunTask=None
+        self.shotgunProjectId=None
+        self.shotgunSequenceId=None
+        self.shotgunShotId=None
+        self.shotgunTaskId=None
+        self.sendToShotgun=False
 
 
 class Render(object):
@@ -347,7 +356,11 @@ class Render(object):
             '''
 
             #### making proxys with rvio
-            _outmov = "{}/movies/{}.mov".format(self.mayaprojectpath, self.scenebasename,utils.getnow())
+            # TODO we need to find the actual output frames - right now we huess
+            # (self.job.seqbasename,self.job.seqtemplatename)=utils.getSeqTemplate(self.job.selectedframename)
+
+            _mov = "{}_{}.mov".format(self.scenebasename,utils.getnow())
+            _outmov = os.path.join(self.mayaprojectpath, _mov)
             _inseq = "{}.####.exr".format(self.scenebasename)    #cameraShape1/StillLife.####.exr"
             _directory = "{}/renderman/{}/images".format(self.mayaprojectpath, self.scenebasename)
             _seq = os.path.join(_directory, _inseq)
@@ -370,7 +383,8 @@ class Render(object):
                               self.job.envtype,
                               self.job.envshow,
                               self.job.envproject,
-                              self.scenebasename,
+                              # self.scenebasename,
+                              _mov,
                               self.job.usernumber,
                               self.job.username,
                               self.projectgroup,
@@ -388,6 +402,35 @@ class Render(object):
 
         else:
             logger.info("make proxy = {}".format(self.makeproxy))
+
+        # ############## 6 SEND TO SHOTGUN ###############
+        if self.job.sendToShotgun:
+            logger.info("Sending to Shotgun = {} {} {} {}".format(self.job.shotgunProjectId,self.job.shotgunSequenceId,self.job.shotgunShotId,self.job.shotgunTaskId))
+            _description = "Auto Uploaded from {} {} {} {}".format(self.job.envtype,self.job.envproject, self.job.envshow,self.job.envscene)
+            _uploadcmd = ""
+            if self.job.shotgunTaskId:
+                _uploadcmd = ["shotgunupload.py",
+                              "-o", self.job.shotgunOwnerId,
+                              "-p", self.job.shotgunProjectId,
+                              "-s", self.job.shotgunShotId,
+                              "-t", self.job.shotgunTaskId,
+                              "-n", _mov,
+                              "-d", _description,
+                              "-m", _outmov ]
+            elif not self.job.shotgunTaskId:
+                _uploadcmd = ["shotgunupload.py",
+                              "-o", self.job.shotgunOwnerId,
+                              "-p", self.job.shotgunProjectId,
+                              "-s", self.job.shotgunShotId,
+                              "-n", _mov,
+                              "-d", _description,
+                              "-m", _outmov ]
+            task_upload = self.job.env.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSequence,self.job.shotgunShot, self.job.shotgunTask))
+            uploadcommand = self.job.env.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"], envkey=["PixarRender"])
+            task_upload.addCommand(uploadcommand)
+            task_thisjob.addChild(task_upload)
+
+
 
         # ############## 5 NOTIFY JOB END ###############
         if self.optionsendjobendemail:
@@ -414,8 +457,7 @@ class Render(object):
             try:
                 logger.info("Spooled correctly")
                 # all jobs owner by pixar user on the farm
-                self.renderjob.spool(owner=self.job.env.config.getdefault("tractor","jobowner"),
-                               port=int(self.job.env.config.getdefault("tractor","port")))
+                self.renderjob.spool(owner=self.job.env.config.getdefault("tractor","jobowner"),port=int(self.job.env.config.getdefault("tractor","port")))
 
             except Exception, spoolerr:
                 logger.warn("A spool error %s" % spoolerr)

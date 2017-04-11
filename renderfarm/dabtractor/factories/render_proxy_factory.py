@@ -94,29 +94,7 @@ class Render_RV(object):
         self.job.selectedframename = os.path.basename(self.job.seqfullpath)  # seq1.0001.exr
         self.job.seqdirname = os.path.dirname(self.job.seqfullpath)
 
-        '''
-        MUST HAVE .####.ext at the end <<<<<<<<<<<
-        name.0001.####.exr
-        name.####.exr
-        name.sss.ttt.####.exr
-        name.#######.exr
-
-        '{:#^{prec}}'.format('#',prec=6)
-        '######'
-        '''
-        try:
-            _split = self.job.selectedframename.split(".")
-            _ext = _split[-1]
-            _frame = _split[-2]
-            _precision = len(_frame)
-            _base = ".".join(_split[:-2])
-        except Exception, err:
-            logger.warn("Cant split the filename properly needs to be of format name.####.ext : {}".format(err))
-            self.job.seqbasename = None
-            self.job.seqtemplatename = None
-        else:
-            self.job.seqbasename = _base
-            self.job.seqtemplatename = "{b}.{:#^{p}}.{e}".format('#', b=_base, p=_precision, e=_ext)
+        (self.job.seqbasename,self.job.seqtemplatename)=utils.getSeqTemplate(self.job.selectedframename)
 
         self.startframe = int(self.job.jobstartframe)
         self.endframe = int(self.job.jobendframe)

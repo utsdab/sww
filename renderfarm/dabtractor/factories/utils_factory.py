@@ -33,7 +33,7 @@ def ensure_dir(f):
     logger.debug("Checking {}".format(f))
     if not os.path.exists(d):
         logger.warn("Not found, Making {}".format(f))
-        os.makedirs(d)
+        os.makedirs(os.path.expandvars(d))
     else:
         logger.debug("Found dir {}".format(f))
 
@@ -113,6 +113,32 @@ def expandargumentstring(inputargs=""):
     outputstring = "} {".join(arglist)
     return outputstring
 
+def getSeqTemplate(exampleFrameName):
+        '''
+        MUST HAVE .####.ext at the end <<<<<<<<<<<
+        name.0001.####.exr
+        name.####.exr
+        name.sss.ttt.####.exr
+        name.#######.exr
+
+        '{:#^{prec}}'.format('#',prec=6)
+        '######'
+        '''
+        try:
+            _split = exampleFrameName.split(".")
+            _ext = _split[-1]
+            _frame = _split[-2]
+            _precision = len(_frame)
+            _base = ".".join(_split[:-2])
+        except Exception, err:
+            logger.warn("Cant split the filename properly needs to be of format name.####.ext : {}".format(err))
+            seqbasename = None
+            seqtemplatename = None
+        else:
+            seqbasename = _base
+            seqtemplatename = "{b}.{:#^{p}}.{e}".format('#', b=_base, p=_precision, e=_ext)
+        return (seqbasename,seqtemplatename)
+
 
 def getfloat(inputstring):
     """
@@ -123,12 +149,12 @@ def getfloat(inputstring):
     return cleanstring
 
 def getnow():
-    return datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+    return datetime.datetime.now().strftime("%Y-%m-%d__%H-%M")
 
 def makedirectoriesinpath(path):
     #looks at a path and makes the directories that may be missing
     try:
-        os.makedirs(os.path.dirname(path))
+        os.makedirs(os.path.expandvars(os.path.dirname(path)))
         logger.info("Made directory {}".format(path))
     except Exception,err:
         logger.warn("Didnt make {} {}".format(path,err))
