@@ -323,19 +323,26 @@ if __name__ == "__main__":
 
     # ########################################################
     # upload a movie example
-    a = ShotgunBase()
-    b=NewVersion(projectid=171,
-                 shotid=3130,
-                 taskid=9374,
-                 versioncode='from tractor 1',
-                 description='test version using shotgun_repos api',
-                 ownerid=381,
-                 media='/Users/Shared/UTS_Dev/Volumes/dabrender/work/user_work/matthewgidney/testing2017/movies/seq1.mov')
 
-    # query projects shots etc
-    # c=Projects()
-    # c.sequences(89)
-    # c.shots(89,48)
+
+
+    # a = ShotgunBase()
+    # b=NewVersion(projectid=171,
+    #              shotid=3130,
+    #              taskid=9374,
+    #              versioncode='from tractor 1',
+    #              description='test version using shotgun_repos api',
+    #              ownerid=381,
+    #              media='/Users/Shared/UTS_Dev/Volumes/dabrender/work/user_work/matthewgidney/testing2017/movies/seq1.mov')
+    #
+    # # query projects shots etc
+    # # c=Projects()
+    # # c.sequences(89)
+    # # c.shots(89,48)
+    # sys.exit()
+    #
+
+
 
     p=Person()
     # logger.info("Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(\

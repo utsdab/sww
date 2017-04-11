@@ -27,64 +27,65 @@ import sww.renderfarm.dabtractor as dabtractor
 import sww.renderfarm.dabtractor.factories.configuration_factory as config
 import sww.renderfarm.dabtractor.factories.environment_factory as envfac
 import sww.renderfarm.dabtractor.factories.render_rfm_factory as rfac
+import sww.renderfarm.dabtractor.factories.shotgun_factory as sgt
 
 
-class Job(object):
-    """ job parameters - variants should be derived by calling factories as needed
-    """
-    def __init__(self):
-        """ The payload of gui-data needed to describe a farm render job
-        """
-        self.usernumber=None
-        self.username=None
-        self.useremail=None
-
-        try:
-            self.env=envfac.TractorJob()
-            self.usernumber=self.env.usernumber
-            self.username=self.env.username
-            self.useremail=self.env.useremail
-            self.department=self.env.department
-            self.dabwork=self.env.dabwork
-
-        except Exception, err:
-            logger.warn("Cant get user credentials: {}".format(err))
-
-        self.mayaprojectfullpath=None
-        self.mayascenefullpath=None
-
-        self.farmtier=None
-
-        if self.env.department in self.env.config.getoptions("renderjob", "projectgroup"):
-            logger.info("Department {}".format(self.env.department))
-        else:
-            self.department="Other"
-
-        self.farmpriority=None
-        self.farmcrew=None
-
-        self.jobtitle=None
-        self.jobenvkey=None
-        self.jobfile=None
-        self.jobstartframe=None
-        self.jobendframe=None
-        self.jobchunks=None
-        self.jobthreads=None
-        self.jobthreadmemory=None
-
-        self.optionskipframe=None
-        self.optionmakeproxy=None
-        # self.optionsendemail=None
-        self.optionresolution=None
-        self.optionmaxsamples=None
-
-        self.envtype=None
-        self.envshow=None
-        self.envproject=None
-        self.envscene=None
-
-        self.mayaversion=None
-        self.rendermanversion=None
+# class Job(object):
+#     """ job parameters - variants should be derived by calling factories as needed
+#     """
+#     def __init__(self):
+#         """ The payload of gui-data needed to describe a farm render job
+#         """
+#         self.usernumber=None
+#         self.username=None
+#         self.useremail=None
+#
+#         try:
+#             self.env=envfac.TractorJob()
+#             self.usernumber=self.env.usernumber
+#             self.username=self.env.username
+#             self.useremail=self.env.useremail
+#             self.department=self.env.department
+#             self.dabwork=self.env.dabwork
+#
+#         except Exception, err:
+#             logger.warn("Cant get user credentials: {}".format(err))
+#
+#         self.mayaprojectfullpath=None
+#         self.mayascenefullpath=None
+#
+#         self.farmtier=None
+#
+#         if self.env.department in self.env.config.getoptions("renderjob", "projectgroup"):
+#             logger.info("Department {}".format(self.env.department))
+#         else:
+#             self.department="Other"
+#
+#         self.farmpriority=None
+#         self.farmcrew=None
+#
+#         self.jobtitle=None
+#         self.jobenvkey=None
+#         self.jobfile=None
+#         self.jobstartframe=None
+#         self.jobendframe=None
+#         self.jobchunks=None
+#         self.jobthreads=None
+#         self.jobthreadmemory=None
+#
+#         self.optionskipframe=None
+#         self.optionmakeproxy=None
+#         # self.optionsendemail=None
+#         self.optionresolution=None
+#         self.optionmaxsamples=None
+#
+#         self.envtype=None
+#         self.envshow=None
+#         self.envproject=None
+#         self.envscene=None
+#
+#         self.mayaversion=None
+#         self.rendermanversion=None
 
 
 class WindowBase(object):
@@ -93,7 +94,10 @@ class WindowBase(object):
         self.spooljob = False
         self.validatejob = False
         self.master = tk.Tk()
-        self.job=Job()
+        self.job=rfac.Job()
+        self.shotgun=sgt.Person()
+        self.job.shotgunOwner=self.shotgun.shotgunname
+        self.job.shotgunOwnerId=self.shotgun.shotgun_id
 
 
 class Window(WindowBase):
@@ -106,6 +110,10 @@ class Window(WindowBase):
         self.msg_selectshow = 'Select your SHOW'
         self.msg_workspaceok = 'workspace.mel FOUND'
         self.msg_workspacebad = 'WARNING - no workspace.mel in your project'
+        self.msg_selectSgtProject = 'Select your shotgun project to upload to'
+        self.msg_selectSgtSequence = 'Now Select your shotgun sequence'
+        self.msg_selectSgtShot = 'Now Select your shotgun shot'
+        self.msg_selectSgtTask = 'Lastly Select your shotgun task'
         self.filefullpath = ""
         self.projfullpath = ""
         self.workspace = ""
@@ -175,6 +183,60 @@ class Window(WindowBase):
         self.envscenebut = tk.Button(self.canvas, text=self.msg_selectscene, fg='black', command=self.setscene)
         self.envscenebut.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
+
+        # ###################################################################
+        tk.Label(self.canvas, bg=self.bgcolor3,text="Upload as new version to SHOTGUN").grid(row=__row, column=0, columnspan=4, rowspan=1, sticky=tk.W + tk.E)
+        __row += 1
+
+        self.sgtProject = tk.StringVar()
+        self.sgtSequence = tk.StringVar()
+        self.sgtShot = tk.StringVar()
+        self.sgtTask = tk.StringVar()
+
+        # ###################################################################
+        _txt="Send the resulting proxy to Shotgun"
+        self.sendToShotgun = tk.IntVar()
+        self.sendToShotgun.set(1)
+        self.job.sendToShotgun = True
+        self.sendtoshotgunbut=ttk.Checkbutton(self.canvas, variable=self.sendToShotgun, command=self.setSendToShotgun)
+        self.sendtoshotgunbut.config(text=_txt)
+        self.sendtoshotgunbut.grid(row=__row,column=1,sticky=tk.W)
+        __row += 1
+        # ###################################################################
+        tk.Label(self.canvas, bg=self.bgcolor1,text="SHOTGUN PROJ").grid(row=__row, column=0, sticky=tk.E)
+        self.sgtProject.set(self.msg_selectSgtProject)
+        self.sgtProjectBox = ttk.Combobox(self.canvas, textvariable=self.sgtProject)
+        self.sgtProjectBox.config(values=self.getShotgunProjectValues(), justify=tk.CENTER)
+        self.sgtProjectBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        self.sgtProjectBox.bind("<<ComboboxSelected>>", self.setShotgunProject)
+        __row += 1
+        # ###################################################################
+        tk.Label(self.canvas, bg=self.bgcolor1,text="SHOTGUN SEQ").grid(row=__row, column=0, sticky=tk.E)
+        self.sgtSequence.set(self.msg_selectSgtSequence)
+        self.sgtSequenceBox = ttk.Combobox(self.canvas, textvariable=self.sgtSequence)
+        self.sgtSequenceBox.config(values=self.getShotgunSequenceValues(),justify=tk.CENTER)
+        self.sgtSequenceBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        self.sgtSequenceBox.bind("<<ComboboxSelected>>", self.setShotgunSequence)
+        __row += 1
+        # ###################################################################
+        tk.Label(self.canvas, bg=self.bgcolor1,text="SHOTGUN SHOT").grid(row=__row, column=0, sticky=tk.E)
+        self.sgtShot.set(self.msg_selectSgtShot)
+        self.sgtShotBox = ttk.Combobox(self.canvas, textvariable=self.sgtShot)
+        self.sgtShotBox.config(values=self.getShotgunShotValues(),justify=tk.CENTER)
+        self.sgtShotBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        self.sgtShotBox.bind("<<ComboboxSelected>>", self.setShotgunShot)
+        __row += 1
+        # ###################################################################
+        tk.Label(self.canvas, bg=self.bgcolor1,text="SHOTGUN TASK").grid(row=__row, column=0, sticky=tk.E)
+        self.sgtShot.set(self.msg_selectSgtShot)
+        self.sgtTaskBox = ttk.Combobox(self.canvas, textvariable=self.sgtTask)
+        self.sgtTaskBox.config(values=self.getShotgunTaskValues(),justify=tk.CENTER)
+        self.sgtTaskBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        self.sgtTaskBox.bind("<<ComboboxSelected>>", self.setShotgunTask)
+        __row += 1
+
+
+
 
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor3,text="Maya Generic Details").grid(row=__row, column=0, columnspan=4, rowspan=1, sticky=tk.W + tk.E)
@@ -354,6 +416,207 @@ class Window(WindowBase):
         self.master.mainloop()
 
 
+    # ############################################################
+    def setSendToShotgun(self):
+        if  not self.sendToShotgun.get():
+            self.sgtProjectBox.set(self.msg_selectSgtProject)
+            self.sgtSequence.set(self.msg_selectSgtSequence)
+            self.sgtShot.set(self.msg_selectSgtShot)
+            self.sgtTask.set(self.msg_selectSgtTask)
+            self.sgtProjectBox.config(values=[], justify=tk.CENTER)
+            self.sgtSequenceBox.configure(values=[], justify=tk.CENTER)
+            self.sgtShotBox.config(values=[],justify=tk.CENTER)
+            self.sgtTaskBox.config(values=[],justify=tk.CENTER)
+            self.job.sendToShotgun = False
+            #set widget off too!
+        else:
+            self.sgtProjectBox.config(values=self.getShotgunProjectValues(), justify=tk.CENTER)
+            self.job.sendToShotgun = True
+
+
+    def getShotgunProjectValues(self):
+        return self.shotgun.myProjects().keys()
+
+    def setShotgunProject(self, entity):
+        try:
+            self.sgtSequence.set(self.msg_selectSgtSequence)
+        except:
+            pass
+        try:
+            self.sgtShot.set(self.msg_selectSgtShot)
+        except:
+            pass
+        try:
+            self.sgtTask.set(self.msg_selectSgtTask)
+        except:
+            pass
+        try:
+            self.sgtSequenceBox.configure(values=[], justify=tk.CENTER)
+        except:
+            pass
+        try:
+            self.sgtShotBox.config(values=[],justify=tk.CENTER)
+        except:
+            pass
+        try:
+            self.sgtTaskBox.config(values=[],justify=tk.CENTER)
+        except:
+            pass
+        self.job.shotgunProject = self.sgtProject.get()
+        self.job.shotgunProjectId = self.shotgun.myProjects().get(self.job.shotgunProject)
+        logger.info("Shotgun Project is {} id {}".format( self.job.shotgunProject, self.job.shotgunProjectId))
+        self.getShotgunSequenceValues()
+
+    def getShotgunSequenceValues(self):
+        _ret=None
+        # print self.job.shotgunProjectId
+        if not self.job.shotgunProjectId:
+            try:
+                self.sgtSequence.set(self.msg_selectSgtSequence)
+            except:
+                pass
+            try:
+                self.sgtShot.set(self.msg_selectSgtShot)
+            except:
+                pass
+            try:
+                self.sgtTask.set(self.msg_selectSgtTask)
+            except:
+                pass
+            try:
+                self.sgtSequenceBox.configure(values=[], justify=tk.CENTER)
+            except:
+                pass
+            try:
+                self.sgtShotBox.config(values=[],justify=tk.CENTER)
+            except:
+                pass
+            try:
+                self.sgtTaskBox.config(values=[],justify=tk.CENTER)
+            except:
+                pass
+        else:
+            _ret=self.shotgun.seqFromProject(self.job.shotgunProjectId).keys()
+            self.sgtSequenceBox.configure(values=_ret, justify=tk.CENTER)
+        # print _ret
+        return _ret
+
+    def setShotgunSequence(self,entity):
+        # print self.job.shotgunProjectId
+        try:
+            self.sgtShot.set(self.msg_selectSgtShot)
+        except:
+            pass
+        try:
+            self.sgtTask.set(self.msg_selectSgtTask)
+        except:
+            pass
+        try:
+            self.sgtShotBox.config(values=[],justify=tk.CENTER)
+        except:
+            pass
+        try:
+            self.sgtTaskBox.config(values=[],justify=tk.CENTER)
+        except:
+            pass
+        if not self.job.shotgunProjectId:
+            try:
+                self.sgtSequence.set(self.msg_selectSgtSequence)
+            except:
+                pass
+            try:
+                self.sgtSequenceBox.configure(values=[], justify=tk.CENTER)
+            except:
+                pass
+        else:
+            self.job.shotgunSequence = self.sgtSequence.get()
+            _seqs = self.shotgun.seqFromProject(self.job.shotgunProjectId)
+            self.job.shotgunSequenceId = _seqs.get(self.job.shotgunSequence)
+
+            logger.info("Shotgun Sequence is {} id {}".format( self.job.shotgunSequence, self.job.shotgunSequenceId))
+        self.getShotgunShotValues()
+
+    def getShotgunShotValues(self):
+        _ret=None
+        try:
+            self.sgtTask.set(self.msg_selectSgtTask)
+        except:
+            pass
+        try:
+            self.sgtTaskBox.config(values=[],justify=tk.CENTER)
+        except:
+            pass
+        if not self.job.shotgunSequenceId:
+            try:
+                self.sgtShot.set(self.msg_selectSgtShot)
+            except:
+                pass
+            try:
+                self.sgtShotBox.config(values=[],justify=tk.CENTER)
+            except:
+                pass
+        else:
+            _ret=self.shotgun.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSequenceId).keys()
+            self.sgtShotBox.configure(values=_ret, justify=tk.CENTER)
+        # print _ret
+        return _ret
+
+    def setShotgunShot(self,entity):
+        # print self.job.shotgunProjectId
+        # print self.job.shotgunSequenceId
+        try:
+            self.sgtTask.set(self.msg_selectSgtTask)
+        except:
+            pass
+        try:
+            self.sgtTaskBox.config(values=[],justify=tk.CENTER)
+        except:
+            pass
+        if not self.job.shotgunSequenceId:
+            try:
+                self.sgtShot.set(self.msg_selectSgtShot)
+            except:
+                pass
+            try:
+                self.sgtShotBox.config(values=[],justify=tk.CENTER)
+            except:
+                pass
+        else:
+            self.job.shotgunShot = self.sgtShot.get()
+            _shots = self.shotgun.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSequenceId)
+            # print _shots
+            self.job.shotgunShotId = _shots.get(self.job.shotgunShot)
+            logger.info("Shotgun Shot is {} id {}".format( self.job.shotgunShot, self.job.shotgunShotId))
+        self.getShotgunTaskValues()
+
+    def getShotgunTaskValues(self):
+        _ret=None
+        # print self.job.shotgunProjectId
+        # print self.job.shotgunShotId
+        if not self.job.shotgunShotId:
+            self.sgtTask.set(self.msg_selectSgtTask)
+            self.sgtTaskBox.config(values=[],justify=tk.CENTER)
+        else:
+            _ret=self.shotgun.taskFromShot(self.job.shotgunProjectId,self.job.shotgunShotId).keys()
+            self.sgtTaskBox.configure(values=_ret, justify=tk.CENTER)
+        # print _ret
+        return _ret
+
+    def setShotgunTask(self,entity):
+        # print self.job.shotgunProjectId
+        # print self.job.shotgunSequenceId
+        if not self.job.shotgunShotId:
+            self.sgtTask.set(self.msg_selectSgtTask)
+        else:
+            self.job.shotgunTask = self.sgtTask.get()
+            _tasks = self.shotgun.taskFromShot(self.job.shotgunProjectId,self.job.shotgunShotId)
+            # print _shots
+            self.job.shotgunTaskId = _tasks.get(self.job.shotgunTask)
+            logger.info("Shotgun Task is {} id {}".format( self.job.shotgunTask, self.job.shotgunTaskId))
+
+
+
+
     def setscene(self):
         self.filefullpath = tkFileDialog.askopenfilename(\
             parent=self.master,initialdir=self.projfullpath,title=self.msg_selectscene,
@@ -410,15 +673,15 @@ class Window(WindowBase):
         _projectrelpath=os.path.relpath(self.projfullpath,_typefullpath)
 
         _possible = "%s/workspace.mel" % self.projfullpath
-        print _possible
+        # print _possible
         if os.path.exists(_possible):
-            print "ok"
+            # print "ok"
             self.envprojbut["text"] = str(_projectrelpath)  #if self.projfullpath else self.msg_selectproject
             self.workspacelab["text"] = self.msg_workspaceok
             self.workspacelab["bg"] = self.bgcolor3
             self.job.envproject=_projectrelpath
         else:
-            print "not ok"
+            # print "not ok"
             self.workspacelab["text"] = self.msg_workspacebad
             self.workspacelab["bg"] = self.bgcolor1
             self.envprojbut["text"] = self.msg_selectproject

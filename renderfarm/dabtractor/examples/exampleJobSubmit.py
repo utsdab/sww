@@ -73,10 +73,10 @@ def test_all():
     job.comment = "this is a great job"
     job.metadata = "show=rat shot=food"
     job.editpolicy = "canadians"
-    job.addCleanup(author.Command(argv="/bin/cleanup this"))
-    job.newCleanup(argv=["/bin/cleanup", "that"])
-    job.addPostscript(author.Command(argv=["/bin/post", "this"]))
-    job.newPostscript(argv="/bin/post that")
+    job.addCleanup(author.Command(argv="/utils/cleanup this"))
+    job.newCleanup(argv=["/utils/cleanup", "that"])
+    job.addPostscript(author.Command(argv=["/utils/post", "this"]))
+    job.newPostscript(argv="/utils/post that")
 
     compTask = author.Task()
     compTask.title = "render comp"
@@ -97,7 +97,7 @@ def test_all():
         task.atleast = 7
         task.atmost = 8
         task.serialsubtasks = 0
-        task.addCleanup(author.Command(argv="/bin/cleanup file%i" % i))
+        task.addCleanup(author.Command(argv="/utils/cleanup file%i" % i))
 
         command = author.Command()
         command.argv = "prman layer%d.rib" % i
@@ -113,7 +113,7 @@ def test_all():
         command.samehost = 1
         command.envkey = ["e1", "e2"]
         command.retryrc = [1, 3, 5, 7, 9]
-        command.resumewhile = ["/usr/bin/grep", "-q", "Checkpoint", "file.%d.exr" % i]
+        command.resumewhile = ["/usr/utils/grep", "-q", "Checkpoint", "file.%d.exr" % i]
         command.resumepin = bool(i)
 
         task.addCommand(command)
@@ -222,7 +222,7 @@ def test_postscript_error():
     postscript commands run.
     """
     job = author.Job(title="Test Postscript Error")
-    job.newTask(title="fail", argv="/bin/false", service="pixarRender")
+    job.newTask(title="fail", argv="/utils/false", service="pixarRender")
     job.newPostscript(argv="touch /tmp/postscript.none.%j", service="pixarRender")
     job.newPostscript(argv="touch /tmp/postscript.done.%j", when="done", service="pixarRender")
     job.newPostscript(argv="touch /tmp/postscript.error.%j", when="error", service="pixarRender")

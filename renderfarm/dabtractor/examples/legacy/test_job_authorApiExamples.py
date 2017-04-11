@@ -17,7 +17,7 @@ job.title = "a one-task render job"
 job.priority = 100
 job.service = "PixarRender"
 job.newTask(title="A one-command render task",
-            argv=["/usr/bin/prman", "file.rib"])
+            argv=["/usr/utils/prman", "file.rib"])
 '''
 '''
 ADDING TASKS
@@ -47,12 +47,12 @@ job2 = author.Job(title="A one-task render job",
                   service="PixarRender")
 
 task2 = author.Task(title="render rib 1")
-command2 = author.Command(argv=["/usr/bin/prman", "1.rib"], service="pixarRender")
+command2 = author.Command(argv=["/usr/utils/prman", "1.rib"], service="pixarRender")
 task2.addCommand(command2)
 job2.addChild(task2)
 
 task2a = author.Task(title="render rib 2")
-command2a = author.Command(argv=["/usr/bin/prman", "2.rib"], service="pixarRender")
+command2a = author.Command(argv=["/usr/utils/prman", "2.rib"], service="pixarRender")
 task2a.addCommand(command2a)
 
 job2.addChild(task2a)
@@ -101,7 +101,7 @@ remote=author.Command(local=True,tags=["aa"],envkey=["maya2014"],argv=["pwd"])
 task3.addCommand(remote)
 #task3 = author.Task(title="multi-command task", service="PixarRender")
 #task3.newCommand(argv=["scp", "remote:/path/file.rib", "/local/file.rib"])
-#task3.newCommand(argv=["/usr/bin/pixar", "/local/file.rib"])
+#task3.newCommand(argv=["/usr/utils/pixar", "/local/file.rib"])
 #task3.newCommand(argv=["scp", "/local/file.tif", "remote:/path/file.tif"])
 
 job3.addChild(task3)
