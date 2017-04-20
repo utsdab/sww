@@ -23,69 +23,12 @@ import tkFileDialog
 import Tkconstants
 import os
 import sys
+import string
 import sww.renderfarm.dabtractor as dabtractor
 import sww.renderfarm.dabtractor.factories.configuration_factory as config
 import sww.renderfarm.dabtractor.factories.environment_factory as envfac
 import sww.renderfarm.dabtractor.factories.render_rfm_factory as rfac
 import sww.renderfarm.dabtractor.factories.shotgun_factory as sgt
-
-
-# class Job(object):
-#     """ job parameters - variants should be derived by calling factories as needed
-#     """
-#     def __init__(self):
-#         """ The payload of gui-data needed to describe a farm render job
-#         """
-#         self.usernumber=None
-#         self.username=None
-#         self.useremail=None
-#
-#         try:
-#             self.env=envfac.TractorJob()
-#             self.usernumber=self.env.usernumber
-#             self.username=self.env.username
-#             self.useremail=self.env.useremail
-#             self.department=self.env.department
-#             self.dabwork=self.env.dabwork
-#
-#         except Exception, err:
-#             logger.warn("Cant get user credentials: {}".format(err))
-#
-#         self.mayaprojectfullpath=None
-#         self.mayascenefullpath=None
-#
-#         self.farmtier=None
-#
-#         if self.env.department in self.env.config.getoptions("renderjob", "projectgroup"):
-#             logger.info("Department {}".format(self.env.department))
-#         else:
-#             self.department="Other"
-#
-#         self.farmpriority=None
-#         self.farmcrew=None
-#
-#         self.jobtitle=None
-#         self.jobenvkey=None
-#         self.jobfile=None
-#         self.jobstartframe=None
-#         self.jobendframe=None
-#         self.jobchunks=None
-#         self.jobthreads=None
-#         self.jobthreadmemory=None
-#
-#         self.optionskipframe=None
-#         self.optionmakeproxy=None
-#         # self.optionsendemail=None
-#         self.optionresolution=None
-#         self.optionmaxsamples=None
-#
-#         self.envtype=None
-#         self.envshow=None
-#         self.envproject=None
-#         self.envscene=None
-#
-#         self.mayaversion=None
-#         self.rendermanversion=None
 
 
 class WindowBase(object):
@@ -98,6 +41,39 @@ class WindowBase(object):
         self.shotgun=sgt.Person()
         self.job.shotgunOwner=self.shotgun.shotgunname
         self.job.shotgunOwnerId=self.shotgun.shotgun_id
+
+    def hasBadNaming(self,fullpath):
+        # print fullpath
+        s = fullpath
+        nowhitespace = s.translate(string.maketrans("",""), string.whitespace)
+        if fullpath != nowhitespace:
+            logger.critical("*****************************************")
+            logger.critical("Path to check: {}".format(fullpath))
+            logger.critical("No SPACES in names please!!!")
+            logger.critical("*****************************************")
+        else:
+            dirname = nowhitespace
+            path_split = []
+            while True:
+                dirname,leaf = os.path.split(dirname)
+                if (leaf):
+                    path_split = [leaf] + path_split #Adds one element, at the beginning of the list
+                else:
+                    #Uncomment the following line to have also the drive, in the format "Z:\"
+                    #path_split = [dirname] + path_split
+                    break;
+            for bit in path_split:
+                nopunctuation= bit.translate(string.maketrans("",""), string.punctuation)
+                if bit != nopunctuation:
+                    _badname=bit
+                    logger.critical("*****************************************")
+                    logger.critical("Path to check: {}".format(fullpath))
+                    logger.critical("Fix Your Badly named file or directory: {}".format(bit))
+                    logger.critical("No PUNCTUATION in names please!!!")
+                    logger.critical("*****************************************")
+                    break
+
+
 
 
 class Window(WindowBase):
@@ -750,7 +726,11 @@ class Window(WindowBase):
 
 if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
-    w=Window()
+    # w=Window()
     # for key in w.job.__dict__.keys():
     #     print "{:20} = {}".format(key,w.job.__dict__.get(key))
+
+    x=WindowBase()
+    x.hasBadNaming("/volumes/dabren@der/mattg")
+    x.hasBadNaming("/volumes/dabrender/mattg mmm () ccc")
 
