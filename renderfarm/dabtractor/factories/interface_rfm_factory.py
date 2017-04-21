@@ -43,7 +43,7 @@ class WindowBase(object):
         self.job.shotgunOwnerId=self.shotgun.shotgun_id
 
     def hasBadNaming(self,fullpath):
-        # print fullpath
+        # TODO add some checking of names
         s = fullpath
         nowhitespace = s.translate(string.maketrans("",""), string.whitespace)
         if fullpath != nowhitespace:
