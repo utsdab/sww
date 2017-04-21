@@ -162,8 +162,8 @@ class Render(object):
                     "PROJECT={}".format(self.job.envproject),
                     "SCENE={}".format(self.job.envscene),
                     "SCENENAME={}".format(self.scenebasename)],
-              metadata="username={} usernumber={}".format(self.job.username,self.job.usernumber),
-              comment="LocalUser is {} {}".format(self.job.username,self.job.usernumber),
+              metadata="email={} username={} usernumber={}".format(self.job.useremail,self.job.username,self.job.usernumber),
+              comment="User is {} {} {}".format(self.job.useremail,self.job.username,self.job.usernumber),
               projects=[str(self.projectgroup)],
               tier=str(self.job.farmtier),
               tags=["theWholeFarm", ],
@@ -187,8 +187,7 @@ class Render(object):
         task_preflight.serialsubtasks = 1
         task_thisjob.addChild(task_preflight)
         task_generate_rib_preflight = self.job.env.author.Task(title="Generate RIB Preflight")
-        command_ribgen = self.job.env.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,
-                                              "-command",
+        command_ribgen = self.job.env.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,"-command",
                                               "renderManBatchGenRibForLayer {layerid} {start} {end} {phase}".format(
                                                   layerid=0, start=self.startframe, end=self.endframe, phase=1),
                                               "-file", self.mayascenefilefullpath],

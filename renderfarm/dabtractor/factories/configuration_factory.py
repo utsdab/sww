@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-    This code holds the configurations for various things
+    This code holds the configurations for various  custom things
 """
 
 # ##############################################################

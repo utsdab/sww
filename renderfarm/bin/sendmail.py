@@ -36,7 +36,6 @@ class Mail(object):
             print "Sendmail exit status", status
         return status
 
-
 def sendmail(mailto, mailsubject, mailbody, mailfrom):
     logger.debug("%s %s %s %s" % (mailto, mailsubject, mailbody, mailfrom))
     sendmail_location = "/usr/sbin/sendmail"  # sendmail location
@@ -50,7 +49,6 @@ def sendmail(mailto, mailsubject, mailbody, mailfrom):
     if status != 0:
         print "Sendmail exit status", status
     return status
-
 
 def parseArguments():
     parser = argparse.ArgumentParser(description="Simple sendmail wrapper",
@@ -80,6 +78,8 @@ if __name__ == '__main__':
 
     arguments = parseArguments()
     logger.debug("%s" % arguments)
+
+
 
     if not (parseArguments()):
         logger.critical("Cant parse args %s" % (arguments))

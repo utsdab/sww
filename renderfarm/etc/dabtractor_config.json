@@ -3,6 +3,15 @@
     "env"            : "/Volumes/dabrender/usr"
   },
 
+  "ENVIRONMENT":{
+    "DABUSR":          "/Volumes/dabrender/usr",
+    "DABWORK":         "/Volumes/dabrender/work",
+    "DABASSETS" :      "/Volumes/dabrender/assets",
+    "DABUSERPREFS" :   "/Volumes/dabrender/work/user_prefs",
+    "DABSWW":          "/Volumes/dabrender/sww",
+    "DABRENDER" :      "/Volumes/dabrender"
+  },
+
   "DABWORK" : {
     "env"            : "/Volumes/dabrender/work",
     "envtype"         : [ "user_work", "project_work" ]

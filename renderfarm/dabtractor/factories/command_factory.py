@@ -26,11 +26,12 @@ class Base(object):
 
 class Bash(Base):
     """ A simple bash command """
-    def __init__(self, command="", projectgroup="admin", email=[1,0,0,0,1,0]):
+    def __init__(self, command="", projectgroup="admin", email=[1,0,0,0,1,0], tier="admin"):
         super(Bash, self).__init__()
         self.command = command
         self.projectgroup = projectgroup
         self.email = email
+        self.tier = tier
 
         self.job = self.fj.author.Job(\
             title="Bash Job: {}".format(self.fj.usernumber),
@@ -38,6 +39,7 @@ class Bash(Base):
             metadata="user={} realname={}".format(self.fj.usernumber,self.fj.username),
             comment="LocalUser is {} {}".format(self.fj.usernumber, self.fj.username),
             projects=[str(self.projectgroup)],
+            tier=str(self.tier),
             tags=["theWholeFarm"],
             service="ShellServices")
 

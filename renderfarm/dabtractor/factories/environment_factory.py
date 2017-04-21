@@ -9,6 +9,7 @@
 """
 import os
 import json
+from pprint import pprint
 from sww.renderfarm.dabtractor.factories import shotgun_factory as sgt
 from sww.renderfarm.dabtractor.factories import configuration_factory as config
 
@@ -55,9 +56,10 @@ class TractorJob(object):
 
 
 class Environment(object):
-    """This class adds to the environment is oe.environ it replaces Environment Class
+    """This class adds to the environment is os.environ it replaces Environment Class
     1. read the environment that needs to be there in the config json file ie (has a "fj" attribute
     2. if not found then add it to the environment os.environ """
+
     def __init__(self):
         # super(Environment, self).__init__()
         self.config=config.JsonConfig()
@@ -93,17 +95,17 @@ class Environment(object):
 
 if __name__ == '__main__':
 
-    sh.setLevel(logging.DEBUG)
+    sh.setLevel(logging.INFO)
 
     logger.debug("\n-------- ENVIRONMENT ------------")
-    E2=Environment()
-    logger.debug( E2.requiredenvars)
-    # logger.debug( E2.environ.keys())
+    _E2=Environment()
+    # logger.debug( _E2.requiredenvars)
+    pprint(_E2.environ)
 
 
     logger.debug("\n-------- TRACTOR JOB ------------")
-    TJ=TractorJob()
-    logger.debug(TJ.__dict__)
+    _TJ=TractorJob()
+    pprint(_TJ.__dict__)
 
 
 

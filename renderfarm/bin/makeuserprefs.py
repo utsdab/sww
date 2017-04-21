@@ -15,8 +15,10 @@ import os
 import sys
 import shutil
 import sww.renderfarm.dabtractor.factories.shotgun_factory as sgt
+import sww.renderfarm.dabtractor.factories.environment_factory as envfac
 
 people=sgt.People()
+tj=envfac.TractorJob()
 
 def main():
     """
@@ -28,9 +30,10 @@ def main():
     :return:
     """
     peoplelist=[]
+    # print os.environ.keys()
     try:
-        dabuserprefs = people.config.environ["DABUSERPREFS"]
-        dabassets =people.config.environ["DABASSETS"]
+        dabuserprefs = tj.config.getenvordefault("DABUSERPREFS","env")
+
     except Exception, err:
         logger.critical("Cant find DABUSERPREFS or DABASSETS: {}".format(err))
         sys.exit(1)
@@ -44,27 +47,24 @@ def main():
 
 def makedirectorytree(rootpath,rootnames=[]):
     """Make the template directory tree"""
-    try:
-        for i, root in enumerate(rootnames):
-            roottomake=os.path.join(rootpath,root)
-            if not os.path.exists(roottomake):
-                logger.info("Someone missing: Making directory {}".format(roottomake))
+    # print rootpath, rootnames
+
+    for i, root in enumerate(rootnames):
+        roottomake = os.path.join(rootpath, root)
+
+        if not os.path.exists(roottomake):
+            try:
                 os.mkdir(roottomake)
+            except Exception, err:
+                logger.warn("Error making directories {}".format(err))
+            else:
+                logger.info("Someone missing: Making directory {}".format(roottomake))
+                setupconfig(roottomake)
 
-            setupconfig(roottomake)
 
-            if os.environ["DABDEV"] == "development" and i>1:
-                sys.exit("development cap")
-
-
-    except Exception, err:
-        logger.warn("Error making directories {}".format(err))
-    else:
         #TODO  copy the CONFIG structure into place and make the necessary links
-        pass
-    finally:
         #TODO  set and check the permissions on the tree.
-        pass
+
 
 def setupconfig(path):
     # dabassets = people.config.environ["DABASSETS"]
@@ -146,8 +146,7 @@ def setpermissionsontree(rootpath):
 # ################################################################################################
 if __name__ == '__main__':
     main()
-else:
-    main()
+
 
 
 
