@@ -2,45 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c46d6e85-ba62-4b1e-bec6-08ee94e7e9a8" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/renderfarm/bin/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/renderfarm/bin/legacy/__init__.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/renderfarm/bin/shotgunupload.py" afterPath="$PROJECT_DIR$/renderfarm/bin/legacy/shotgunupload_orig.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/utils/shotgunupload.py" afterPath="$PROJECT_DIR$/renderfarm/bin/shotgunupload.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/maya/uts_tools/tractor_submit_maya_UI.py" afterPath="$PROJECT_DIR$/maya/uts_tools/tractor_submit_maya_UI.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/admin_user_work_cleanup.py" afterPath="$PROJECT_DIR$/renderfarm/bin/admin_user_work_cleanup.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/farm_check.py" afterPath="$PROJECT_DIR$/renderfarm/bin/farm_check.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/farm_crewlistmake.py" afterPath="$PROJECT_DIR$/renderfarm/bin/farm_crewlistmake.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/farm_jobquery.py" afterPath="$PROJECT_DIR$/renderfarm/bin/farm_jobquery.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/farm_submit_nuke.py" afterPath="$PROJECT_DIR$/renderfarm/bin/farm_submit_nuke.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/farm_submit_proxy.py" afterPath="$PROJECT_DIR$/renderfarm/bin/farm_submit_proxy.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/farm_submit_rfm.py" afterPath="$PROJECT_DIR$/renderfarm/bin/farm_submit_rfm.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/makeuserprefs.py" afterPath="$PROJECT_DIR$/renderfarm/bin/makeuserprefs.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/makeworkareas.py" afterPath="$PROJECT_DIR$/renderfarm/bin/makeworkareas.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/proxy_run.py" afterPath="$PROJECT_DIR$/renderfarm/bin/proxy_run.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/proxy_runner.py" afterPath="$PROJECT_DIR$/renderfarm/bin/proxy_runner.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/examples/queryTractorJobs.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/examples/queryTractorJobs.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/examples/ui/MAYA_RMAN_JOB_TKINTER_UI_v001.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/examples/ui/MAYA_RMAN_JOB_TKINTER_UI_v001.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/configuration_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/configuration_factory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/environment_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/environment_factory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/farmquery_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/farmquery_factory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_nuke_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_nuke_factory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_proxy_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_proxy_factory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_rfm_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_rfm_factory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/interface_command_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/interface_command_factory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/interface_mayarender_mr_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/interface_mayarender_mr_factory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/interface_pyside_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/interface_pyside_factory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/interface_rsync_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/interface_rsync_factory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/maya_integration_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/maya_integration_factory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/render_prman_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/render_prman_factory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/render_houdini_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/render_houdini_factory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/render_maya_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/render_maya_factory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/render_nuke_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/render_nuke_factory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/render_proxy_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/render_proxy_factory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/shotgun_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/shotgun_factory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/utils/makeuserprefs.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/utils/makeuserprefs.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/utils/makeworkareas.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/utils/makeworkareas.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/utils/proxy_run.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/utils/proxy_run.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/utils/proxy_runner.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/utils/proxy_runner.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/shotgunupload.py" afterPath="$PROJECT_DIR$/renderfarm/bin/shotgunupload.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -68,8 +32,8 @@
       <file leaf-file-name="shotgunupload_orig.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/renderfarm/bin/legacy/shotgunupload_orig.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
-              <caret line="32" column="17" lean-forward="true" selection-start-line="32" selection-start-column="17" selection-end-line="32" selection-end-column="17" />
+            <state relative-caret-position="480">
+              <caret line="32" column="17" lean-forward="false" selection-start-line="32" selection-start-column="17" selection-end-line="32" selection-end-column="17" />
               <folding />
             </state>
           </provider>
@@ -78,8 +42,8 @@
       <file leaf-file-name="shotgunupload.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/renderfarm/bin/shotgunupload.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="480">
-              <caret line="32" column="17" lean-forward="false" selection-start-line="32" selection-start-column="17" selection-end-line="32" selection-end-column="17" />
+            <state relative-caret-position="135">
+              <caret line="36" column="0" lean-forward="true" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -88,7 +52,7 @@
       <file leaf-file-name="shotgun_factory.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/renderfarm/dabtractor/factories/shotgun_factory.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-4052">
+            <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
@@ -98,7 +62,7 @@
       <file leaf-file-name="farm_check.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/renderfarm/bin/farm_check.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-922">
+            <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
@@ -158,7 +122,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -245,6 +208,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -468,19 +432,19 @@
     <layout>
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24967659" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Maya Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32987747" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32987747" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32987747" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32987747" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -491,6 +455,46 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_rfm_factory.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/renderfarm/bin/legacy/shotgunupload_orig.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="480">
+          <caret line="32" column="17" lean-forward="true" selection-start-line="32" selection-start-column="17" selection-end-line="32" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/renderfarm/bin/shotgunupload.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/renderfarm/dabtractor/factories/shotgun_factory.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/renderfarm/bin/farm_check.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_rfm_factory.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -517,7 +521,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/renderfarm/dabtractor/factories/shotgun_factory.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-4052">
+        <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
@@ -525,7 +529,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/renderfarm/bin/farm_check.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-922">
+        <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
@@ -533,16 +537,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/renderfarm/bin/legacy/shotgunupload_orig.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="32" column="17" lean-forward="true" selection-start-line="32" selection-start-column="17" selection-end-line="32" selection-end-column="17" />
+        <state relative-caret-position="480">
+          <caret line="32" column="17" lean-forward="false" selection-start-line="32" selection-start-column="17" selection-end-line="32" selection-end-column="17" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/renderfarm/bin/shotgunupload.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="32" column="17" lean-forward="false" selection-start-line="32" selection-start-column="17" selection-end-line="32" selection-end-column="17" />
+        <state relative-caret-position="135">
+          <caret line="36" column="0" lean-forward="true" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
           <folding />
         </state>
       </provider>

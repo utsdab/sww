@@ -35,43 +35,6 @@ def parseArguments():
 # #####################################################################################################
 if __name__ == '__main__':
 
-    '''
-    arguments = parseArguments()
-    logger.debug("%s" % arguments)
-
-    if not (parseArguments()):
-        logger.critical("Cant parse args %s" % (arguments))
-        sys.exit("ERROR Cant parse arguments")
-    else:
-        ownerid=int(arguments.Ownerid)
-        projectid=int(arguments.Projectid)
-        # assetid=arguments.assetid
-        # assettypeid=arguments.assettypeid
-        # sequenceid=arguments.sequenceid
-        # episodeid=arguments.episodeid
-        shotid=int(arguments.Shotid)
-        if arguments.Taskid:
-            taskid=int(arguments.Taskid)
-        else:
-            taskid=None
-        versioncode=arguments.Versioncode
-        description=arguments.Description
-        media=arguments.Media
-
-        sgt.NewVersion(
-                 ownerid=ownerid,
-                 projectid=projectid,
-                 # assetid=assetid,
-                 # assetid=assettypeid,
-                 # episodeid=episodeid,
-                 # sequenceid=sequenceid,
-                 shotid=shotid,
-                 taskid=taskid,
-                 versioncode=versioncode,
-                 description=description,
-                 media=media
-        )
-        '''
     parser = parseArguments()
     arguments = parser.parse_args()
     logger.info("%s" % arguments)
