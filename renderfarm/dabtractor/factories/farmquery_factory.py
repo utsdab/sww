@@ -18,7 +18,7 @@ logger.addHandler(sh)
 import os, sys
 from pprint import pprint
 import tractor.api.query as tq
-import sww.renderfarm.dabtractor.factories.environment_factory as envfac
+import renderfarm.dabtractor.factories.environment_factory as envfac
 import json
 
 class TQuery(object):

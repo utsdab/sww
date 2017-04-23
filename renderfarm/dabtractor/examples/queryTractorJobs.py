@@ -29,7 +29,7 @@ logger.addHandler(sh)
 ###############################################################
 
 from pprint import pprint
-from sww.renderfarm.dabtractor.factories import farmquery_factory as fq
+from renderfarm.dabtractor.factories import farmquery_factory as fq
 
 
 a=fq.JobDetails(8464)

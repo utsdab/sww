@@ -13,7 +13,7 @@ logger.addHandler(sh)
 # ##############################################################
 import os
 import sys
-import sww.renderfarm.dabtractor.factories.shotgun_factory as sgt
+import renderfarm.dabtractor.factories.shotgun_factory as sgt
 
 def main():
     """

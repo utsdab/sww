@@ -22,9 +22,9 @@ import tkFileDialog
 import Tkconstants
 import os
 import sys
-import sww.renderfarm.dabtractor as dabtractor
-import sww.renderfarm.dabtractor.factories.render_proxy_factory as rfac
-import sww.renderfarm.dabtractor.factories.shotgun_factory as sgt
+import renderfarm.dabtractor as dabtractor
+import renderfarm.dabtractor.factories.render_proxy_factory as rfac
+import renderfarm.dabtractor.factories.shotgun_factory as sgt
 
 class WindowBase(object):
     """ Base class for all batch jobs """

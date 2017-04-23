@@ -17,7 +17,7 @@ logger.addHandler(sh)
 
 import os
 import json
-import sww.renderfarm as rf
+import renderfarm as rf
 
 class JsonConfig(object):
     """

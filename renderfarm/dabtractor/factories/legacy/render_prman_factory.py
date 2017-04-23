@@ -28,9 +28,9 @@ import tractor.api.query as tq
 import os
 import time
 import sys
-import sww.renderfarm.dabtractor.factories.user_factory as ufac
-import sww.renderfarm.dabtractor.factories.utils_factory as utils
-import sww.renderfarm.dabtractor.factories.environment_factory as envfac
+import renderfarm.dabtractor.factories.user_factory as ufac
+import renderfarm.dabtractor.factories.utils_factory as utils
+import renderfarm.dabtractor.factories.environment_factory as envfac
 
 class RenderBase(object):
     ''' Base class for all batch jobs'''

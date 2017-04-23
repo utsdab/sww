@@ -10,10 +10,10 @@
 import os
 import json
 from pprint import pprint
-from sww.renderfarm.dabtractor.factories import shotgun_factory as sgt
-from sww.renderfarm.dabtractor.factories import configuration_factory as config
+from renderfarm.dabtractor.factories import shotgun_factory as sgt
+from renderfarm.dabtractor.factories import configuration_factory as config
 
-import sww.renderfarm as rf
+import renderfarm as rf
 import tractor.api.author as author
 import tractor.api.query as tq
 

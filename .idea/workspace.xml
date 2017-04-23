@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="c46d6e85-ba62-4b1e-bec6-08ee94e7e9a8" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/renderfarm/bin/__init__.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/renderfarm/bin/legacy/__init__.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/renderfarm/bin/shotgunupload.py" afterPath="$PROJECT_DIR$/renderfarm/bin/legacy/shotgunupload_orig.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/utils/shotgunupload.py" afterPath="$PROJECT_DIR$/renderfarm/bin/shotgunupload.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/maya/uts_tools/tractor_submit_maya_UI.py" afterPath="$PROJECT_DIR$/maya/uts_tools/tractor_submit_maya_UI.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/admin_user_work_cleanup.py" afterPath="$PROJECT_DIR$/renderfarm/bin/admin_user_work_cleanup.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/farm_check.py" afterPath="$PROJECT_DIR$/renderfarm/bin/farm_check.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/farm_crewlistmake.py" afterPath="$PROJECT_DIR$/renderfarm/bin/farm_crewlistmake.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/farm_jobquery.py" afterPath="$PROJECT_DIR$/renderfarm/bin/farm_jobquery.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/farm_submit_nuke.py" afterPath="$PROJECT_DIR$/renderfarm/bin/farm_submit_nuke.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/farm_submit_proxy.py" afterPath="$PROJECT_DIR$/renderfarm/bin/farm_submit_proxy.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/farm_submit_rfm.py" afterPath="$PROJECT_DIR$/renderfarm/bin/farm_submit_rfm.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/makeuserprefs.py" afterPath="$PROJECT_DIR$/renderfarm/bin/makeuserprefs.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/makeworkareas.py" afterPath="$PROJECT_DIR$/renderfarm/bin/makeworkareas.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/proxy_run.py" afterPath="$PROJECT_DIR$/renderfarm/bin/proxy_run.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/bin/proxy_runner.py" afterPath="$PROJECT_DIR$/renderfarm/bin/proxy_runner.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/examples/queryTractorJobs.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/examples/queryTractorJobs.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/examples/ui/MAYA_RMAN_JOB_TKINTER_UI_v001.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/examples/ui/MAYA_RMAN_JOB_TKINTER_UI_v001.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/configuration_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/configuration_factory.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/environment_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/environment_factory.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/farmquery_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/farmquery_factory.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_nuke_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_nuke_factory.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_proxy_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_proxy_factory.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_rfm_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_rfm_factory.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/interface_command_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/interface_command_factory.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/interface_mayarender_mr_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/interface_mayarender_mr_factory.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/interface_pyside_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/interface_pyside_factory.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/interface_rsync_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/interface_rsync_factory.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/maya_integration_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/maya_integration_factory.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/render_prman_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/legacy/render_prman_factory.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/render_houdini_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/render_houdini_factory.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/render_maya_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/render_maya_factory.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/render_nuke_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/render_nuke_factory.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/render_proxy_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/render_proxy_factory.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/factories/shotgun_factory.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/factories/shotgun_factory.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/utils/makeuserprefs.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/utils/makeuserprefs.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/utils/makeworkareas.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/utils/makeworkareas.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/utils/proxy_run.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/utils/proxy_run.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/renderfarm/dabtractor/utils/proxy_runner.py" afterPath="$PROJECT_DIR$/renderfarm/dabtractor/utils/proxy_runner.py" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="interface_rfm_factory.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_rfm_factory.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="shotgunupload_orig.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/renderfarm/bin/legacy/shotgunupload_orig.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="420">
+              <caret line="32" column="17" lean-forward="true" selection-start-line="32" selection-start-column="17" selection-end-line="32" selection-end-column="17" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="shotgunupload.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/renderfarm/bin/shotgunupload.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="480">
+              <caret line="32" column="17" lean-forward="false" selection-start-line="32" selection-start-column="17" selection-end-line="32" selection-end-column="17" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="shotgun_factory.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/renderfarm/dabtractor/factories/shotgun_factory.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-4052">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="farm_check.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/renderfarm/bin/farm_check.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-922">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>--aid</find>
+      <find>shotgun</find>
+    </findStrings>
+    <dirStrings>
+      <dir>$PROJECT_DIR$/renderfarm</dir>
+      <dir>$PROJECT_DIR$</dir>
+    </dirStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/renderfarm/bin/shotgunupload.py" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="191" />
+    <option name="y" value="23" />
+    <option name="width" value="1567" />
+    <option name="height" value="1177" />
+  </component>
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scratches" />
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sww" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sww" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sww" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sww" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="renderfarm" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sww" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sww" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="renderfarm" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dabtractor" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sww" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sww" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="renderfarm" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dabtractor" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="utils" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sww" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sww" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="renderfarm" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="bin" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="options.lastSelected" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="options.splitter.main.proportions" value="0.3" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
+  </component>
+  <component name="PyConsoleOptionsProvider">
+    <option name="myPythonConsoleState">
+      <console-settings is-module-sdk="true">
+        <option name="myUseModuleSdk" value="true" />
+      </console-settings>
+    </option>
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/renderfarm/bin/legacy" />
+      <recent name="$PROJECT_DIR$/renderfarm/bin" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.shotgunupload">
+    <configuration default="false" name="interface_rfm_factory" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/renderfarm/dabtractor/factories" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="sww" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_rfm_factory.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="shotgunupload" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/renderfarm/bin" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="sww" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/renderfarm/bin/shotgunupload.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="BashConfigurationType" factoryName="Bash">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="INTERPRETER_PATH" value="/bin/bash" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <module name="" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="sww" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="sww" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Attests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="sww" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Doctests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="sww" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Nosetests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="sww" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Unittests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="sww" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PUREUNITTEST" value="true" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="py.test">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="sww" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="testToRun" value="" />
+      <option name="keywords" value="" />
+      <option name="params" value="" />
+      <option name="USE_PARAM" value="false" />
+      <option name="USE_KEYWORD" value="false" />
+      <method />
+    </configuration>
+    <list size="2">
+      <item index="0" class="java.lang.String" itemvalue="Python.interface_rfm_factory" />
+      <item index="1" class="java.lang.String" itemvalue="Python.shotgunupload" />
+    </list>
+    <recent_temporary>
+      <list size="2">
+        <item index="0" class="java.lang.String" itemvalue="Python.shotgunupload" />
+        <item index="1" class="java.lang.String" itemvalue="Python.interface_rfm_factory" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false">
+    <option name="remove_strategy" value="false" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="191" y="23" width="1567" height="1177" extended-state="0" />
+    <editor active="false" />
+    <layout>
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24967659" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Maya Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32987747" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32987747" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+    </layout>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager />
+    <watches-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_rfm_factory.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_rfm_factory.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/renderfarm/dabtractor/factories/interface_rfm_factory.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/renderfarm/dabtractor/factories/shotgun_factory.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-4052">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/renderfarm/bin/farm_check.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-922">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/renderfarm/bin/legacy/shotgunupload_orig.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="32" column="17" lean-forward="true" selection-start-line="32" selection-start-column="17" selection-end-line="32" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/renderfarm/bin/shotgunupload.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="480">
+          <caret line="32" column="17" lean-forward="false" selection-start-line="32" selection-start-column="17" selection-end-line="32" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

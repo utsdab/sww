@@ -22,12 +22,12 @@ import ttk
 import tkFileDialog
 import Tkconstants
 import os
-import sww.renderfarm.dabtractor as dabtractor
-import sww.renderfarm.dabtractor.factories.configuration_factory as config
-import sww.renderfarm.dabtractor.factories.environment_factory as envfac
-import sww.renderfarm.dabtractor.factories.render_rfm_factory as rfac
-import sww.renderfarm.dabtractor.factories.shotgun_factory as sgt
-import sww.renderfarm.dabtractor.factories.utils_factory as utils
+import renderfarm.dabtractor as dabtractor
+import renderfarm.dabtractor.factories.configuration_factory as config
+import renderfarm.dabtractor.factories.environment_factory as envfac
+import renderfarm.dabtractor.factories.render_rfm_factory as rfac
+import renderfarm.dabtractor.factories.shotgun_factory as sgt
+import renderfarm.dabtractor.factories.utils_factory as utils
 
 
 class WindowBase(object):

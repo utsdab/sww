@@ -23,7 +23,7 @@ import tkFileDialog
 import Tkconstants
 import os
 import sys
-import sww.renderfarm.dabtractor as dabtractor
+import renderfarm.dabtractor as dabtractor
 import environment_factory as envfac
 import render_nuke_factory as rfac
 

@@ -14,8 +14,8 @@ logger.addHandler(sh)
 import os
 import sys
 import shutil
-import sww.renderfarm.dabtractor.factories.shotgun_factory as sgt
-import sww.renderfarm.dabtractor.factories.environment_factory as envfac
+import renderfarm.dabtractor.factories.shotgun_factory as sgt
+import renderfarm.dabtractor.factories.environment_factory as envfac
 
 people=sgt.People()
 tj=envfac.TractorJob()

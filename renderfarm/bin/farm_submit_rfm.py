@@ -19,7 +19,7 @@ import os
 import sys
 
 def main():
-    from sww.renderfarm.dabtractor.factories import interface_rfm_factory as ui
+    from renderfarm.dabtractor.factories import interface_rfm_factory as ui
     try:
         w=ui.Window()
 

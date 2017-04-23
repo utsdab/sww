@@ -4,10 +4,10 @@ import sys
 import PySide.QtCore as qc
 import PySide.QtGui as qg
 
-import sww.renderfarm.dabtractor.factories.command_factory as cmdfac
-import sww.renderfarm.dabtractor.factories.user_factory as ufac
-import sww.renderfarm.dabtractor.factories.environment_factory as envfac
-from sww.renderfarm.dabtractor.utils.sendmail import Mail
+import renderfarm.dabtractor.factories.command_factory as cmdfac
+import renderfarm.dabtractor.factories.user_factory as ufac
+import renderfarm.dabtractor.factories.environment_factory as envfac
+from renderfarm.dabtractor.utils.sendmail import Mail
 
 # ##############################################################
 import logging

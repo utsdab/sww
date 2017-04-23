@@ -5,9 +5,9 @@ import string
 import sys
 import logging
 import os
-from sww.shotgun_api3 import Shotgun
-from sww.renderfarm.dabtractor.factories.configuration_factory import JsonConfig
-from sww.renderfarm.dabtractor.factories.utils_factory import dictfromlistofdicts
+from shotgun_api3 import Shotgun
+from renderfarm.dabtractor.factories.configuration_factory import JsonConfig
+from renderfarm.dabtractor.factories.utils_factory import dictfromlistofdicts
 
 # ##############################################################
 logger = logging.getLogger(__name__)
