@@ -32,36 +32,18 @@ from sww.renderfarm.dabtractor.factories import shotgun_factory as sgt
 '''
 
 def parseArguments():
-    parser = argparse.ArgumentParser(description="Simple sendmail wrapper",
-                                     epilog="This is a pain to get right")
-
-    parser.add_argument("-o", dest="Ownerid",
-                        action="append",
-                        help="Shotgun Owner id")
-    parser.add_argument("-p", dest="Projectid",
-                        action="append",
-                        help="What you are sending")
-    # parser.add_argument("-q", dest="assetid",
-    #                     action="append",
-    #                     help="Shotgun asset id")
-    # parser.add_argument("-q", dest="sequenceid",
-    #                     action="append",
-    #                     help="Shotgun sequence id")
-    parser.add_argument("-s", dest="Shotid",
-                        action="append",
-                        help="Shotgun shot id")
-    parser.add_argument("-t", dest="Taskid",
-                        action="append",
-                        help="Shotgun task id")
-    parser.add_argument("-n", dest="Versioncode",
-                        action="append",
-                        help="Name for the version")
-    parser.add_argument("-d", dest="Description",
-                        action="append",
-                        help="Description")
-    parser.add_argument("-m", dest="Media",
-                        action="append",
-                        help="Full path of media")
+    parser = argparse.ArgumentParser(description="Simple sendmail wrapper",  epilog="This is a pain to get right")
+    parser.add_argument("-o", dest="Ownerid",  help="Shotgun Owner id")
+    parser.add_argument("-p", dest="Projectid",  help="What you are sending")
+    # parser.add_argument("--aid", dest="assetid",   help="Shotgun asset id")
+    # parser.add_argument("--atid", dest="assettypeid",   help="Shotgun asset type id")
+    # parser.add_argument("--sqid", dest="sequenceid",  help="Shotgun sequence id")
+    # parser.add_argument("--epid", dest="episodeid",  help="Shotgun episode id")
+    parser.add_argument("-s", dest="Shotid",  help="Shotgun shot id")
+    parser.add_argument("-t", dest="Taskid",   help="Shotgun task id")
+    parser.add_argument("-n", dest="Versioncode",  help="Name for the version")
+    parser.add_argument("-d", dest="Description", help="Description")
+    parser.add_argument("-m", dest="Media",help="Full path of media")
     return parser.parse_args()
 
 # #####################################################################################################
@@ -74,23 +56,27 @@ if __name__ == '__main__':
         logger.critical("Cant parse args %s" % (arguments))
         sys.exit("ERROR Cant parse arguments")
     else:
-        ownerid=int(arguments.Ownerid[-1:][0])
-        projectid=int(arguments.Projectid[-1:][0])
-        # assetid=arguments.assetid[-1:]
-        # sequenceid=arguments.sequenceid[-1:]
-        shotid=int(arguments.Shotid[-1:][0])
+        ownerid=int(arguments.Ownerid)
+        projectid=int(arguments.Projectid)
+        # assetid=arguments.assetid
+        # assettypeid=arguments.assettypeid
+        # sequenceid=arguments.sequenceid
+        # episodeid=arguments.episodeid
+        shotid=int(arguments.Shotid)
         if arguments.Taskid:
-            taskid=int(arguments.Taskid[-1:][0])
+            taskid=int(arguments.Taskid)
         else:
             taskid=None
-        versioncode=arguments.Versioncode[-1:][0]
-        description=arguments.Description[-1:][0]
-        media=arguments.Media[-1:][0]
+        versioncode=arguments.Versioncode
+        description=arguments.Description
+        media=arguments.Media
 
         sgt.NewVersion(
                  ownerid=ownerid,
                  projectid=projectid,
                  # assetid=assetid,
+                 # assetid=assettypeid,
+                 # episodeid=episodeid,
                  # sequenceid=sequenceid,
                  shotid=shotid,
                  taskid=taskid,

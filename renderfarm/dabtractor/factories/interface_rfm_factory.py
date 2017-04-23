@@ -22,13 +22,12 @@ import ttk
 import tkFileDialog
 import Tkconstants
 import os
-import sys
-import string
 import sww.renderfarm.dabtractor as dabtractor
 import sww.renderfarm.dabtractor.factories.configuration_factory as config
 import sww.renderfarm.dabtractor.factories.environment_factory as envfac
 import sww.renderfarm.dabtractor.factories.render_rfm_factory as rfac
 import sww.renderfarm.dabtractor.factories.shotgun_factory as sgt
+import sww.renderfarm.dabtractor.factories.utils_factory as utils
 
 
 class WindowBase(object):
@@ -41,39 +40,6 @@ class WindowBase(object):
         self.shotgun=sgt.Person()
         self.job.shotgunOwner=self.shotgun.shotgunname
         self.job.shotgunOwnerId=self.shotgun.shotgun_id
-
-    def hasBadNaming(self,fullpath):
-        # TODO add some checking of names
-        s = fullpath
-        nowhitespace = s.translate(string.maketrans("",""), string.whitespace)
-        if fullpath != nowhitespace:
-            logger.critical("*****************************************")
-            logger.critical("Path to check: {}".format(fullpath))
-            logger.critical("No SPACES in names please!!!")
-            logger.critical("*****************************************")
-        else:
-            dirname = nowhitespace
-            path_split = []
-            while True:
-                dirname,leaf = os.path.split(dirname)
-                if (leaf):
-                    path_split = [leaf] + path_split #Adds one element, at the beginning of the list
-                else:
-                    #Uncomment the following line to have also the drive, in the format "Z:\"
-                    #path_split = [dirname] + path_split
-                    break;
-            for bit in path_split:
-                nopunctuation= bit.translate(string.maketrans("",""), string.punctuation)
-                if bit != nopunctuation:
-                    _badname=bit
-                    logger.critical("*****************************************")
-                    logger.critical("Path to check: {}".format(fullpath))
-                    logger.critical("Fix Your Badly named file or directory: {}".format(bit))
-                    logger.critical("No PUNCTUATION in names please!!!")
-                    logger.critical("*****************************************")
-                    break
-
-
 
 
 class Window(WindowBase):
@@ -668,6 +634,14 @@ class Window(WindowBase):
 
     def consolidate(self):
         try:
+            _checkpath=utils.hasBadNaming(self.filefullpath)
+        except Exception, err:
+            logger.critical("Problem validating %s" % err)
+        else:
+            if _checkpath:
+                logger.critical("Problem with naming" % _checkpath)
+
+        try:
             self.job.mayaprojectfullpath=self.projfullpath
             self.job.mayascenefullpath=self.filefullpath
             self.job.optionskipframe=self.skipframes.get()  # gets from the tk object
@@ -726,11 +700,9 @@ class Window(WindowBase):
 
 if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
-    # w=Window()
+    w=Window()
     # for key in w.job.__dict__.keys():
     #     print "{:20} = {}".format(key,w.job.__dict__.get(key))
 
-    x=WindowBase()
-    x.hasBadNaming("/volumes/dabren@der/mattg")
-    x.hasBadNaming("/volumes/dabrender/mattg mmm () ccc")
+
 

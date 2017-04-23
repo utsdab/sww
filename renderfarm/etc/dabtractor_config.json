@@ -65,25 +65,25 @@
   },
 
   "maya": {
-    "version"     : [ "2017" ],
+    "version"      : [ "2017" ],
     "mayarenderer" : [ "sw"]
   },
 
   "nuke": {
-    "version"     : [ "10.0v5" ]
+    "version"      : [ "10.0v5" ]
   },
 
   "houdini": {
-    "version"     : [ "15.5.480" ]
+    "version"      : [ "15.5.480" ]
   },
 
   "renderman": {
-    "version"     : [ "21.2" , "21.3"],
-    "integrator"  : [ "FROMFILE", "pxr", "vcm", "visualiser", "occlusion"]
+    "version"      : [ "21.2" , "21.3"],
+    "integrator"   : [ "FROMFILE", "pxr", "vcm", "visualiser", "occlusion"]
   },
 
-  "renderjob": {
-    "tier"   : [ "batch", "low","default","preview","rush", "admin" ],
+  "renderjob"      : {
+    "tier"         : [ "batch", "low","default","preview","rush", "admin" ],
     "projectgroup" : [ "Year1", "Year2", "Year3", "Year4", "Masters", "Staff" ]
   },
 
