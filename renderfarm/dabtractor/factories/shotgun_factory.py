@@ -35,7 +35,7 @@ class ShotgunBase(object):
             logger.warn("SHOTGUN: Cant talk to shotgun")
             self.sg=None
         else:
-            logger.info("SHOTGUN: talking to shotgun ...... %s" % self.serverpath)
+            logger.debug("SHOTGUN: talking to shotgun ...... %s" % self.serverpath)
 
 class Person(ShotgunBase):
     """
@@ -67,6 +67,7 @@ class Person(ShotgunBase):
             if __person.has_key('email'):
                 self.email=__person.get('email')
                 self.dabname=self.cleanname(self.email)
+                self.user_work=os.path.join(os.environ["DABWORK"],"user_work",self.dabname)
             if __person.has_key('department'):
                 self.department=__person.get('department').get('name')
             if __person.has_key('id'):
@@ -74,6 +75,7 @@ class Person(ShotgunBase):
             if __person.has_key('login'):
                 self.login=__person.get('login')
                 self.dabnumber=self.login
+                self.user_prefs=os.path.join(os.environ["DABWORK"],"user_prefs",self.dabnumber)
         finally:
             if  not self.tractor:
                     logger.critical("Shotgun user {} is not Active. Sorry.".format(self.shotgunlogin))
@@ -345,9 +347,14 @@ if __name__ == "__main__":
 
 
     p=Person()
+
+    print p.dabname
+    print p.dabnumber
+    sys.exit()
     # logger.info("Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(\
     #     name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department))
     # logger.info("-------------------------------FINISHED TESTING")
+
 
 
     # pe=People()
@@ -475,6 +482,8 @@ if __name__ == "__main__":
     task = p.sg.find("Task",filters,fields)
     # pprint(task)
     _tasks=dictfromlistofdicts(task,"cached_display_name","id")
+
+
 
 
 

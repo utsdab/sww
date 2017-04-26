@@ -27,7 +27,8 @@ class TQuery(object):
         _hostname = env.config.getdefault("tractor","engine")
         _port = env.config.getdefault("tractor","port")
         _user = env.config.getdefault("tractor","jobowner")
-        self.tq = tq.setEngineClientParam(hostname=_hostname, port=int(_port), user=_user, debug=False)
+        self.tq=tq
+        self.tq.setEngineClientParam(hostname=_hostname, port=int(_port), user=_user, debug=False)
 
 class JobDetails(TQuery):
     def __init__(self,jid=None):
@@ -35,7 +36,7 @@ class JobDetails(TQuery):
         self.jid=jid
 
         try:
-            _job = tq.jobs("jid in [{}]".format(jid),columns=["jid", "title","metadata","numerror","spooled"])
+            _job = self.tq.jobs("jid in [{}]".format(jid),columns=["jid", "title","metadata","numerror","spooled"])
             _jmd=json.loads(_job[0]["metadata"])
 
             for key in _jmd.keys():
@@ -49,8 +50,10 @@ class JobDetails(TQuery):
 
 class TaskDetails(TQuery):
     def __init__(self,jid,tid):
+        """jid=123 and tid=1"""
+
         super(TaskDetails, self).__init__()
-        pass
+
         try:
             pass
         except:
@@ -59,7 +62,7 @@ class TaskDetails(TQuery):
 if __name__ == '__main__':
 
     print "**********************************************"
-    j=JobDetails(jid=8479)
+    j=JobDetails(jid=8480)
 
     pprint(j.__dict__)
     #
