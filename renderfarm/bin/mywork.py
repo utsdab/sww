@@ -16,7 +16,7 @@ import argparse
 import os
 import sys
 
-from renderfarm.dabtractor.factories import shotgun_factory as sgt
+from sww.renderfarm.dabtractor.factories import shotgun_factory as sgt
 
 def getuserwork():
     try:

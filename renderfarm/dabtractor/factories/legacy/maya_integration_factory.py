@@ -17,8 +17,8 @@ logger.addHandler(sh)
 # ##############################################################
 import os
 import sys
-import renderfarm.dabtractor.factories.user_factory as ufac
-import renderfarm.dabtractor.factories.utils_factory as utilfac
+import sww.renderfarm.dabtractor.factories.user_factory as ufac
+import sww.renderfarm.dabtractor.factories.utils_factory as utilfac
 
 class MayaRenderGlobals(object):
     def __init__(self):

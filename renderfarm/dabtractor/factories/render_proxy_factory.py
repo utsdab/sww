@@ -19,7 +19,7 @@ import time
 import sys
 from pprint import pprint
 import utils_factory as utils
-import renderfarm.dabtractor.factories.environment_factory as envfac
+import sww.renderfarm.dabtractor.factories.environment_factory as envfac
 
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from renderfarm.dabtractor.factories import command_factory as comfac
+from sww.renderfarm.dabtractor.factories import command_factory as comfac
 
 # ##############################################################
 import logging

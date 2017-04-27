@@ -22,9 +22,9 @@ import tkFileDialog
 import Tkconstants
 import os
 import sys
-from renderfarm.dabtractor.factories import user_factory as ufac
-import renderfarm.dabtractor as dabtractor
-import renderfarm.dabtractor.factories.environment_factory as envfac
+from sww.renderfarm.dabtractor.factories import user_factory as ufac
+import sww.renderfarm.dabtractor as dabtractor
+import sww.renderfarm.dabtractor.factories.environment_factory as envfac
 
 class WindowBase(object):
     """

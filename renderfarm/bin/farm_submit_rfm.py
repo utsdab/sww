@@ -19,7 +19,7 @@ import os
 import sys
 
 def main():
-    from renderfarm.dabtractor.factories import interface_rfm_factory as ui
+    from sww.renderfarm.dabtractor.factories import interface_rfm_factory as ui
     try:
         w=ui.Window()
 
@@ -31,4 +31,7 @@ def main():
 ################################
 
 if __name__ == '__main__':
+
+    print os.environ['PYTHONPATH']
     main()
+

@@ -14,7 +14,7 @@ logger.addHandler(sh)
 import os
 import sys
 import shutil
-import renderfarm.dabtractor.factories.shotgun_factory as sgt
+import sww.renderfarm.dabtractor.factories.shotgun_factory as sgt
 
 people=sgt.People()
 

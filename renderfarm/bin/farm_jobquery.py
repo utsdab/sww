@@ -31,7 +31,7 @@ logger.addHandler(sh)
 import os, sys
 from pprint import pprint
 import tractor.api.query as tq
-import renderfarm.dabtractor.factories.environment_factory as envfac
+import sww.renderfarm.dabtractor.factories.environment_factory as envfac
 
 ################################
 env=envfac.Environment()

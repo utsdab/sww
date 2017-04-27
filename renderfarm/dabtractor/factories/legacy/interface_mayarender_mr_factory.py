@@ -24,9 +24,9 @@ import tkFileDialog
 import Tkconstants
 import os
 import sys
-from renderfarm.dabtractor.factories import configuration_factory as config
-import renderfarm.dabtractor as dabtractor
-import renderfarm.dabtractor.factories.environment_factory as envfac
+from sww.renderfarm.dabtractor.factories import configuration_factory as config
+import sww.renderfarm.dabtractor as dabtractor
+import sww.renderfarm.dabtractor.factories.environment_factory as envfac
 
 class WindowBase(object):
     """

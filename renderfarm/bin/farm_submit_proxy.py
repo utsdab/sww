@@ -17,7 +17,7 @@ logger.addHandler(sh)
 
 import os
 import sys
-from renderfarm.dabtractor.factories import interface_proxy_factory as ui
+from sww.renderfarm.dabtractor.factories import interface_proxy_factory as ui
 
 def main():
     try:

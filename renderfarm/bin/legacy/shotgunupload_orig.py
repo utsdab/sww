@@ -15,7 +15,7 @@ logger.addHandler(sh)
 import argparse
 import os
 import sys
-from renderfarm.dabtractor.factories import shotgun_factory as sgt
+from sww.renderfarm.dabtractor.factories import shotgun_factory as sgt
 
 def parseArguments():
     parser = argparse.ArgumentParser(description="Send to Shotgun Script",
