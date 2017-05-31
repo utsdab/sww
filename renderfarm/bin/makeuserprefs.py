@@ -79,7 +79,7 @@ def setupconfig(path):
             logger.info("Copying {} to {}".format(template,dest))
         try:
             _config=os.path.join(path,"config")
-            # _config="config"
+            # TODO fix this so it is a relative path ../config
             os.symlink(dest,_config)
         except Exception, err:
             logger.warn("Cant make config link: {}".format(err))
