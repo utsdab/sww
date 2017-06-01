@@ -14,6 +14,8 @@ logger.addHandler(sh)
 import os
 import sys
 import sww.renderfarm.dabtractor.factories.shotgun_factory as sgt
+import sww.renderfarm.dabtractor.factories.environment_factory as envfac
+tj=envfac.TractorJob()
 
 def main():
     """
@@ -27,7 +29,7 @@ def main():
     people=sgt.People()
     peoplelist=[]
     try:
-        dabwork = people.config.environ["DABWORK"]
+        dabwork = people.config.getenvordefault("DABWORK","env")
     except Exception, err:
         logger.critical("Cant find DABWORK: {}".format(err))
         sys.exit(1)
@@ -37,6 +39,23 @@ def main():
 
     makedirectorytree(dabwork,peoplelist)
     deprecatedirectory(dabwork,peoplelist)
+
+    # peoplelist=[]
+    # try:
+    #     dabuserprefs = tj.config.getenvordefault("DABUSERPREFS","env")
+    #
+    # except Exception, err:
+    #     logger.critical("Cant find DABUSERPREFS or DABASSETS: {}".format(err))
+    #     sys.exit(1)
+    #
+    # for person in people.people:
+    #     peoplelist.append(person.get('login'))
+    #
+    # makedirectorytree(dabuserprefs,peoplelist)
+    # deprecatedirectory(dabuserprefs,peoplelist)
+
+
+
 
 def makedirectorytree(rootpath,rootnames=[]):
     """Make the template directory tree"""
@@ -49,8 +68,8 @@ def makedirectorytree(rootpath,rootnames=[]):
             else:
                 logger.info("All Good for  {}".format(roottomake))
 
-            if os.environ["DABDEV"] == "development" and i>1000:
-                sys.exit("development cap")
+            # if os.environ["DABDEV"] == "development" and i>1000:
+            #     sys.exit("development cap")
 
     except Exception, err:
         logger.warn("Error making directories {}".format(err))

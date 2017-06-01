@@ -245,7 +245,7 @@ class People(ShotgunBase):
             logger.warn("Cant open file {} : {}".format(self.crewfilefullpath,err))
         else:
             for i, person in enumerate(self.people):
-                _line='"{l}"   # {d:9}{c:24}{n:24}{e:40}\n'.format(l=person.get('login'),
+                _line='"{l}",   # {d:9}{c:24}{n:24}{e:40}\n'.format(l=person.get('login'),
                                                          n=person.get('name'),
                                                          c=self.cleanname(person.get('email')),
                                                          e=person.get('email'),
