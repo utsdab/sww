@@ -5,7 +5,7 @@ import string
 import sys
 import logging
 import os
-from shotgun_api3 import Shotgun
+from sww.shotgun_api3 import Shotgun
 from sww.renderfarm.dabtractor.factories.configuration_factory import JsonConfig
 from sww.renderfarm.dabtractor.factories.utils_factory import dictfromlistofdicts
 
