@@ -29,20 +29,49 @@ logger.addHandler(sh)
 ###############################################################
 
 import os, sys
-import tractor.api.author as author
-from sww.renderfarm.dabtractor.factories import user_factory as ufac
-from sww.maya.uts_tools import tractor_submit_maya_UI as ts
+from pprint import pprint
 import tractor.api.query as tq
-
+import sww.renderfarm.dabtractor.factories.environment_factory as envfac
 
 ################################
+env=envfac.Environment()
+# tractorjob=envfac.TractorJob()
 _thisuser = os.getenv("USER")
+_hostname = env.config.getdefault("tractor","engine")
+_port = env.config.getdefault("tractor","port")
+_user = env.config.getdefault("tractor","jobowner")
 
-tq.setEngineClientParam(hostname="tractor-engine", port=5600, user="pixar", debug=True)
+tq.setEngineClientParam(hostname=_hostname, port=int(_port), user=_user, debug=True)
+
+class JobDetails(object):
+    def __init__(self,jid=None):
+        self.jid=jid
+        _mdata={}
+
+        try:
+            _job = tq.jobs("jid in [{}]".format(jid),columns=["jid", "title","metadata","numerror","spooled"])
+            _jid=_job[0]["jid"]
+            _title=_job[0]["title"]
+            _mdata["jid"]=_job[0]["jid"]
+            _mdata["title"]=_job[0]["title"]
+            _metadata=_job[0]["metadata"]
+            _split=_metadata.split(" ")
+            for s in _split:
+                _bits=s.split("=")
+                _mdata[_bits[0]]=_bits[1]
+
+        except Exception, err:
+            logger.critical("Metadata Error JID () : {}".format(self.jid,err))
+        else:
+            # pprint(_job)
+            self.username=_mdata.get("username")
+            self.email=_mdata.get("email")
+            self.usernumber=_mdata.get("usernumber")
+            self.title=_mdata.get("title")
+            self.spooltime =_job[0]["spooltime"]
 
 def getjobs():
-    job = tq.jobs("owner in [pixar] and spooltime < -1d",columns=["jid", "title","metadata","numerror"],
-                  sortby=["title"])
+    job = tq.jobs("owner in [pixar] and spooltime < -1d",columns=["jid", "title","metadata","numerror"],sortby=["title"])
     '''
     jobs = tq.jobs("owner in [freddie brian john roger] and spooltime < -8d")
     tq.jobs(columns=["jid", "owner", "title", "metadata"])
@@ -50,19 +79,22 @@ def getjobs():
     tq.jobs("active", sortby=["-numactive"], limit=10)
     tq.tasks("state=error and Job.spooltime > -24h", columns=["Job.spooltime", "Job.title"], sortby=["Job.priority"])
     '''
-    # jobs=job.keys()
+    pprint(job)
+
     jids=[]
+
     for i,j in enumerate(job):
         # print i,j.values()
         jids.append( j.get("jid") )
     return jids
 
+
+
 def gettimes():
     jids=getjobs()
     report=[]
     for i,j in enumerate(jids):
-        invocation = tq.invocations("jid={}".format(j),columns=["elapsedreal",
-                                                                "numslots"])
+        invocation = tq.invocations("jid={}".format(j),columns=["elapsedreal","numslots"])
         totalseconds = 0.0
         title=tq.jobs("jid={}".format(j),columns=["title","numerror","numtasks","numdone"])
         errors=tq.jobs("jid={}".format(j),columns=["numerror","numtasks","numdone"])
@@ -126,5 +158,16 @@ def getstuff(days=1):
 
     for i,r in enumerate(report):
         print i,r
+
+
 if __name__ == '__main__':
-    getstuff(7)
+    # getjobs()
+    # getstuff(1)
+
+    print "**********************************************"
+    j=JobDetails(8464)
+    pprint(j.__dict__)
+
+    print "**********************************************"
+    k=JobDetails()
+    pprint(k.__dict__)

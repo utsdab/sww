@@ -22,70 +22,12 @@ import ttk
 import tkFileDialog
 import Tkconstants
 import os
-import sys
 import sww.renderfarm.dabtractor as dabtractor
 import sww.renderfarm.dabtractor.factories.configuration_factory as config
 import sww.renderfarm.dabtractor.factories.environment_factory as envfac
 import sww.renderfarm.dabtractor.factories.render_rfm_factory as rfac
 import sww.renderfarm.dabtractor.factories.shotgun_factory as sgt
-
-
-# class Job(object):
-#     """ job parameters - variants should be derived by calling factories as needed
-#     """
-#     def __init__(self):
-#         """ The payload of gui-data needed to describe a farm render job
-#         """
-#         self.usernumber=None
-#         self.username=None
-#         self.useremail=None
-#
-#         try:
-#             self.env=envfac.TractorJob()
-#             self.usernumber=self.env.usernumber
-#             self.username=self.env.username
-#             self.useremail=self.env.useremail
-#             self.department=self.env.department
-#             self.dabwork=self.env.dabwork
-#
-#         except Exception, err:
-#             logger.warn("Cant get user credentials: {}".format(err))
-#
-#         self.mayaprojectfullpath=None
-#         self.mayascenefullpath=None
-#
-#         self.farmtier=None
-#
-#         if self.env.department in self.env.config.getoptions("renderjob", "projectgroup"):
-#             logger.info("Department {}".format(self.env.department))
-#         else:
-#             self.department="Other"
-#
-#         self.farmpriority=None
-#         self.farmcrew=None
-#
-#         self.jobtitle=None
-#         self.jobenvkey=None
-#         self.jobfile=None
-#         self.jobstartframe=None
-#         self.jobendframe=None
-#         self.jobchunks=None
-#         self.jobthreads=None
-#         self.jobthreadmemory=None
-#
-#         self.optionskipframe=None
-#         self.optionmakeproxy=None
-#         # self.optionsendemail=None
-#         self.optionresolution=None
-#         self.optionmaxsamples=None
-#
-#         self.envtype=None
-#         self.envshow=None
-#         self.envproject=None
-#         self.envscene=None
-#
-#         self.mayaversion=None
-#         self.rendermanversion=None
+import sww.renderfarm.dabtractor.factories.utils_factory as utils
 
 
 class WindowBase(object):
@@ -692,6 +634,14 @@ class Window(WindowBase):
 
     def consolidate(self):
         try:
+            _checkpath=utils.hasBadNaming(self.filefullpath)
+        except Exception, err:
+            logger.critical("Problem validating %s" % err)
+        else:
+            if _checkpath:
+                logger.critical("Problem with naming" % _checkpath)
+
+        try:
             self.job.mayaprojectfullpath=self.projfullpath
             self.job.mayascenefullpath=self.filefullpath
             self.job.optionskipframe=self.skipframes.get()  # gets from the tk object
@@ -753,4 +703,6 @@ if __name__ == "__main__":
     w=Window()
     # for key in w.job.__dict__.keys():
     #     print "{:20} = {}".format(key,w.job.__dict__.get(key))
+
+
 

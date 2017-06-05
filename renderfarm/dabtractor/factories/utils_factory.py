@@ -139,6 +139,44 @@ def getSeqTemplate(exampleFrameName):
             seqtemplatename = "{b}.{:#^{p}}.{e}".format('#', b=_base, p=_precision, e=_ext)
         return (seqbasename,seqtemplatename)
 
+def hasBadNaming(fullpath):
+    # TODO add some checking of names
+    _result=None
+    # print string.punctuation
+    # mypunctuation = '''!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~'''
+    mypunctuation = '''!"#$%&'()*+,-/:;<=>?@[\]^`{|}~'''
+
+
+    nowhitespace = fullpath.translate(string.maketrans("",""), string.whitespace)
+    expandedpath =  os.path.expandvars(fullpath)
+    logger.info("***************************************************")
+    logger.info("Path to check: {}".format(fullpath))
+    logger.info("      becomes: {}".format(expandedpath))
+
+    if fullpath != nowhitespace:
+        logger.info("*****************************************")
+        logger.critical("No SPACES in names please!!!")
+        _result=fullpath
+    else:
+        dirname = expandedpath
+        path_split = []
+        while True:
+            dirname,leaf = os.path.split(dirname)
+            if (leaf):
+                path_split = [leaf] + path_split #Adds one element, at the beginning of the list
+            else:
+                break;
+        for bit in path_split:
+            nopunctuation= bit.translate(string.maketrans("",""), mypunctuation)
+            if bit != nopunctuation:
+                logger.info("*****************************************")
+                logger.critical("FIX Your Badly named file or directory: {}".format(bit))
+                logger.critical("    No PUNCTUATION in names please!!!")
+                _result=bit
+                break
+    logger.info("*****************************************")
+    return _result
+
 
 def getfloat(inputstring):
     """
@@ -240,9 +278,14 @@ if __name__ == "__main__":
     # getfloat(a)
 
     # N=RenderOutput("/Users/Shared/UTS_Jobs/TEACHING_renderman/testFarm/renderman")
-    N=RenderOutput("/Users/Shared/UTS_Jobs/TEACHING_renderman/project/renderman")
-    N._runlsseq()
-    print getnow()
+    # N=RenderOutput("/Users/Shared/UTS_Jobs/TEACHING_renderman/project/renderman")
+    # N._runlsseq()
+    # print getnow()
+    print string.punctuation
+    mp='''!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~'''
+    print type(string.punctuation)
+    print mp
+
 
 
 

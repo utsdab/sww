@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-    This code holds the configurations for various things
+    This code holds the configurations for various  custom things
 """
 
 # ##############################################################
@@ -17,7 +17,7 @@ logger.addHandler(sh)
 
 import os
 import json
-import sww.renderfarm as rf
+import renderfarm as rf
 
 class JsonConfig(object):
     """

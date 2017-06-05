@@ -22,7 +22,7 @@ formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
 # ##############################################################
-import json
+
 import os
 import time
 import sys
@@ -98,7 +98,7 @@ class Job(object):
 
 
 class Render(object):
-    ''' Renderman job defined using the tractor api '''
+    ''' Arnold job defined using the tractor api '''
 
     def __init__(self, job):
         self.job=job
@@ -116,15 +116,14 @@ class Render(object):
         self.scenename = os.path.basename(self.job.envscene)
         self.scenebasename = os.path.splitext(self.scenename)[0]
         self.sceneext = os.path.splitext(self.scenename)[1]
-        self.rendermanpath = os.path.join( self.job.dabwork, self.job.envtype, self.job.envshow, self.job.envproject,
-                                           "renderman", self.scenebasename)
-        self.rendermanpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/renderman/$SCENENAME"
+        # self.rendermanpath = os.path.join( self.job.dabwork, self.job.envtype, self.job.envshow, self.job.envproject,"renderman", self.scenebasename)
+        # self.rendermanpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/renderman/$SCENENAME"
         self.renderdirectory = os.path.join(self.rendermanpath,"images")
-        self.renderimagesalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/renderman/$SCENENAME/images"
+        # self.renderimagesalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/renderman/$SCENENAME/images"
         self.mayaversion = self.job.mayaversion,
-        self.rendermanversion = self.job.rendermanversion,
+        # self.rendermanversion = self.job.rendermanversion,
         # self.envkey_rms = "rms-{}-maya-{}".format(self.rendermanversion[0], self.mayaversion[0])
-        self.envkey_rfm = "rfm-{}-maya-{}".format(self.rendermanversion[0], self.mayaversion[0])
+        # self.envkey_rfm = "rfm-{}-maya-{}".format(self.rendermanversion[0], self.mayaversion[0])
         self.startframe = int(self.job.jobstartframe)
         self.endframe = int(self.job.jobendframe)
         self.byframe = int(self.job.jobbyframe)
@@ -141,7 +140,7 @@ class Render(object):
         self.rendermaxsamples=self.job.optionmaxsamples
         self.threads = self.job.jobthreads
         self.threadmemory = self.job.jobthreadmemory
-        self.ribpath = "{}/rib".format(self.rendermanpath)
+        # self.ribpath = "{}/rib".format(self.rendermanpath)
         self.finaloutputimagebase = "{}/{}".format(self.rendermanpath,self.scenebasename)
         # self.proxyoutput = "$DABRENDER/$TYPE/$SHOW/$PROJECT/movies/$SCENENAME_{}.mov".format("datehere")
         self.thedate=time.strftime("%d-%B-%Y")
@@ -152,19 +151,6 @@ class Render(object):
         Main method to build the job
         :return:
         '''
-        # ################# Job Metadata as JSON
-        _jobMetaData={}
-        _jobMetaData["email"] = self.job.useremail
-        _jobMetaData["name"] = self.job.username
-        _jobMetaData["number"] = self.job.usernumber
-        _jobMetaData["scenename"] = self.scenename
-        _jobMetaData["projectpath"] = self.mayaprojectpath
-        _jobMetaData["startframe"] = self.startframe
-        _jobMetaData["endframe"] = self.endframe
-        _jobMetaData["jobtype"] = "RFM"
-        _jsonJobMetaData = json.dumps(_jobMetaData)
-
-
         # ################ 0 JOB ################
         self.renderjob = self.job.env.author.Job(title="RM: {} {} {}-{}".format(
               self.job.username,self.scenename,self.startframe,self.endframe),
@@ -175,7 +161,7 @@ class Render(object):
                     "PROJECT={}".format(self.job.envproject),
                     "SCENE={}".format(self.job.envscene),
                     "SCENENAME={}".format(self.scenebasename)],
-              metadata=_jsonJobMetaData,
+              metadata="email={} username={} usernumber={}".format(self.job.useremail,self.job.username,self.job.usernumber),
               comment="User is {} {} {}".format(self.job.useremail,self.job.username,self.job.usernumber),
               projects=[str(self.projectgroup)],
               tier=str(self.job.farmtier),
@@ -184,7 +170,7 @@ class Render(object):
 
 
         # ############## 0 ThisJob #################
-        task_thisjob = self.job.env.author.Task(title="Renderman Job")
+        task_thisjob = self.job.env.author.Task(title="Arnold Job")
         task_thisjob.serialsubtasks = 1
 
         # ############## 5 NOTIFY JOB START ###############
@@ -195,6 +181,7 @@ class Render(object):
             task_thisjob.addChild(task_notify_start)
 
 
+'''
         # ############## 1 PREFLIGHT ##############
         task_preflight = self.job.env.author.Task(title="Preflight")
         task_preflight.serialsubtasks = 1
@@ -270,8 +257,6 @@ class Render(object):
         task_render_frames.serialsubtasks = 0
 
         for frame in range(self.startframe, (self.endframe + 1), self.byframe):
-
-            # ################# Job Metadata as JSON
             _imgfile = "{proj}/{scenebase}.{frame:04d}.{ext}".format(
                 proj=self.renderdirectory, scenebase=self.scenebasename, frame=frame, ext=self.outformat)
             _statsfile = "{proj}/rib/{frame:04d}/{frame:04d}.xml".format(
@@ -279,15 +264,9 @@ class Render(object):
             _ribfile = "{proj}/rib/{frame:04d}/{frame:04d}.rib".format(
                 proj=self.rendermanpath, frame=frame)
 
-            _taskMetaData={}
-            _taskMetaData["imgfile"] = _imgfile
-            _taskMetaData["statsfile"] = _statsfile
-            _taskMetaData["ribfile"] = _ribfile
-            _jsontaskMetaData = json.dumps(_taskMetaData)
-            _title = "RENDER Frame {}".format(frame)
-            _preview = "sho {""}".format(_imgfile)
-
-            task_render_rib = self.job.env.author.Task(title=_title, preview=_preview, metadata=_jsontaskMetaData)
+            task_render_rib = self.job.env.author.Task(title="RENDER Frame {}".format(frame),
+                                          preview="sho {}".format(_imgfile),
+                                          metadata="statsfile={} imgfile={}".format(_statsfile, _imgfile))
             commonargs = ["prman", "-cwd", self.mayaprojectpath]
             rendererspecificargs = []
 
@@ -362,7 +341,7 @@ class Render(object):
         task_render_allframes.addChild(task_render_frames)
         task_thisjob.addChild(task_render_allframes)
 
-
+'''
         # ############## 5 PROXY ###############
         if self.makeproxy:
             '''
@@ -465,7 +444,7 @@ class Render(object):
         logger.info("\n\n{:_^80}\n{}\n{:_^80}".format("snip", self.renderjob.asTcl(), "snip"))
 
     def mail(self, level="Level", trigger="Trigger", body="Render Progress Body"):
-        bodystring = "Prman Render Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
+        bodystring = "Arnold Render Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
         subjectstring = "FARM JOB: {} {} {} {}".format(level,trigger, str(self.scenebasename), self.job.username)
         mailcmd = self.job.env.author.Command(argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
         return mailcmd

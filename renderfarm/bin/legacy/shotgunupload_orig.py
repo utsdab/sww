@@ -18,25 +18,24 @@ import sys
 from sww.renderfarm.dabtractor.factories import shotgun_factory as sgt
 
 def parseArguments():
-    parser = argparse.ArgumentParser(description="Simple sendmail wrapper",  epilog="This is a pain to get right")
-    parser.add_argument("-o", dest="Ownerid",  help="Shotgun Owner id")
-    parser.add_argument("-p", dest="Projectid",  help="What you are sending")
-    # parser.add_argument("--aid", dest="assetid",   help="Shotgun asset id")
-    # parser.add_argument("--atid", dest="assettypeid",   help="Shotgun asset type id")
-    # parser.add_argument("--sqid", dest="sequenceid",  help="Shotgun sequence id")
-    # parser.add_argument("--epid", dest="episodeid",  help="Shotgun episode id")
-    parser.add_argument("-s", dest="Shotid",  help="Shotgun shot id")
-    parser.add_argument("-t", dest="Taskid",   help="Shotgun task id")
-    parser.add_argument("-n", dest="Versioncode",  help="Name for the version")
+    parser = argparse.ArgumentParser(description="Send to Shotgun Script",
+                                     epilog="You need to supply ownerid projectid and shotid and media at least")
+    parser.add_argument("-o", dest="Ownerid", help="Shotgun Owner id")
+    parser.add_argument("-p", dest="Projectid", help="What you are sending")
+    # parser.add_argument("-q", dest="assetid", help="Shotgun asset id")
+    # parser.add_argument("-q", dest="sequenceid", help="Shotgun sequence id")
+    parser.add_argument("-s", dest="Shotid", help="Shotgun shot id")
+    parser.add_argument("-t", dest="Taskid", help="Shotgun task id")
+    parser.add_argument("-n", dest="Versioncode", help="Name for the version")
     parser.add_argument("-d", dest="Description", help="Description")
-    parser.add_argument("-m", dest="Media",help="Full path of media")
+    parser.add_argument("-m", dest="Media", help="Full path of media")
+    # print parser.print_help()
     return parser
 
 # #####################################################################################################
 if __name__ == '__main__':
-
     parser = parseArguments()
-    arguments = parser.parse_args()
+    arguments=parser.parse_args()
     logger.info("%s" % arguments)
     _fail = None
 
@@ -89,7 +88,6 @@ if __name__ == '__main__':
                  media=media )
     except Exception, err:
         logger.critical("SHOTGUN SAYS {}".format(err))
-
 
 
 
