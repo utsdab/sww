@@ -74,7 +74,6 @@ def makedirectorytree(rootpath,rootnames=[]):
     except Exception, err:
         logger.warn("Error making directories {}".format(err))
     else:
-        #TODO  copy the CONFIG structure into place and make the necessary links
         pass
     finally:
         #TODO  set and check the permissions on the tree.
@@ -140,6 +139,7 @@ def setpermissionsontree(rootpath):
     """
     os.chmod('pixar', 0o2770)
     os.chmod('pixar', 5327)  #2755 decimal  www.rapidtables.com/convert/number/decimal-to-octal.htm
+    #os.chown(path,uid,gid)
 
     # import os
     # os.chmod('test', 02770)

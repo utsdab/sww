@@ -15,7 +15,7 @@ logger.addHandler(sh)
 
 import os
 import sys
-import environment_factory as envfac
+import sww.renderfarm.dabtractor.factories.environment_factory as envfac
 
 class Base(object):
     """ Base class for all batch jobs """
