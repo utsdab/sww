@@ -199,7 +199,23 @@ class Render(object):
         task_preflight = self.job.env.author.Task(title="Preflight")
         task_preflight.serialsubtasks = 1
         task_thisjob.addChild(task_preflight)
+
+        task_permissions_preflight  = self.job.env.author.Task(title="Correct Permissions Preflight")
         task_generate_rib_preflight = self.job.env.author.Task(title="Generate RIB Preflight")
+
+        command_permissions1 = self.job.env.author.Command(argv=["chmod","-R","g+w", self.mayaprojectpath],
+                                              tags=["chmod", "theWholeFarm"],
+                                              atleast=int(self.threads),
+                                              atmost=int(self.threads),
+                                              service="RfMRibGen")
+
+        command_permissions2 = self.job.env.author.Command(argv=["find",self.mayaprojectpath,"-type","d",
+                                                                "-exec", "chmod", "g+s", "{}", "\;"],
+                                              tags=["chmod", "theWholeFarm"],
+                                              atleast=int(self.threads),
+                                              atmost=int(self.threads),
+                                              service="RfMRibGen")
+
         command_ribgen = self.job.env.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,"-command",
                                               "renderManBatchGenRibForLayer {layerid} {start} {end} {phase}".format(
                                                   layerid=0, start=self.startframe, end=self.endframe, phase=1),
@@ -208,8 +224,15 @@ class Render(object):
                                               atleast=int(self.threads),
                                               atmost=int(self.threads),
                                               service="RfMRibGen")
+
+        task_permissions_preflight.addCommand(command_permissions1)
+        task_permissions_preflight.addCommand(command_permissions2)
+
         task_generate_rib_preflight.addCommand(command_ribgen)
+
+        task_preflight.addChild(task_permissions_preflight)
         task_preflight.addChild(task_generate_rib_preflight)
+
         task_render_preflight = self.job.env.author.Task(title="Render Preflight")
 
         command_render_preflight = self.job.env.author.Command(argv=[
