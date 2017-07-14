@@ -1,8 +1,8 @@
 #!/usr/bin/env rmanpy
-
-"""
-To do:
-"""
+'''
+This chunk of code if to do with queries to the tractor farm
+'''
+# TODO  this is all WIP and testing
 
 ###############################################################
 import logging

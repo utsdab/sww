@@ -1,17 +1,17 @@
 #!/usr/bin/env rmanpy
 '''
-To do:
-    find commonality in render jobs and put it in base class
-
-    implement ribchunks - DONE
-    implement option args and examples - rms.ini
-
-    implement previews???
-    implement stats to browswer
+Renderman for maya job
 
 '''
 
-# ##############################################################
+# TODO
+
+import json
+import os
+import time
+import sys
+import utils_factory as utils
+import environment_factory as envfac
 import logging
 
 logger = logging.getLogger(__name__)
@@ -21,18 +21,8 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-# ##############################################################
-import json
-import os
-import time
-import sys
-import utils_factory as utils
-import environment_factory as envfac
-
 
 class Job(object):
-    """ job parameters - variants should be derived by calling factories as needed
-    """
     def __init__(self):
         """ The payload of gui-data needed to describe a farm render job
         """
@@ -49,7 +39,7 @@ class Job(object):
             self.dabwork=self.env.dabwork
 
         except Exception, err:
-            logger.warn("Cant get user credentials: {}".format(err))
+            logger.warn("Cant get user Job  credentials: {}".format(err))
 
         self.mayaprojectfullpath=None
         self.mayascenefullpath=None
@@ -301,11 +291,16 @@ class Render(object):
                 proj=self.rendermanpath, frame=frame)
             _ribfile = "{proj}/rib/{frame:04d}/{frame:04d}.rib".format(
                 proj=self.rendermanpath, frame=frame)
+            _shotgunupload = "PR:{} SQ:{} SH:{} TA:{}".format(self.job.shotgunProject,
+                                                  self.job.shotgunSequence,
+                                                  self.job.shotgunShot,
+                                                  self.job.shotgunTask)
 
             _taskMetaData={}
             _taskMetaData["imgfile"] = _imgfile
             _taskMetaData["statsfile"] = _statsfile
             _taskMetaData["ribfile"] = _ribfile
+            _taskMetaData["shotgunupload"] = _shotgunupload
             _jsontaskMetaData = json.dumps(_taskMetaData)
             _title = "RENDER Frame {}".format(frame)
             _preview = "sho {""}".format(_imgfile)

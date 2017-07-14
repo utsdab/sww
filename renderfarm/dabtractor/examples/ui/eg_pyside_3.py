@@ -8,7 +8,7 @@ This program shows a confirmation
 message box when we click on the close
 button of the application window.
 
-author: Jan Bodnar
+site: Jan Bodnar
 website: zetcode.com
 last edited: August 2011
 """

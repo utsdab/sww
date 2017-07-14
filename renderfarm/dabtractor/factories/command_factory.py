@@ -1,4 +1,10 @@
 #!/usr/bin/env rmanpy
+'''
+This code supports submitting bash shell scripts to the farm
+Some common commands are wrapped up as convenience objects - like mail and rsync
+
+'''
+
 # TODO
 
 # ##############################################################

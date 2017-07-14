@@ -1,4 +1,7 @@
 #!/usr/bin/python
+'''
+command to be run as a farm job by pixar user
+'''
 
 # ##############################################################
 import logging
@@ -67,22 +70,22 @@ def makedirectorytree(rootpath,rootnames=[]):
 
 
 def setupconfig(path):
-    # dabassets = people.config.environ["DABASSETS"]
+    # dabassets = people.site.environ["DABASSETS"]
     template = people.config.getdefault("CONFIG", "template")
     dest = os.path.join(path,os.path.basename(template))
     if os.path.exists(path) and os.path.exists(template):
         try:
             shutil.copytree(template, dest, symlinks=True, ignore=None)
         except Exception, err:
-            logger.warn("Cant copy config {}".format(err))
+            logger.warn("Cant copy site {}".format(err))
         else:
             logger.info("Copying {} to {}".format(template,dest))
         try:
-            _config=os.path.join(path,"config")
-            # TODO fix this so it is a relative path ../config
+            _config=os.path.join(path,"site")
+            # TODO fix this so it is a relative path ../site
             os.symlink(dest,_config)
         except Exception, err:
-            logger.warn("Cant make config link: {}".format(err))
+            logger.warn("Cant make site link: {}".format(err))
         else:
             logger.info("Linking {} to {}".format(dest,_config))
 

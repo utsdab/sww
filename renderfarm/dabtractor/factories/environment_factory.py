@@ -1,17 +1,20 @@
 #!/usr/bin/python
 
-"""
+'''
     This code handles the creation of a user area.
     At UTS the $USER is a number and there is no nice name exposed at all.
     However we can query this from the ldap database using ldapsearch.
     Thus we can define the concept of renderusername and renderusernumber
     this just need to be in the path some place  dabanim/usr/utils
-"""
+'''
+#TODO work out how much overlap there is between all these similar configuration factories
+#TODO configuration, environment,shotgun,user and utils.
+
 import os
 import json
 from pprint import pprint
-from sww.renderfarm.dabtractor.factories import shotgun_factory as sgt
-from sww.renderfarm.dabtractor.factories import configuration_factory as config
+from sww.renderfarm.dabtractor.factories.shotgun_factory import Person
+from sww.renderfarm.dabtractor.factories.site_factory import JsonConfig
 
 import sww.renderfarm as rf
 import tractor.api.author as author
@@ -32,46 +35,50 @@ logger.addHandler(sh)
 class TractorJob(object):
     """ A class with the basic farm job info """
     def __init__(self):
-        # super(TractorJob, self).__init__()
         self.author=author
         self.tq=tq
-        self.config=config.JsonConfig()
+        self.config=JsonConfig()
+        self.person=None
         try:
-            __utsuser=sgt.Person()
+            self.person=Person()
         except Exception, err:
-            logger.warn("Cant get person from Shotgun %s" % err)
+            logger.warn("Cant get actual person from Shotgun %s, assuming dev" % err)
+            self.devmode()
         else:
-            self.username=__utsuser.dabname
-            self.usernumber=__utsuser.dabnumber
-            self.useremail=__utsuser.email
-            self.department= __utsuser.department
+            self.username=self.person.dabname
+            self.usernumber=self.person.dabnumber
+            self.useremail=self.person.email
+            self.department= self.person.department
 
         self.hostname = str(self.config.getdefault("tractor","engine"))
         self.port= int(self.config.getdefault("tractor","port"))
         self.jobowner=str(self.config.getdefault("tractor","jobowner"))
         self.engine=str(self.config.getdefault("tractor","engine"))
-        self.dabwork=self.config.getenvordefault("DABWORK","config")
+        self.dabwork=self.config.getenvordefault("DABWORK","site")
         self.author.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
         self.tq.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
-
+    def devmode(self):
+        self.username="matthewgidney"
+        self.usernumber="120988"
+        self.useremail="matthew.gidney@uts.edu.au"
+        self.department= "staff"
 
 class Environment(object):
     """This class adds to the environment is os.environ it replaces Environment Class
-    1. read the environment that needs to be there in the config json file ie (has a "fj" attribute
+    1. read the environment that needs to be there in the site json file ie (has a "fj" attribute
     2. if not found then add it to the environment os.environ """
 
     def __init__(self):
-        # super(Environment, self).__init__()
-        self.config=config.JsonConfig()
+        self.config=JsonConfig()
         self.requiredenvars = self.config.getallenvgroups()
         for envar in self.requiredenvars:
             try:
                 e=os.environ[envar]
             except:
                 logger.warn("Environment variable {} NOT FOUND".format(envar))
-                _value=self.getdefault(envar,"config")
+                _value=self.getdefault(envar,"site")
                 os.environ[envar]=_value
-                logger.info("Setting {} to {} from config.json file".format(envar,_value))
+                logger.info("Setting {} to {} from site.json file".format(envar,_value))
             else:
                 logger.info("{} = {}".format(envar,e))
 

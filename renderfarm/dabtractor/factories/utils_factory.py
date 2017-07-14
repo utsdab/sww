@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 '''
-    Useful user functions
+Useful user functions
 '''
 
 import datetime

@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+'''
+This code supports all access to shotgun which is used as an authentication model for users, and
+as the main production tracking database.
+
+'''
+# TODO  handle no connection to shotgun especially in dev mode
+
 
 from pprint import pprint
 import string
@@ -6,7 +13,7 @@ import sys
 import logging
 import os
 from sww.shotgun_api3 import Shotgun
-from sww.renderfarm.dabtractor.factories.configuration_factory import JsonConfig
+from sww.renderfarm.dabtractor.factories.site_factory import JsonConfig
 from sww.renderfarm.dabtractor.factories.utils_factory import dictfromlistofdicts
 
 # ##############################################################
@@ -20,17 +27,19 @@ logger.addHandler(sh)
 # ##############################################################
 
 class ShotgunBase(object):
-    # base object
+    # set up how to access shotgun if possible
     def __init__(self):
-        pass
-
-    def touchbase(self):
+        # Get the keys to talk to shotgun from the configuration files
+        self.development = None
+        if os.environ.get("DABDEV"):
+            self.development = os.environ.get("DABDEV")
+            logger.warn("DEVMODE: You are in DEV mode")
         self.config=JsonConfig()
         self.serverpath = str(self.config.getdefault("shotgun", "serverpath"))
         self.scriptname = str(self.config.getdefault("shotgun", "scriptname"))
         self.scriptkey  = str(self.config.getdefault("shotgun", "scriptkey"))
         try:
-            self.sg = Shotgun( self.serverpath, self.scriptname, self.scriptkey)
+            self.sg = Shotgun(self.serverpath, self.scriptname, self.scriptkey)
         except Exception, err:
             logger.warn("SHOTGUN: Cant talk to shotgun")
             self.sg=None
@@ -40,20 +49,42 @@ class ShotgunBase(object):
 class Person(ShotgunBase):
     """
     This is a model of the user account as registered in shotgun
-    Basically used for authentication
+    Basically used for authentication, need a proxy account if we cant reach shotgun.
     """
-    def __init__(self,shotgunlogin=None):
+    def __init__(self, shotgunlogin=None):
         """
         :param shotgunlogin: optional name to use - defaults to $USER
         """
-        self.shotgunlogin=shotgunlogin
         super(Person, self).__init__()
-        self.touchbase()
-        if not shotgunlogin:
+        self.tractor = None
+        self.shotgunname = None
+        self.shotgun_id = None
+        self.email = None
+        self.login = None
+        self.user_work = None
+        self.dabname = None
+        self.dabnumber = None
+        self.department = None
+        self.user_prefs = None
+        self.user_work = None
+
+        if shotgunlogin:
+            self.shotgunlogin=shotgunlogin
+        else:
             self.shotgunlogin=os.environ["USER"]
+
+        if self.development:
+            self.getDevInfo()
+        else:
+            self.getInfo()
+
+
+    def getInfo(self):
+
         __fields = ['login','name','firstname','lastname','department','email','sg_tractor','id']
         __filters =  [['login','is', self.shotgunlogin]]
         __person=None
+
         try:
             __person=self.sg.find_one("HumanUser",filters=__filters,fields=__fields)
         except Exception, err:
@@ -61,35 +92,53 @@ class Person(ShotgunBase):
             raise
         else:
             if __person.has_key('sg_tractor'):
-                self.tractor=__person.get('sg_tractor')
+                self.tractor = __person.get('sg_tractor')
             if __person.has_key('name'):
-                self.shotgunname=__person.get('name')
+                self.shotgunname = __person.get('name')
             if __person.has_key('email'):
-                self.email=__person.get('email')
-                self.dabname=self.cleanname(self.email)
-                self.user_work=os.path.join(os.environ["DABWORK"],"user_work",self.dabname)
+                self.email =__person.get('email')
+                self.dabname = self.cleanname(self.email)
+                self.user_work = os.path.join(os.environ["DABWORK"],"user_work", self.dabname)
             if __person.has_key('department'):
-                self.department=__person.get('department').get('name')
+                self.department = __person.get('department').get('name')
             if __person.has_key('id'):
-                self.shotgun_id=__person.get('id')
+                self.shotgun_id = __person.get('id')
             if __person.has_key('login'):
-                self.login=__person.get('login')
-                self.dabnumber=self.login
-                self.user_prefs=os.path.join(os.environ["DABWORK"],"user_prefs",self.dabnumber)
+                self.login = __person.get('login')
+                self.dabnumber = self.login
+                self.user_prefs = os.path.join(os.environ["DABWORK"],"user_prefs", self.dabnumber)
         finally:
             if  not self.tractor:
                     logger.critical("Shotgun user {} is not Active. Sorry.".format(self.shotgunlogin))
                     sys.exit()
             logger.debug("Shotgun Login {} : {}".format(self.shotgunlogin,__person))
 
+    def getDevInfo(self):
+        self.tractor = None
+        self.shotgunname = "Matthew Gidney"
+        self.shotgun_id = "120988"
+        self.email = "matthew.gidney@uts.edu.au"
+        self.login = "120988"
+        self.dabname = self.cleanname(self.email)
+        self.dabnumber = "120988"
+        self.department = "development"
+        self.user_prefs = os.path.join(os.environ["DABWORK"], "user_prefs", self.dabnumber)
+        self.user_work = os.path.join(os.environ["DABWORK"], "user_work", self.dabname)
+
     def myProjects(self):
-        __fields = ['id', 'login','name', 'users', 'email', 'projects', 'groups']
-        __filters = [['login','is',self.dabnumber]]
-        _result = self.sg.find("HumanUser",filters=__filters,fields=__fields)
-        _me = dictfromlistofdicts(_result,"name","id")
-        _projects=_result[0].get('projects')
-        _myprojects = dictfromlistofdicts(_projects,"name","id")
-        return _myprojects
+        try:
+            __fields = ['id', 'login','name', 'users', 'email', 'projects', 'groups']
+            __filters = [['login','is',self.dabnumber]]
+            _result = self.sg.find("HumanUser",filters=__filters,fields=__fields)
+            _me = dictfromlistofdicts(_result,"name","id")
+            _projects=_result[0].get('projects')
+            _myprojects = dictfromlistofdicts(_projects,"name","id")
+        except Exception, err:
+            _myprojects={}
+        else:
+            pass
+        finally:
+            return _myprojects
 
     def seqFromProject(self,project_id=None):
         # project_id = _myprojects.get('YR3_2017--171') # 171 # Demo Project
@@ -101,7 +150,8 @@ class Person(ShotgunBase):
         except Exception, err:
             logger.warn("Cant find any sequences")
             _sequences={}
-        return _sequences
+        finally:
+            return _sequences
 
     def shotFromSeq(self,project_id=None,sequence_id=None):
         # sequence_id = _sequences.get("ssA_gp1--277")
@@ -116,7 +166,8 @@ class Person(ShotgunBase):
         except Exception, err:
             logger.warn("Cant find any shots")
             _shots={}
-        return _shots
+        finally:
+            return _shots
 
     def taskFromShot(self,project_id=None,shot_id=None):
         # shot_id = _shots.get('ssA_gp1_tm2_01--3127')
@@ -131,7 +182,8 @@ class Person(ShotgunBase):
         except Exception, err:
             logger.warn("Cant find any tasks")
             _tasks={}
-        return _tasks
+        finally:
+            return _tasks
 
 
 
@@ -320,7 +372,7 @@ class NewVersion(ShotgunBase):
 
 if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
-    logger.info("------------------------------START TESTING")
+    logger.info("--------- TESTING {} ------".format(__file__))
 
 
     # ########################################################
@@ -347,9 +399,10 @@ if __name__ == "__main__":
 
 
     p=Person()
+    pprint(dir(p))
 
-    print p.dabname
-    print p.dabnumber
+    # print p.dabname
+    # print p.dabnumber
     sys.exit()
     # logger.info("Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(\
     #     name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department))

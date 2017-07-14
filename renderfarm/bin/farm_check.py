@@ -4,7 +4,7 @@ import stat
 from sww.renderfarm.dabtractor.factories import user_factory as uf
 from sww.renderfarm.dabtractor.factories import environment_factory as ef
 from sww.renderfarm.dabtractor.factories import utils_factory as utf
-from sww.renderfarm.dabtractor.factories import shotgun_factory as sgt
+from sww.renderfarm.dabtractor.factories.shotgun_factory import Person
 
 # ##############################################################
 import logging
@@ -19,6 +19,8 @@ logger.addHandler(sh)
 # ##############################################################
 
 
+#TODO check LDAP
+# TODO handle timeout
 logger.info("{:+^70}".format(" Checking if you are a Farm User "))
 # #  Check if user has an LDAP account
 # try:
@@ -33,7 +35,7 @@ logger.info("{:+^70}".format(" Checking if you are a Farm User "))
 
 
 try:
-    su=sgt.Person()
+    su=Person()
 except UserWarning, err:
     logger.critical("USER NOT REGISTERED IN SHOTGUN %s" % (err))
 else:
@@ -42,7 +44,7 @@ else:
 
 ## TODO  check there are userprefs
 try:
-    up="{}/{}".format(os.environ["DABUSERPREFS"],os.environ["USER"])
+    up="{}/{}".format(os.environ["DABUSERPREFS"], os.environ["USER"])
     utf.ensure_dir(up)
 except Exception, err:
     logger.critical("USERPREFS ### %s" % (err))
@@ -50,19 +52,19 @@ else:
     logger.info("CHECK {:-^20} {}".format("[user_prefs]",up))
 
 
-## TODO  check user prefs has a config setup
+## TODO  check user prefs has a site setup
 try:
-    config="{}/{}/config".format(os.environ["DABUSERPREFS"],os.environ["USER"])
+    config="{}/{}/site".format(os.environ["DABUSERPREFS"], os.environ["USER"])
     utf.ensure_link(config)
 except Exception, err:
     logger.critical("USERPREFS ### Config Link ERROR {} : {}".format (config, err))
 else:
-    logger.info("CHECK {:-^20} {}".format ("[config link]",config))
+    logger.info("CHECK {:-^20} {}".format ("[site link]",config))
 
 
-## TODO  check maya prefs has a config setup
+## TODO  check maya prefs has a site setup
 try:
-    mayaprefs="{}/{}/config/mayaprefs".format(os.environ["DABUSERPREFS"],os.environ["USER"])
+    mayaprefs="{}/{}/site/mayaprefs".format(os.environ["DABUSERPREFS"], os.environ["USER"])
     utf.ensure_dir(mayaprefs)
 except Exception, err:
     logger.critical("USERPREFS ### mayaprefs link ERROR {} : {}".format (mayaprefs, err))

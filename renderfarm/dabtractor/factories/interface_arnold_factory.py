@@ -1,23 +1,13 @@
 #!/usr/bin/env rmanpy
-'''
-Build Interface for Renderman Render submission
-'''
 
 # TODO move this into a tabbed single interface
 # TODO handle layers
 # TODO handle integrators
 # TODO handle ribgen only
 
-import Tkinter as tk
-import ttk
-import tkFileDialog
-import Tkconstants
-import os
-import sww.renderfarm.dabtractor as dabtractor
-import sww.renderfarm.dabtractor.factories.render_rfm_factory as rfac
-import sww.renderfarm.dabtractor.factories.utils_factory as utils
-import logging
 
+###############################################################
+import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
@@ -25,6 +15,20 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
+###############################################################
+
+import Tkinter as tk
+import ttk
+import tkFileDialog
+import Tkconstants
+import os
+import sww.renderfarm.dabtractor as dabtractor
+# import sww.renderfarm.dabtractor.factories.site_factory as config
+# import sww.renderfarm.dabtractor.factories.environment_factory as envfac
+import sww.renderfarm.dabtractor.factories.render_arnold_factory as rfac
+from sww.renderfarm.dabtractor.factories.shotgun_factory import Person
+import sww.renderfarm.dabtractor.factories.utils_factory as utils
+
 
 class WindowBase(object):
     """ Base class for all batch jobs """
@@ -33,6 +37,9 @@ class WindowBase(object):
         self.validatejob = False
         self.master = tk.Tk()
         self.job=rfac.Job()
+        # self.shotgun=Person()
+        # self.job.shotgunOwner=self.shotgun.shotgunname
+        # self.job.shotgunOwnerId=self.shotgun.shotgun_id
         self.shotgun=self.job.env.person
         self.job.shotgunOwner=self.shotgun.shotgunname
         self.job.shotgunOwnerId=self.shotgun.shotgun_id
@@ -69,7 +76,7 @@ class Window(WindowBase):
         self.canvas = tk.Canvas(self.master, height=200, width=300)
         self.canvas.pack(expand=True, fill=tk.BOTH)
 
-        imagepath = os.path.join(os.path.dirname(dabtractor.__file__),"icons","Pixar_logo.gif")
+        imagepath = os.path.join(os.path.dirname(dabtractor.__file__),"icons","Arnold_logo.gif")
         imagetk = tk.PhotoImage(file=imagepath)
         # keep a link to the image to stop the image being garbage collected
         self.canvas.img = imagetk
@@ -77,7 +84,8 @@ class Window(WindowBase):
         __row = 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor3, text="Maya RIB generation then Prman").grid(row=__row, column=0, columnspan=5, sticky=tk.W + tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor3, text="Maya RIB generation then Ar").grid(row=__row, column=0,
+                                                                                        columnspan=5, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
@@ -696,6 +704,7 @@ class Window(WindowBase):
 
 if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
+    logger.info("--------- TESTING {} ------".format(__file__))
     w=Window()
     # for key in w.job.__dict__.keys():
     #     print "{:20} = {}".format(key,w.job.__dict__.get(key))

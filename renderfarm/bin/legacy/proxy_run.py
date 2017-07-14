@@ -1,5 +1,7 @@
 #!/usr/bin/env rmanpy
-
+'''
+This script
+'''
 import argparse
 import os,sys
 from sww.renderfarm.dabtractor.factories import environment_factory as config

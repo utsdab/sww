@@ -78,7 +78,7 @@
   },
 
   "renderman": {
-    "version"      : [ "21.2"],
+    "version"      : [ "21.4"],
     "integrator"   : [ "FROMFILE", "pxr", "vcm", "visualiser", "occlusion"]
   },
 

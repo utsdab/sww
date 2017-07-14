@@ -233,11 +233,11 @@ print "#############################\n%s\n############################"%job.asTc
 #job.spool(owner="mattg")
 
 print help(author)
-# print dir(author.Job)
-# print help(author.Job)
+# print dir(site.Job)
+# print help(site.Job)
 #
-# print dir(author.Task)
-# print help(author.Task)
+# print dir(site.Task)
+# print help(site.Task)
 #
-# print dir(author.Command)
-# print help(author.Command)
+# print dir(site.Command)
+# print help(site.Command)

@@ -12,7 +12,7 @@ the Job.spool() method or displayed using the Job.asTcl()
 method.
 '''
 '''
-job = author.Job()
+job = site.Job()
 job.title = "a one-task render job"
 job.priority = 100
 job.service = "PixarRender"
@@ -61,7 +61,7 @@ print "\n{}".format(job2.asTcl())
 '''Because each command requires a service key, the API will push the assignment
 of the service attribute to the command when this shortcut is used.
 If other attributes of a command need to be set, such as the envkey, commands
-must be built explicitly using author.Command() or author.Task.newCommand()
+must be built explicitly using site.Command() or site.Task.newCommand()
 instead of using this shortcut.
 
 It is valid for a task to have no commands. For example, a task may serve
@@ -73,7 +73,7 @@ to execute.
 
 When a task has multiple commands, they will be executed serially.
 Multiple commands can be associated with a task using successive invocations
-of the author.Task.addCommand() or author.Task.newCommand() methods.
+of the site.Task.addCommand() or site.Task.newCommand() methods.
 '''
 job3 = author.Job(title="Typical MayaBatch Render Job",
                   priority=100,
@@ -99,7 +99,7 @@ task3.addCommand(copyout)
 
 remote=author.Command(local=True,tags=["aa"],envkey=["maya2014"],argv=["pwd"])
 task3.addCommand(remote)
-#task3 = author.Task(title="multi-command task", service="PixarRender")
+#task3 = site.Task(title="multi-command task", service="PixarRender")
 #task3.newCommand(argv=["scp", "remote:/path/file.rib", "/local/file.rib"])
 #task3.newCommand(argv=["/usr/utils/pixar", "/local/file.rib"])
 #task3.newCommand(argv=["scp", "/local/file.tif", "remote:/path/file.tif"])
@@ -115,11 +115,11 @@ if it is not a valid value.
 '''
 try:
     job1.atmost = "three"
-except author.AuthorError, err:
+except site.AuthorError, err:
     print "you can expect to see this message"
 '''
 
 '''More Help
-The file <TractorInstallDir>/lib/python2.7/site-packages/dabtractor/api/author/test.py
+The file <TractorInstallDir>/lib/python2.7/site-packages/dabtractor/api/site/test.py
 contains additional examples of API usage.
 '''

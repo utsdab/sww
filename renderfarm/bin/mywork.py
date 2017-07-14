@@ -1,4 +1,7 @@
 #!/usr/bin/python
+'''
+returns your to your user prefs area
+'''
 
 # ##############################################################
 import logging
@@ -12,15 +15,13 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 # ##############################################################
 
-import argparse
 import os
 import sys
-
-from sww.renderfarm.dabtractor.factories import shotgun_factory as sgt
+from sww.renderfarm.dabtractor.factories.shotgun_factory import Person
 
 def getuserwork():
     try:
-        p=sgt.Person()
+        p=Person()
 
     except Exception,err:
         logger.critical("Cant talk to shotgun properly {}".format(err))

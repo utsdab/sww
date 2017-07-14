@@ -1,17 +1,15 @@
 #!/usr/bin/env rmanpy
 '''
-To do:
-    find commonality in render jobs and put it in base class
-
-    implement ribchunks - DONE
-    implement option args and examples - rms.ini
-
-    implement previews???
-    implement stats to browswer
+Arnold for maya render job
 
 '''
+# TODO
 
-# ##############################################################
+import os
+import time
+import sys
+import utils_factory as utils
+import environment_factory as envfac
 import logging
 
 logger = logging.getLogger(__name__)
@@ -21,21 +19,10 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-# ##############################################################
-
-import os
-import time
-import sys
-import utils_factory as utils
-import environment_factory as envfac
-
 
 class Job(object):
-    """ job parameters - variants should be derived by calling factories as needed
-    """
     def __init__(self):
-        """ The payload of gui-data needed to describe a farm render job
-        """
+        # The payload of gui-data needed to describe a farm render job
         self.usernumber=None
         self.username=None
         self.useremail=None
@@ -98,7 +85,9 @@ class Job(object):
 
 
 class Render(object):
-    ''' Arnold job defined using the tractor api '''
+    '''
+    Arnold job defined using the tractor api
+    '''
 
     def __init__(self, job):
         self.job=job
@@ -181,13 +170,13 @@ class Render(object):
             task_thisjob.addChild(task_notify_start)
 
 
-'''
+        '''
         # ############## 1 PREFLIGHT ##############
-        task_preflight = self.job.env.author.Task(title="Preflight")
+        task_preflight = self.job.env.site.Task(title="Preflight")
         task_preflight.serialsubtasks = 1
         task_thisjob.addChild(task_preflight)
-        task_generate_rib_preflight = self.job.env.author.Task(title="Generate RIB Preflight")
-        command_ribgen = self.job.env.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,"-command",
+        task_generate_rib_preflight = self.job.env.site.Task(title="Generate RIB Preflight")
+        command_ribgen = self.job.env.site.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,"-command",
                                               "renderManBatchGenRibForLayer {layerid} {start} {end} {phase}".format(
                                                   layerid=0, start=self.startframe, end=self.endframe, phase=1),
                                               "-file", self.mayascenefilefullpath],
@@ -197,9 +186,9 @@ class Render(object):
                                               service="RfMRibGen")
         task_generate_rib_preflight.addCommand(command_ribgen)
         task_preflight.addChild(task_generate_rib_preflight)
-        task_render_preflight = self.job.env.author.Task(title="Render Preflight")
+        task_render_preflight = self.job.env.site.Task(title="Render Preflight")
 
-        command_render_preflight = self.job.env.author.Command(argv=[
+        command_render_preflight = self.job.env.site.Command(argv=[
                 "prman","-t:{}".format(self.threads), "-Progress", "-recover", "%r", "-checkpoint", "5m",
                 "-cwd", self.mayaprojectpath,
                 "renderman/{}/rib/job/job.rib".format(self.scenebasename)],
@@ -212,9 +201,9 @@ class Render(object):
         task_preflight.addChild(task_render_preflight)
 
         # ############## 3 RIBGEN ##############
-        task_render_allframes = self.job.env.author.Task(title="ALL FRAMES {}-{}".format(self.startframe,self.endframe))
+        task_render_allframes = self.job.env.site.Task(title="ALL FRAMES {}-{}".format(self.startframe,self.endframe))
         task_render_allframes.serialsubtasks = 1
-        task_ribgen_allframes = self.job.env.author.Task(title="RIB GEN {}-{}".format(self.startframe, self.endframe))
+        task_ribgen_allframes = self.job.env.site.Task(title="RIB GEN {}-{}".format(self.startframe, self.endframe))
 
         # divide the frame range up into chunks
         _totalframes=int(self.endframe-self.startframe+1)
@@ -235,9 +224,9 @@ class Render(object):
             if chunk == _chunks:
                 _chunkend = self.endframe
 
-            task_generate_rib = self.job.env.author.Task(title="RIB GEN chunk {} frames {}-{}".format(
+            task_generate_rib = self.job.env.site.Task(title="RIB GEN chunk {} frames {}-{}".format(
                     chunk, _chunkstart, _chunkend ))
-            command_generate_rib = self.job.env.author.Command(argv=[
+            command_generate_rib = self.job.env.site.Command(argv=[
                     "maya", "-batch", "-proj", self.mayaprojectpath, "-command",
                     "renderManBatchGenRibForLayer {layerid} {start} {end} {phase}".format(
                             layerid=0, start=_chunkstart, end=_chunkend, phase=2),
@@ -253,7 +242,7 @@ class Render(object):
 
 
         # ############### 4 RENDER ##############
-        task_render_frames = self.job.env.author.Task(title="RENDER Frames {}-{}".format(self.startframe,self.endframe))
+        task_render_frames = self.job.env.site.Task(title="RENDER Frames {}-{}".format(self.startframe,self.endframe))
         task_render_frames.serialsubtasks = 0
 
         for frame in range(self.startframe, (self.endframe + 1), self.byframe):
@@ -264,7 +253,7 @@ class Render(object):
             _ribfile = "{proj}/rib/{frame:04d}/{frame:04d}.rib".format(
                 proj=self.rendermanpath, frame=frame)
 
-            task_render_rib = self.job.env.author.Task(title="RENDER Frame {}".format(frame),
+            task_render_rib = self.job.env.site.Task(title="RENDER Frame {}".format(frame),
                                           preview="sho {}".format(_imgfile),
                                           metadata="statsfile={} imgfile={}".format(_statsfile, _imgfile))
             commonargs = ["prman", "-cwd", self.mayaprojectpath]
@@ -325,7 +314,7 @@ class Render(object):
             ])
             userspecificargs = [ utils.expandargumentstring(self.options),"{}".format(_ribfile)]
             finalargs = commonargs + rendererspecificargs + userspecificargs
-            command_render = self.job.env.author.Command(argv=finalargs,
+            command_render = self.job.env.site.Command(argv=finalargs,
                                             tags=["prman", "theWholeFarm"],
                                             atleast=int(self.threads),
                                             atmost=int(self.threads),
@@ -341,7 +330,7 @@ class Render(object):
         task_render_allframes.addChild(task_render_frames)
         task_thisjob.addChild(task_render_allframes)
 
-'''
+        '''
         # ############## 5 PROXY ###############
         if self.makeproxy:
             '''

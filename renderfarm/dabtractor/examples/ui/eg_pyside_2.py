@@ -7,7 +7,7 @@ ZetCode PySide tutorial
 This program centers a window
 on the screen.
 
-author: Jan Bodnar
+site: Jan Bodnar
 website: zetcode.com
 last edited: August 2011
 """

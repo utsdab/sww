@@ -1,8 +1,9 @@
 #!/usr/bin/python
-
-"""
+'''
     This code holds the configurations for various  custom things
-"""
+    Basically these are kept in a single configuration file in JSON format
+    Holding studio specific defaults and choices for various interfaces and software.
+'''
 
 # ##############################################################
 import logging
@@ -57,7 +58,7 @@ class JsonConfig(object):
         try:
             _type = type(self.groups.get(group).get(attribute))
         except Exception, err:
-            logger.warn("Options - Group <%s> or Attribute <%s> not in config.json file, %s" % (group, attribute, err))
+            logger.warn("Options - Group <%s> or Attribute <%s> not in site.json file, %s" % (group, attribute, err))
             logger.debug("ALL DEFAULTS = %s" % self.getalldefaults())
         else:
             if _type==type([]):
@@ -73,7 +74,7 @@ class JsonConfig(object):
         try:
             _type = type(self.groups.get(group).get(attribute))
         except Exception, err:
-            logger.warn("Default - Group <%s> or Attribute <%s> not in config.json file, %s" % (group, attribute, err))
+            logger.warn("Default - Group <%s> or Attribute <%s> not in site.json file, %s" % (group, attribute, err))
             logger.debug("ALL DEFAULTS = %s" % self.getalldefaults())
         else:
             if _type==type([]):
@@ -88,7 +89,7 @@ class JsonConfig(object):
     def getenvordefault(self, group, attribute):
         """ Returns the envar OR first index if a list or just the value if not a list """
         _return = None
-        if attribute == "config":
+        if attribute == "site":
             try:
                 _return = os.environ[group]
             except Exception,err:
@@ -99,7 +100,7 @@ class JsonConfig(object):
             try:
                 _type = type(self.groups.get(group).get(attribute))
             except Exception, err:
-                logger.warn("Default - Group <%s> or Attribute <%s> not in config.json file, %s" % (group, attribute, err))
+                logger.warn("Default - Group <%s> or Attribute <%s> not in site.json file, %s" % (group, attribute, err))
                 logger.debug("ALL DEFAULTS = %s" % self.getalldefaults())
             else:
                 if _type==type([]):
@@ -127,7 +128,7 @@ class JsonConfig(object):
         try:
             _return = self.groups.get(group).keys()
         except Exception, err:
-            logger.warn("Group %s not in config.json file, %s" % (group,err))
+            logger.warn("Group %s not in site.json file, %s" % (group,err))
             logger.debug("ALL DEFAULTS = %s" % self.getalldefaults())
         finally:
             return _return

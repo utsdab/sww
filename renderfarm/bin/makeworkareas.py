@@ -1,4 +1,7 @@
 #!/usr/bin/python
+'''
+command to be run as a farm job by pixar user
+'''
 
 # ##############################################################
 import logging
@@ -42,7 +45,7 @@ def main():
 
     # peoplelist=[]
     # try:
-    #     dabuserprefs = tj.config.getenvordefault("DABUSERPREFS","env")
+    #     dabuserprefs = tj.site.getenvordefault("DABUSERPREFS","env")
     #
     # except Exception, err:
     #     logger.critical("Cant find DABUSERPREFS or DABASSETS: {}".format(err))

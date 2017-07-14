@@ -1,6 +1,10 @@
 #!/usr/bin/python
+'''
 
-# ##############################################################
+'''
+import argparse
+import os
+import sys
 import logging
 
 logger = logging.getLogger(__name__)
@@ -10,11 +14,7 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-# ##############################################################
 
-import argparse
-import os
-import sys
 
 class Mail(object):
     def __init__(self,mailto,mailsubject,mailbody,mailfrom):
@@ -36,7 +36,9 @@ class Mail(object):
             print "Sendmail exit status", status
         return status
 
+
 def sendmail(mailto, mailsubject, mailbody, mailfrom):
+
     logger.debug("%s %s %s %s" % (mailto, mailsubject, mailbody, mailfrom))
     sendmail_location = "/usr/sbin/sendmail"  # sendmail location
     p = os.popen("%s -t" % sendmail_location, "w")
@@ -49,6 +51,7 @@ def sendmail(mailto, mailsubject, mailbody, mailfrom):
     if status != 0:
         print "Sendmail exit status", status
     return status
+
 
 def parseArguments():
     parser = argparse.ArgumentParser(description="Simple sendmail wrapper",
@@ -73,13 +76,12 @@ def parseArguments():
 
     return parser.parse_args()
 
+
 # #####################################################################################################
 if __name__ == '__main__':
 
     arguments = parseArguments()
     logger.debug("%s" % arguments)
-
-
 
     if not (parseArguments()):
         logger.critical("Cant parse args %s" % (arguments))

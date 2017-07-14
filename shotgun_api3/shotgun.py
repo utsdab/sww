@@ -550,7 +550,7 @@ class Shotgun(object):
                         ". If no port is specified, a default of %d will be "\
                         "used." % (http_proxy, self.config.proxy_port))
 
-            # now populate self.config.proxy_handler
+            # now populate self.site.proxy_handler
             if self.config.proxy_user and self.config.proxy_pass:
                 auth_string = "%s:%s@" % (self.config.proxy_user, self.config.proxy_pass)
             else:

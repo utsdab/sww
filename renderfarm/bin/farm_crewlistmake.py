@@ -31,7 +31,7 @@ people=sgt.People()
 
 file="/Volumes/dabrender/__tmp/new_crew.list.txt"
 
-## TODO  check maya prefs has a config setup
+## TODO  check maya prefs has a site setup
 try:
     if os.path.exists(os.path.dirname(file)):
         people.writetractorcrewfile(file)
