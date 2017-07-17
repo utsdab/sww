@@ -14,7 +14,7 @@
 
   "DABWORK" : {
     "env"            : "/Volumes/dabrender/work",
-    "envtype"         : [ "user_work", "project_work" ]
+    "envtype"        : [ "user_work", "project_work" ]
   },
 
   "DABASSETS" : {

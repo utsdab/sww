@@ -1,7 +1,7 @@
 #!/usr/bin/env rmanpy
 
 '''
-
+Main submission of a proxy generation job to tractor.
 '''
 
 #TODO

@@ -4,7 +4,8 @@ Renderman for maya job
 
 '''
 
-# TODO
+# TODO  wrap the rib command up in a sanity checker script.
+# TODO  dab_pre_render.mel
 
 import json
 import os
@@ -24,19 +25,21 @@ logger.addHandler(sh)
 
 class Job(object):
     def __init__(self):
-        """ The payload of gui-data needed to describe a farm render job
         """
-        self.usernumber=None
-        self.username=None
-        self.useremail=None
+        The payload of gui-data needed to describe a rfm render job
+
+        """
+        self.usernumber = None
+        self.username = None
+        self.useremail = None
 
         try:
-            self.env=envfac.TractorJob()
-            self.usernumber=self.env.usernumber
-            self.username=self.env.username
-            self.useremail=self.env.useremail
-            self.department=self.env.department
-            self.dabwork=self.env.dabwork
+            self.env = envfac.TractorJob()
+            self.usernumber = self.env.usernumber
+            self.username = self.env.username
+            self.useremail = self.env.useremail
+            self.department = self.env.department
+            self.dabwork = self.env.dabwork
 
         except Exception, err:
             logger.warn("Cant get user Job  credentials: {}".format(err))
@@ -51,40 +54,40 @@ class Job(object):
         else:
             self.department="Other"
 
-        self.farmpriority=None
-        self.farmcrew=None
+        self.farmpriority = None
+        self.farmcrew = None
 
-        self.jobtitle=None
-        self.jobenvkey=None
-        self.jobfile=None
-        self.jobstartframe=None
-        self.jobendframe=None
-        self.jobchunks=None
-        self.jobthreads=None
-        self.jobthreadmemory=None
+        self.jobtitle = None
+        self.jobenvkey = None
+        self.jobfile = None
+        self.jobstartframe = None
+        self.jobendframe = None
+        self.jobchunks = None
+        self.jobthreads = None
+        self.jobthreadmemory = None
 
-        self.optionskipframe=None
-        self.optionmakeproxy=None
-        # self.optionsendemail=None
-        self.optionresolution=None
-        self.optionmaxsamples=None
+        self.optionskipframe = None
+        self.optionmakeproxy = None
+        # self.optionsendemail = None
+        self.optionresolution = None
+        self.optionmaxsamples = None
 
-        self.envtype=None
-        self.envshow=None
-        self.envproject=None
-        self.envscene=None
+        self.envtype = None
+        self.envshow = None
+        self.envproject = None
+        self.envscene = None
 
-        self.mayaversion=None
-        self.rendermanversion=None
-        self.shotgunProject=None
-        self.shotgunSequence=None
-        self.shotgunShot=None
-        self.shotgunTask=None
-        self.shotgunProjectId=None
-        self.shotgunSequenceId=None
-        self.shotgunShotId=None
-        self.shotgunTaskId=None
-        self.sendToShotgun=False
+        self.mayaversion = None
+        self.rendermanversion = None
+        self.shotgunProject = None
+        self.shotgunSequence = None
+        self.shotgunShot = None
+        self.shotgunTask = None
+        self.shotgunProjectId = None
+        self.shotgunSequenceId = None
+        self.shotgunShotId = None
+        self.shotgunTaskId = None
+        self.sendToShotgun = False
 
 
 class Render(object):
@@ -115,9 +118,6 @@ class Render(object):
         self.rendermanversion = self.job.rendermanversion,
         # self.envkey_rms = "rms-{}-maya-{}".format(self.rendermanversion[0], self.mayaversion[0])
         self.envkey_rfm = "rfm-{}-maya-{}".format(self.rendermanversion[0], self.mayaversion[0])
-        self.startframe = int(self.job.jobstartframe)
-        self.endframe = int(self.job.jobendframe)
-        self.byframe = int(self.job.jobbyframe)
         self.chunks = int(self.job.jobchunks)  # pixar jobs are one at a time
         self.projectgroup = self.job.department
         self.options = ""
@@ -149,15 +149,15 @@ class Render(object):
         _jobMetaData["number"] = self.job.usernumber
         _jobMetaData["scenename"] = self.scenename
         _jobMetaData["projectpath"] = self.mayaprojectpath
-        _jobMetaData["startframe"] = self.startframe
-        _jobMetaData["endframe"] = self.endframe
+        _jobMetaData["startframe"] = self.job.jobstartframe
+        _jobMetaData["endframe"] = self.job.jobendframe
         _jobMetaData["jobtype"] = "RFM"
         _jsonJobMetaData = json.dumps(_jobMetaData)
 
 
         # ################ 0 JOB ################
         self.renderjob = self.job.env.author.Job(title="RM: {} {} {}-{}".format(
-              self.job.username,self.scenename,self.startframe,self.endframe),
+              self.job.username, self.scenename, self.job.jobstartframe, self.job.jobendframe),
               priority=10,
               envkey=[self.envkey_rfm,"ProjectX",
                     "TYPE={}".format(self.job.envtype),
@@ -208,7 +208,7 @@ class Render(object):
 
         command_ribgen = self.job.env.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,"-command",
                                               "renderManBatchGenRibForLayer {layerid} {start} {end} {phase}".format(
-                                                  layerid=0, start=self.startframe, end=self.endframe, phase=1),
+                                                  layerid=0, start=self.job.jobstartframe, end=self.job.jobendframe, phase=1),
                                               "-file", self.mayascenefilefullpath],
                                               tags=["maya", "theWholeFarm"],
                                               atleast=int(self.threads),
@@ -238,28 +238,29 @@ class Render(object):
         task_preflight.addChild(task_render_preflight)
 
         # ############## 3 RIBGEN ##############
-        task_render_allframes = self.job.env.author.Task(title="ALL FRAMES {}-{}".format(self.startframe,self.endframe))
+        task_render_allframes = self.job.env.author.Task(title="ALL FRAMES {}-{}".format(self.job.jobstartframe,
+                                                                                         self.job.jobendframe))
         task_render_allframes.serialsubtasks = 1
-        task_ribgen_allframes = self.job.env.author.Task(title="RIB GEN {}-{}".format(self.startframe, self.endframe))
+        task_ribgen_allframes = self.job.env.author.Task(title="RIB GEN {}-{}".format(self.job.jobstartframe, self.job.jobendframe))
 
         # divide the frame range up into chunks
-        _totalframes=int(self.endframe-self.startframe+1)
+        _totalframes = int(self.job.jobendframe) - int(self.job.jobstartframe) + 1
         _chunks = int(self.chunks)
-        _framesperchunk=_totalframes
+        _framesperchunk = _totalframes
         if _chunks < _totalframes:
-            _framesperchunk=int(_totalframes/_chunks)
+            _framesperchunk = int( _totalframes / _chunks )
         else:
-            _chunks=1
+            _chunks = 1
 
         # loop thru chunks
-        for i,chunk in enumerate(range(1,_chunks+1)):
-            _offset=i*_framesperchunk
-            _chunkstart=(self.startframe+_offset)
-            _chunkend=(_offset+_framesperchunk)
+        for i, chunk in enumerate(range( 1, _chunks + 1 )):
+            _offset = i * _framesperchunk
+            _chunkstart = int(self.job.jobstartframe) + _offset
+            _chunkend = _offset+_framesperchunk
             logger.info("Chunk {} is frames {}-{}".format(chunk, _chunkstart, _chunkend))
 
             if chunk == _chunks:
-                _chunkend = self.endframe
+                _chunkend = int(self.job.jobendframe)
 
             task_generate_rib = self.job.env.author.Task(title="RIB GEN chunk {} frames {}-{}".format(
                     chunk, _chunkstart, _chunkend ))
@@ -279,10 +280,11 @@ class Render(object):
 
 
         # ############### 4 RENDER ##############
-        task_render_frames = self.job.env.author.Task(title="RENDER Frames {}-{}".format(self.startframe,self.endframe))
+        task_render_frames = self.job.env.author.Task(title="RENDER Frames {}-{}".format(self.job.jobstartframe,
+                                                                                         self.job.jobendframe))
         task_render_frames.serialsubtasks = 0
 
-        for frame in range(self.startframe, (self.endframe + 1), self.byframe):
+        for frame in range( int(self.job.jobstartframe), int(self.job.jobendframe) + 1, int(self.job.jobbyframe) ):
 
             # ################# Job Metadata as JSON
             _imgfile = "{proj}/{scenebase}.{frame:04d}.{ext}".format(
@@ -413,9 +415,9 @@ class Render(object):
                 _option1 = "-v -fps 25 -rthreads {threads} -outres {xres} {yres} -t {start}-{end}".format(
                            threads="4",
                            xres="1280",
-                           yres = "720",
-                           start=self.startframe,
-                           end=self.endframe)
+                           yres="720",
+                           start=self.job.jobstartframe,
+                           end=self.job.jobendframe)
                 _option2 = "-out8 -outgamma 2.2"
                 _option3 = "-overlay frameburn 0.5 1.0 30 -leader simpleslate UTS_BDES_ANIMATION Type={} Show={} Project={} File={} Student={}-{} Group={} Date={}".format(
                               self.job.envtype,

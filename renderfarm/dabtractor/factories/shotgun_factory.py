@@ -34,6 +34,7 @@ class ShotgunBase(object):
         if os.environ.get("DABDEV"):
             self.development = os.environ.get("DABDEV")
             logger.warn("DEVMODE: You are in DEV mode")
+
         self.config=JsonConfig()
         self.serverpath = str(self.config.getdefault("shotgun", "serverpath"))
         self.scriptname = str(self.config.getdefault("shotgun", "scriptname"))
@@ -44,7 +45,7 @@ class ShotgunBase(object):
             logger.warn("SHOTGUN: Cant talk to shotgun")
             self.sg=None
         else:
-            logger.debug("SHOTGUN: talking to shotgun ...... %s" % self.serverpath)
+            logger.info("SHOTGUN: talking to shotgun ...... %s" % self.serverpath)
 
 class Person(ShotgunBase):
     """
@@ -69,11 +70,11 @@ class Person(ShotgunBase):
         self.user_work = None
 
         if shotgunlogin:
-            self.shotgunlogin=shotgunlogin
+            self.shotgunlogin = shotgunlogin
         else:
-            self.shotgunlogin=os.environ["USER"]
+            self.shotgunlogin = os.environ["USER"]
 
-        if self.development:
+        if not self.sg:
             self.getDevInfo()
         else:
             self.getInfo()

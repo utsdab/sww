@@ -76,7 +76,7 @@ class Window(WindowBase):
         self.canvas = tk.Canvas(self.master, height=200, width=300)
         self.canvas.pack(expand=True, fill=tk.BOTH)
 
-        imagepath = os.path.join(os.path.dirname(dabtractor.__file__),"icons","Arnold_logo.gif")
+        imagepath = os.path.join(os.path.dirname(dabtractor.__file__),"icons","Arnold_logo_small.gif")
         imagetk = tk.PhotoImage(file=imagepath)
         # keep a link to the image to stop the image being garbage collected
         self.canvas.img = imagetk

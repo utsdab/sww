@@ -1,6 +1,92 @@
 #!/usr/bin/env rmanpy
 '''
 Arnold for maya render job
+Arnold 4.2.16.4 darwin clang-3.9.1 oiio-1.7.7 rlm-12.0.2 2017/05/16 12:59:36
+
+Usage:
+  kick [option] [option] [option] ...
+
+Options:
+  -i <s>          Input .ass file
+  -o <s>          Output filename
+  -of <s>         Output format: exr jpg png tif
+  -r <n n>        Image resolution
+  -sr <f>         Scale resolution <f> times in each dimension
+  -rg <n n n n>   Render region (minx miny maxx maxy)
+  -as <n>         Anti-aliasing samples
+  -af <s> <f>     Anti-aliasing filter and width (box disk gaussian ...)
+  -asc <f>        Anti-aliasing sample clamp
+  -c <s>          Active camera
+  -sh <f f>       Motion blur shutter (start end)
+  -fov <f>        Camera FOV
+  -e <f>          Camera Exposure
+  -ar <f>         Aspect ratio
+  -g <f>          Output gamma
+  -tg <f>         Texture gamma
+  -lg <f>         Light source gamma
+  -sg <f>         Shader gamma
+  -t <n>          Threads
+  -bs <n>         Bucket size
+  -bc <s>         Bucket scanning (top bottom left right random woven spiral hilbert)
+  -td <n>         Total ray depth
+  -rfl <n>        Reflection depth
+  -rfr <n>        Refraction depth
+  -dif <n>        Diffuse depth
+  -glo <n>        Glossy depth
+  -ds <n>         Diffuse samples
+  -gs <n>         Glossy samples
+  -d <s.s>        Disable (ignore) a specific node or node.parameter
+  -it             Ignore texture maps
+  -is             Ignore shaders
+  -cm <s>         Set the value of ai_default_reflection_shader.color_mode (use with -is)
+  -sm <s>         Set the value of ai_default_reflection_shader.shade_mode (use with -is)
+  -om <s>         Set the value of ai_default_reflection_shader.overlay_mode (use with -is)
+  -ib             Ignore background shaders
+  -ia             Ignore atmosphere shaders
+  -il             Ignore lights
+  -id             Ignore shadows
+  -isd            Ignore mesh subdivision
+  -idisp          Ignore displacement
+  -ibump          Ignore bump-mapping
+  -imb            Ignore motion blur
+  -idof           Ignore depth of field
+  -isss           Ignore sub-surface scattering
+  -idirect        Ignore direct lighting
+  -flat           Flat shading
+  -sd <n>         Max subdivisions
+  -set <s.s> <s>  Set the value of a node parameter (-set name.parameter value)
+  -dw             Disable render window (recommended for batch rendering)
+  -dp             Disable progressive rendering (recommended for batch rendering)
+  -ipr [m|q]      Interactive rendering mode, using Maya (default) or Quake/WASD controls
+  -turn <n>       Render n frames rotating the camera around the lookat point
+  -v <n>          Verbose level (0..6)
+  -nw <n>         Maximum number of warnings
+  -log            Enable log file
+  -logfile <s>    Enable log file and write to the specified file path
+  -l <s>          Add search path for plugin libraries
+  -nodes [n|t]    List all installed nodes, sorted by Name (default) or Type
+  -info [n|u] <s> Print detailed information for a given node, sorted by Name or Unsorted (default)
+  -tree <s>       Print the shading tree for a given node
+  -repeat <n>     Repeat the render n times (useful for debugging)
+  -resave <s>     Re-save .ass scene to filename
+  -db             Disable binary encoding when re-saving .ass files (useful for debugging)
+  -forceexpand    Force single-threaded expansion of procedural geometry before rendering or re-saving
+  -nstdin         Ignore input from stdin
+  -nokeypress     Disable wait for ESC keypress after rendering to display window
+  -sl             Skip license check (assume license is not available)
+  -licensecheck   Check the connection with the license servers and list installed licenses
+  -utest          Run unit tests for the Arnold API
+  -av             Print Arnold version number
+  -notices        Display copyright notices
+  -h, --help      Show this help message
+
+where <n>=integer, <f>=float, <s>=string
+
+Example:
+  kick -i teapot.ass -r 640 480 -g 2.2 -o teapot.tif
+
+(c) 2001-2009 Marcos Fajardo and (c) 2009-2016 Solid Angle SL, www.solidangle.com
+Acknowledgements: armengol ben brian cliff colman erco francisco quarkx rene scot sergio xray yiotis
 
 '''
 # TODO
@@ -28,12 +114,12 @@ class Job(object):
         self.useremail=None
 
         try:
-            self.env=envfac.TractorJob()
-            self.usernumber=self.env.usernumber
-            self.username=self.env.username
-            self.useremail=self.env.useremail
-            self.department=self.env.department
-            self.dabwork=self.env.dabwork
+            self.env = envfac.TractorJob()
+            self.usernumber = self.env.usernumber
+            self.username = self.env.username
+            self.useremail = self.env.useremail
+            self.department = self.env.department
+            self.dabwork = self.env.dabwork
 
         except Exception, err:
             logger.warn("Cant get user credentials: {}".format(err))

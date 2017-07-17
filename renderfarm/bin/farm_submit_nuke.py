@@ -1,9 +1,10 @@
 #!/usr/bin/env rmanpy
+'''
+Main submission of a nuke job to tractor.
+'''
 
-"""
-To do:
+# TODO
 
-"""
 ###############################################################
 import logging
 logger = logging.getLogger(__name__)

@@ -7,6 +7,7 @@ Build Interface for Renderman Render submission
 # TODO handle layers
 # TODO handle integrators
 # TODO handle ribgen only
+# TODO  how do i get the window to scroll
 
 import Tkinter as tk
 import ttk
@@ -32,10 +33,14 @@ class WindowBase(object):
         self.spooljob = False
         self.validatejob = False
         self.master = tk.Tk()
-        self.job=rfac.Job()
-        self.shotgun=self.job.env.person
-        self.job.shotgunOwner=self.shotgun.shotgunname
-        self.job.shotgunOwnerId=self.shotgun.shotgun_id
+        try:
+            self.job = rfac.Job()
+        except Exception, err:
+            logger.warn("Couldnt get the job definition {}".format(err))
+        else:
+            self.shotgun = self.job.env.person
+            self.job.shotgunOwner = self.shotgun.shotgunname
+            self.job.shotgunOwnerId = self.shotgun.shotgun_id
 
 
 class Window(WindowBase):
@@ -66,10 +71,32 @@ class Window(WindowBase):
         # ################ Options for buttons and canvas ####################
         self.button_opt = {'fill': Tkconstants.BOTH, 'padx': 5, 'pady': 5}
         self.label_opt = {'fill': Tkconstants.BOTH, 'padx': 5, 'pady': 5}
-        self.canvas = tk.Canvas(self.master, height=200, width=300)
-        self.canvas.pack(expand=True, fill=tk.BOTH)
 
-        imagepath = os.path.join(os.path.dirname(dabtractor.__file__),"icons","Pixar_logo.gif")
+
+
+
+
+        # ################  workingon scroll bars for whole canvas  ##########
+        self.canvas = tk.Canvas(self.master, height=200, width=300)
+        #
+        # self.canvas = tk.Canvas(self.master, width=200, height=300, scrollregion = (0, 0, 800, 2000))
+        # self.canvas.grid ( row=0, column=0)
+        #
+        # self.yscroll = tk.Scrollbar(self.master, orient=tk.VERTICAL, command=self.canvas.yview)
+        # self.yscroll.grid(row=0, column=1, sticky=tk.N+tk.S)
+        #
+        # self.xscroll = tk.Scrollbar(self.master, orient=tk.HORIZONTAL, command=self.canvas.xview)
+        # self.xscroll.grid(row=1, column=0, sticky=tk.E+tk.W)
+        #
+        # self.canvas['yscrollcommand'] = self.yscroll.set
+        # self.canvas['xscrollcommand'] = self.xscroll.set
+        self.canvas.pack(expand=False, fill=tk.BOTH)
+
+
+
+
+        # ###################################################################
+        imagepath = os.path.join(os.path.dirname(dabtractor.__file__), "icons", "Pixar_logo_small.gif")
         imagetk = tk.PhotoImage(file=imagepath)
         # keep a link to the image to stop the image being garbage collected
         self.canvas.img = imagetk
@@ -172,8 +199,6 @@ class Window(WindowBase):
         self.sgtTaskBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         self.sgtTaskBox.bind("<<ComboboxSelected>>", self.setShotgunTask)
         __row += 1
-
-
 
 
         # ###################################################################
@@ -311,7 +336,7 @@ class Window(WindowBase):
         self.makeproxy = tk.IntVar()
         self.makeproxy.set(1)
         tk.Checkbutton(self.canvas, bg=self.bgcolor1, text=_txt, variable=self.makeproxy).grid(row=__row, column=1,
-                                                                                            sticky=tk.W)
+                                                                                               sticky=tk.W)
         __row += 1
 
         # ###################################################################
@@ -336,10 +361,8 @@ class Window(WindowBase):
         self.emailtaskendbut=tk.Checkbutton(self.canvas, variable=self.emailtaskend, bg=self.bgcolor1, text="Each Frame End").grid(row=__row, column=1, sticky=tk.W)
         __row += 1
 
-
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor3, text="Submit Job To Tractor").grid(\
-            row=__row, column=0, columnspan=4, sticky=tk.W + tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor3, text="Submit Job To Tractor").grid(row=__row, column=0, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
@@ -350,6 +373,7 @@ class Window(WindowBase):
         self.vbutton.grid(row=__row, column=1, columnspan=2, sticky=tk.W + tk.E)
         self.vbutton = tk.Button(self.canvas, bg=self.bgcolor1, text='CANCEL', command=lambda: self.cancel())
         self.vbutton.grid(row=__row, column=0, sticky=tk.W + tk.E)
+
 
         self.master.mainloop()
 
@@ -529,8 +553,6 @@ class Window(WindowBase):
 
     def getShotgunTaskValues(self):
         _ret=None
-        # print self.job.shotgunProjectId
-        # print self.job.shotgunShotId
         if not self.job.shotgunShotId:
             self.sgtTask.set(self.msg_selectSgtTask)
             self.sgtTaskBox.config(values=[],justify=tk.CENTER)
@@ -541,8 +563,6 @@ class Window(WindowBase):
         return _ret
 
     def setShotgunTask(self,entity):
-        # print self.job.shotgunProjectId
-        # print self.job.shotgunSequenceId
         if not self.job.shotgunShotId:
             self.sgtTask.set(self.msg_selectSgtTask)
         else:
@@ -551,9 +571,6 @@ class Window(WindowBase):
             # print _shots
             self.job.shotgunTaskId = _tasks.get(self.job.shotgunTask)
             logger.info("Shotgun Task is {} id {}".format( self.job.shotgunTask, self.job.shotgunTaskId))
-
-
-
 
     def setscene(self):
         self.filefullpath = tkFileDialog.askopenfilename(\
@@ -692,6 +709,9 @@ class Window(WindowBase):
     def cancel(self):
         logger.info("Camcelled")
         self.master.destroy()
+
+
+
 
 
 if __name__ == "__main__":
