@@ -199,7 +199,7 @@ class Person(ShotgunBase):
 class Projects(ShotgunBase):
     def __init__(self):
         super(Projects, self).__init__()
-        self.touchbase()
+        # self.touchbase()
 
     def projects(self):
         __fields = ['id', 'name']
@@ -253,7 +253,7 @@ class Projects(ShotgunBase):
 class People(ShotgunBase):
     def __init__(self):
         super(People, self).__init__()
-        self.touchbase()
+        # self.touchbase()
         __fields = ['login','name','firstname','lastname','department','email','sg_tractor']
         __filters =  [['sg_tractor','is', True]]
         __people=None
@@ -322,7 +322,7 @@ class NewVersion(ShotgunBase):
                  tag = "RenderFarm Proxy"
                  ):
         super(NewVersion, self).__init__()
-        self.touchbase()
+        # self.touchbase()
         self.project = {'type': 'Project', 'id': projectid}
         self.shotid=shotid
         self.taskid=taskid
