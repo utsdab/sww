@@ -327,6 +327,7 @@ class Projects(ShotgunBase):
 class People(ShotgunBase):
     def __init__(self):
         super(People, self).__init__()
+
         __fields = ['login','name','firstname','lastname','department','email','sg_tractor']
         __filters =  [['sg_tractor','is', True]]
         __people=None
@@ -389,6 +390,7 @@ class NewVersion(ShotgunBase):
                  tag = "RenderFarm Proxy"
                  ):
         super(NewVersion, self).__init__()
+
         self.project = {'type': 'Project', 'id': projectid}
         self.shotid=shotid
         self.taskid=taskid
