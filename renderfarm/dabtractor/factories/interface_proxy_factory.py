@@ -431,7 +431,7 @@ class Window(WindowBase):
 
     def setShotgunShot(self,entity):
         # print self.job.shotgunProjectId
-        # print self.job.shotgunSequenceId
+        # print self.job.shotgunSeqAssId
         try:
             self.sgtTask.set(self.msg_selectSgtTask)
         except:
@@ -460,7 +460,7 @@ class Window(WindowBase):
     def getShotgunTaskValues(self):
         _ret=None
         # print self.job.shotgunProjectId
-        # print self.job.shotgunShotId
+        # print self.job.shotgunShotAssettypeId
         if not self.job.shotgunShotId:
             self.sgtTask.set(self.msg_selectSgtTask)
             self.sgtTaskBox.config(values=[],justify=tk.CENTER)
@@ -472,7 +472,7 @@ class Window(WindowBase):
 
     def setShotgunTask(self,entity):
         # print self.job.shotgunProjectId
-        # print self.job.shotgunSequenceId
+        # print self.job.shotgunSeqAssId
         if not self.job.shotgunShotId:
             self.sgtTask.set(self.msg_selectSgtTask)
         else:

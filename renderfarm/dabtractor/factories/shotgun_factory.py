@@ -6,7 +6,6 @@ as the main production tracking database.
 '''
 # TODO  handle no connection to shotgun especially in dev mode
 
-
 from pprint import pprint
 import string
 import sys
@@ -15,8 +14,8 @@ import os
 from sww.shotgun_api3 import Shotgun
 from sww.renderfarm.dabtractor.factories.site_factory import JsonConfig
 from sww.renderfarm.dabtractor.factories.utils_factory import dictfromlistofdicts
+from sww.renderfarm.dabtractor.factories.utils_factory import cleanname
 
-# ##############################################################
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
@@ -24,7 +23,7 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-# ##############################################################
+
 
 class ShotgunBase(object):
     # set up how to access shotgun if possible
@@ -98,8 +97,8 @@ class Person(ShotgunBase):
                 self.shotgunname = __person.get('name')
             if __person.has_key('email'):
                 self.email =__person.get('email')
-                self.dabname = self.cleanname(self.email)
-                self.user_work = os.path.join(os.environ["DABWORK"],"user_work", self.dabname)
+                self.dabname = cleanname(self.email)
+                self.user_work = os.path.join(os.environ["DABWORK"], "user_work", self.dabname)
             if __person.has_key('department'):
                 self.department = __person.get('department').get('name')
             if __person.has_key('id'):
@@ -107,7 +106,7 @@ class Person(ShotgunBase):
             if __person.has_key('login'):
                 self.login = __person.get('login')
                 self.dabnumber = self.login
-                self.user_prefs = os.path.join(os.environ["DABWORK"],"user_prefs", self.dabnumber)
+                self.user_prefs = os.path.join(os.environ["DABWORK"], "user_prefs", self.dabnumber)
         finally:
             if  not self.tractor:
                     logger.critical("Shotgun user {} is not Active. Sorry.".format(self.shotgunlogin))
@@ -120,7 +119,7 @@ class Person(ShotgunBase):
         self.shotgun_id = "120988"
         self.email = "matthew.gidney@uts.edu.au"
         self.login = "120988"
-        self.dabname = self.cleanname(self.email)
+        self.dabname = cleanname(self.email)
         self.dabnumber = "120988"
         self.department = "development"
         self.user_prefs = os.path.join(os.environ["DABWORK"], "user_prefs", self.dabnumber)
@@ -153,6 +152,39 @@ class Person(ShotgunBase):
             _sequences={}
         finally:
             return _sequences
+
+    def assetFromProject(self, project_id=None):
+        # project_id = _myprojects.get('YR3_2017--171') # 171 # Demo Project
+        _assets={}
+        try:
+            fields = ['id', 'code']
+            filters = [['project', 'is', {'type': 'Project', 'id': project_id} ]]
+            seq = self.sg.find("Asset",filters,fields)
+            _assets = dictfromlistofdicts(seq,"code","id")
+        except Exception, err:
+            logger.warn("Cant find any sequences")
+        finally:
+            return _assets
+
+    def assettypeFromAsset(self,project_id=None,asset_id=None):
+        pass
+
+
+    def taskFromAsset(self,project_id=None, asset_id=None):
+        # asset_id = _shots.get('ssA_gp1_tm2_01--3127')
+        try:
+            fields = ['id','cached_display_name']
+            filters = [
+                ['project', 'is', {'type': 'Project', 'id': project_id}],
+                ['entity', 'is', {'type': 'Shot', 'id': asset_id}]
+                 ]
+            task = self.sg.find("Task",filters,fields)
+            _tasks=dictfromlistofdicts(task,"cached_display_name","id")
+        except Exception, err:
+            logger.warn("Cant find any tasks")
+            _tasks={}
+        finally:
+            return _tasks
 
     def shotFromSeq(self,project_id=None,sequence_id=None):
         # sequence_id = _sequences.get("ssA_gp1--277")
@@ -187,50 +219,92 @@ class Person(ShotgunBase):
             return _tasks
 
 
-
-    def cleanname(self,email):
-        _nicename = email.split("@")[0]
-        _compactnicename = _nicename.lower().translate(None, string.whitespace)
-        _cleancompactnicename = _compactnicename.translate(None, string.punctuation)
-        logger.debug("Cleaned name is : %s" % _cleancompactnicename)
-        return _cleancompactnicename
-
-
 class Projects(ShotgunBase):
     def __init__(self):
         super(Projects, self).__init__()
-        self.touchbase()
+        self.allprojects=None
+        self.projects()
 
     def projects(self):
         __fields = ['id', 'name']
-        __filters = [['id','greater_than',0]]
-
+        __filters = [['id', 'greater_than', 0]]
         try:
-            self.projects=self.sg.find("Project",__filters,__fields)
+            self.allprojects = self.sg.find("Project",__filters,__fields)
         except Exception, err:
-            logger.warn("%s"%err)
+            logger.warn("Projects %s".format(err))
         else:
-            logger.info("Found %d Projects" % (len(self.projects)))
-            for project in self.projects:
-                logger.info("  Id = {:4} - {:20}".format(project['id'],project['name']))
+            logger.info("Found %d Projects" % (len(self.allprojects)))
+            for project in self.allprojects:
+                logger.debug("  Id = {:4} - {:20}".format(project['id'],project['name']))
+            pprint(self.allprojects)
 
-    def assets(self):
-        pass
-    def type(self):
-        pass
+    def assets(self, projectid):
+        # returns a list of dicts  [ {code:, type:, id: } ] of assets for a given projectid
+
+        fields = ['id', 'code', 'sg_asset_type', 'type']
+        filters = [
+                    ['project', 'is', {'type': 'Project', 'id': projectid} ],
+                    # ['sg_status_list', 'is', 'ip'],
+                  ]
+
+        _assets = self.sg.find("Asset", filters, fields)
+
+        if len(_assets) < 1:
+            print "couldn't find any Assets"
+        else:
+            print "Found %d Assets" % (len(_assets))
+            pprint (_assets)
+
+    def assettype(self, projectid, assetid):
+        # returns a list of dicts  [ {code:, type:, id: } ] of sequences for a given projectid
+        fields = ['id', 'code', 'sg_asset_type' ]
+        filters = [
+                    ['project', 'is', {'type': 'Project', 'id': projectid}],
+                    # ['asset', 'is', {'type': 'Asset', 'id': assetid }],
+                    # ['entity', 'is', {'type': 'Asset', 'id': assetid}]
+                  ]
+        _assettype = self.sg.find("Asset", filters, fields)
+
+        if len(_assettype) < 1:
+            print "couldn't find any AssetTypes"
+        else:
+            print "Found %d AssetTypes" % (len(_assettype))
+            pprint (_assettype)
+
+    def assettask(self, projectid, assetid):
+        # returns a list of dicts  [ {code:, type:, id: } ] of sequences for a given projectid
+        fields = ['id','code',
+                  # 'cached_display_name',
+                  'content',
+                  "step",
+                  # 'project',
+                  # 'sibling_tasks'
+                  ]
+        filters = [
+                    ['project', 'is', {'type': 'Project', 'id': projectid}],
+                    # ['asset', 'is', {'type': 'Asset', 'id': assetid }],
+                    ['entity', 'is', {'type': 'Asset', 'id': assetid}]
+                    ]
+        _assettask = self.sg.find("Task", filters, fields)
+
+        if len(_assettask) < 1:
+            print "couldn't find any AssetTypes"
+        else:
+            print "Found %d Asset Tasks" % (len(_assettask))
+            pprint (_assettask)
+        # pprint (self.sg.schema_field_read("Task"))
 
     def sequences(self, projectid):
         # returns a list of dicts  [ {code:, type:, id: } ] of sequences for a given projectid
         fields = ['id', 'code']
         filters = [['project', 'is', {'type': 'Project', 'id': projectid}]]
-        sequences= self.sg.find("Sequence",filters,fields)
+        sequences= self.sg.find("Sequence", filters, fields)
 
         if len(sequences) < 1:
             print "couldn't find any Sequences"
         else:
             print "Found %d Sequences" % (len(sequences))
             print sequences
-
 
     def shots(self, projectid, sequenceid):
         # returns a list of dicts  [ {code:, type:, id: } ] of sequences for a given projectid
@@ -253,7 +327,6 @@ class Projects(ShotgunBase):
 class People(ShotgunBase):
     def __init__(self):
         super(People, self).__init__()
-        self.touchbase()
         __fields = ['login','name','firstname','lastname','department','email','sg_tractor']
         __filters =  [['sg_tractor','is', True]]
         __people=None
@@ -269,18 +342,12 @@ class People(ShotgunBase):
                 try:
                     logger.info("{l:12} # {d:9}{c:24}{n:24}{e:40}".format(l=__person.get('login'),
                                                          n=__person.get('name'),
-                                                         c=self.cleanname(__person.get('email')),
+                                                         c = cleanname(__person.get('email')),
                                                          e=__person.get('email'),
                                                          d=__person.get('department').get('name')))
                 except:
                     logger.warn("Problem with user {}".format(__person))
-    @staticmethod
-    def cleanname(email):
-        _nicename = email.split("@")[0]
-        _compactnicename = _nicename.lower().translate(None, string.whitespace)
-        _cleancompactnicename = _compactnicename.translate(None, string.punctuation)
-        # logger.debug("Cleaned name is : %s" % _cleancompactnicename)
-        return _cleancompactnicename
+
 
     def writetractorcrewfile(self,crewfilefullpath=None):
         """
@@ -300,7 +367,7 @@ class People(ShotgunBase):
             for i, person in enumerate(self.people):
                 _line='"{l}",   # {d:9}{c:24}{n:24}{e:40}\n'.format(l=person.get('login'),
                                                          n=person.get('name'),
-                                                         c=self.cleanname(person.get('email')),
+                                                         c=cleanname(person.get('email')),
                                                          e=person.get('email'),
                                                          d=person.get('department').get('name'))
                 _file.write(_line)
@@ -322,7 +389,6 @@ class NewVersion(ShotgunBase):
                  tag = "RenderFarm Proxy"
                  ):
         super(NewVersion, self).__init__()
-        self.touchbase()
         self.project = {'type': 'Project', 'id': projectid}
         self.shotid=shotid
         self.taskid=taskid
@@ -374,13 +440,8 @@ class NewVersion(ShotgunBase):
 if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
     logger.info("--------- TESTING {} ------".format(__file__))
-
-
-    # ########################################################
+    # ----------------------------------------------
     # upload a movie example
-
-
-
     # a = ShotgunBase()
     # b=NewVersion(projectid=171,
     #              shotid=3130,
@@ -389,59 +450,58 @@ if __name__ == "__main__":
     #              description='test version using shotgun_repos api',
     #              ownerid=381,
     #              media='/Users/Shared/UTS_Dev/Volumes/dabrender/work/user_work/matthewgidney/testing2017/movies/seq1.mov')
-    #
-    # # query projects shots etc
-    # # c=Projects()
-    # # c.sequences(89)
-    # # c.shots(89,48)
+    # ----------------------------------------------
+    # Query projects shots etc
+    # c=Projects()
+    # c.sequences(89)
+    # c.shots(89,48)
     # sys.exit()
     #
-
-
-
+    # ----------------------------------------------
     p=Person()
-    pprint(dir(p))
+    # pprint(dir(p))
+    logger.info("Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(\
+        name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department))
+    logger.info("--------- FINISHED TESTING -------------")
 
-    # print p.dabname
-    # print p.dabnumber
+    print p.myProjects()
+    p.assetFromProject()
+
+
+    pr=Projects()
+    pr.assets(175)
+
+    pr.assettask(175,1241)
+
+
     sys.exit()
-    # logger.info("Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(\
-    #     name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department))
-    # logger.info("-------------------------------FINISHED TESTING")
 
-
-
+    # ----------------------------------------------
     # pe=People()
     # print pe.people
-
     # pe.writetractorcrewfile("/Users/120988/Desktop/crew.list.txt")
-
-
-
-
+    #
     # ----------------------------------------------
     # Find Character Assets in Sequence WRF_03 in projectX
-    # ----------------------------------------------
     # fields = ['id', 'code', 'sg_asset_type']
     # sequence_id = 48 # Sequence "WFR_03"
     # filters = [
-    #     ['project', 'is', projectx],
+    #     ['project', 'is', "projectx"],
     #     ['sg_asset_type', 'is', 'Character'],
     #     ['sequences', 'is', {'type': 'Sequence', 'id': sequence_id}]
     #     ]
     #
-    # assets= sg.find("Asset",filters,fields)
+    # assets = sg.find("Asset", filters, fields)
     #
     # if len(assets) < 1:
     #     print "couldn't find any Assets"
     # else:
     #     print "Found %d Assets" % (len(assets))
     #     print assets
-
-
+    #
     # ----------------------------------------------
     # Find Projects id and name
-    # ----------------------------------------------
+    #
     # >>> # Find Character Assets in Sequence 100_FOO
     # >>> # -------------
     # >>> fields = ['id', 'code', 'sg_asset_type']
@@ -454,9 +514,8 @@ if __name__ == "__main__":
     # ... ]
     # >>> assets= sg.find("Asset",filters,fields)
 
-    ############################################################
+    # ----------------------------------------------
     # p=ShotgunBase()
-    # p.touchbase()
     # _p=p.sg.schema_field_read('Project')
     #
     # for each in _p.keys():
@@ -471,9 +530,8 @@ if __name__ == "__main__":
     # pprint.pprint(projects.projects)
 
 
-    ############################################################
+    # ----------------------------------------------
     # p=ShotgunBase()
-    # p.touchbase()
     # _p=p.sg.schema_field_read('HumanUser')
     #
     # for each in _p.keys():
@@ -496,49 +554,55 @@ if __name__ == "__main__":
     # print mg.seqFromProject(171)
     # print mg.shotFromSeq(171,281)
     # print mg.taskFromShot(171,3143)
+    # sys.exit()
 
-
-
-    sys.exit()
-
-    # >>> # Find Sequences..........................
-    project_id = _myprojects.get('YR3_2017--171') # 171 # Demo Project
-    fields = ['id', 'code']
-    filters = [['project', 'is', {'type': 'Project', 'id': project_id} ]]
-    seq = p.sg.find("Sequence",filters,fields)
+    # Find Sequences..........................
+    # project_id = _myprojects.get('YR3_2017--171') # 171 # Demo Project
+    # fields = ['id', 'code']
+    # filters = [['project', 'is', {'type': 'Project', 'id': project_id} ]]
+    # seq = p.sg.find("Sequence",filters,fields)
     # pprint(seq)
-    _sequences = dictfromlistofdicts(seq,"code","id")
+    # _sequences = dictfromlistofdicts(seq,"code","id")
     #
     # pprint(p.sg.schema_entity_read('Shot'))
     # pprint(p.sg.schema_field_read('Shot'))
 
-    # >>> # Find Shots ..............................
-    sequence_id = _sequences.get("ssA_gp1--277")
-    fields = ['id', 'code']
-    filters = [
-        ['project', 'is', {'type': 'Project', 'id': project_id}],
-        ['sg_sequence', 'is', {'type': 'Sequence', 'id': sequence_id}]
-         ]
-    shottask = p.sg.find("Shot", filters, fields)
-    # pprint(shottask)
-    _shots=dictfromlistofdicts(shottask,"code","id")
+    # Find Shots ..............................
+    # sequence_id = _sequences.get("ssA_gp1--277")
+    # fields = ['id', 'code']
+    # filters = [
+    #     ['project', 'is', {'type': 'Project', 'id': project_id}],
+    #     ['sg_sequence', 'is', {'type': 'Sequence', 'id': sequence_id}]
+    #      ]
+    # shottask = p.sg.find("Shot", filters, fields)
+    # _shots=dictfromlistofdicts(shottask,"code","id")
     # pprint(_shots)
-
     # pprint( p.sg.schema_field_read('Task'))
 
     # >>> # Find Tasks ..............................
-    shot_id = _shots.get('ssA_gp1_tm2_01--3127')
-    fields = ['id','cached_display_name']
-    filters = [
-        ['project', 'is', {'type': 'Project', 'id': project_id}],
-        ['entity', 'is', {'type': 'Shot', 'id': shot_id}]
-         ]
-    task = p.sg.find("Task",filters,fields)
-    # pprint(task)
-    _tasks=dictfromlistofdicts(task,"cached_display_name","id")
+    # shot_id = _shots.get('ssA_gp1_tm2_01--3127')
+    # fields = ['id','cached_display_name']
+    # filters = [
+    #     ['project', 'is', {'type': 'Project', 'id': project_id}],
+    #     ['entity', 'is', {'type': 'Shot', 'id': shot_id}]
+    #      ]
+    # task = p.sg.find("Task",filters,fields)
+    # # pprint(task)
+    # _tasks=dictfromlistofdicts(task,"cached_display_name","id")
 
 
+    # >>> # Find Assets..........................
 
+    pprint( p.sg.schema_field_read('Asset'))
+    project_id = _myprojects.get('YR3_2017--171') # 171 # Demo Project
+    fields = ['id', 'code']
+    filters = [['project', 'is', {'type': 'Project', 'id': project_id} ]]
+    asset = p.sg.find("Assets",filters,fields)
+    pprint(asset)
+    _assets = dictfromlistofdicts(assets,"code","id")
+    #
+    # pprint(p.sg.schema_entity_read('Shot'))
+    # pprint(p.sg.schema_field_read('Shot'))
 
 
 

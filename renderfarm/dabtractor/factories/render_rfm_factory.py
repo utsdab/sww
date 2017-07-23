@@ -80,12 +80,16 @@ class Job(object):
         self.mayaversion = None
         self.rendermanversion = None
         self.shotgunProject = None
-        self.shotgunSequence = None
+        self.shotgunSeqAss = None
         self.shotgunShot = None
+        self.shotgunClass = None
+        # self.shotgunAsset = None
+        # self.shotgunAssettype = None
         self.shotgunTask = None
         self.shotgunProjectId = None
-        self.shotgunSequenceId = None
-        self.shotgunShotId = None
+
+        self.shotgunSeqAssId = None
+        self.shotgunShotAssettypeId = None
         self.shotgunTaskId = None
         self.sendToShotgun = False
 
@@ -205,9 +209,14 @@ class Render(object):
                                               atleast=int(self.threads),
                                               atmost=int(self.threads),
                                               service="RfMRibGen")
+        #TODO use command wrapper
+        # dab_pre_render layerid start end phase
+        __command = "dab_pre_render"
+        # __command = "renderManBatchGenRibForLayer"
 
         command_ribgen = self.job.env.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,"-command",
-                                              "renderManBatchGenRibForLayer {layerid} {start} {end} {phase}".format(
+                                              "{command} {layerid} {start} {end} {phase}".format(
+                                                  command=__command,
                                                   layerid=0, start=self.job.jobstartframe, end=self.job.jobendframe, phase=1),
                                               "-file", self.mayascenefilefullpath],
                                               tags=["maya", "theWholeFarm"],
@@ -264,9 +273,11 @@ class Render(object):
 
             task_generate_rib = self.job.env.author.Task(title="RIB GEN chunk {} frames {}-{}".format(
                     chunk, _chunkstart, _chunkend ))
+
+
             command_generate_rib = self.job.env.author.Command(argv=[
                     "maya", "-batch", "-proj", self.mayaprojectpath, "-command",
-                    "renderManBatchGenRibForLayer {layerid} {start} {end} {phase}".format(
+                    "{command} {layerid} {start} {end} {phase}".format(command = __command,
                             layerid=0, start=_chunkstart, end=_chunkend, phase=2),
                             "-file", self.mayascenefilefullpath],
                     tags=["maya", "theWholeFarm"],

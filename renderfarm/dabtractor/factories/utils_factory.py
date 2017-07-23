@@ -227,6 +227,12 @@ def truncatepath(inputpath,truncatebit):
     else:
         logger.warn("Not a path when truncating")
 
+def cleanname(email):
+        _nicename = email.split("@")[0]
+        _compactnicename = _nicename.lower().translate(None, string.whitespace)
+        _cleancompactnicename = _compactnicename.translate(None, string.punctuation)
+        logger.debug("Cleaned name is : %s" % _cleancompactnicename)
+        return _cleancompactnicename
 
 
 class RenderOutput(object):
