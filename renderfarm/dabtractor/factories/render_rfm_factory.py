@@ -5,7 +5,7 @@ Renderman for maya job
 '''
 
 # TODO  wrap the rib command up in a sanity checker script.
-# TODO  dab_pre_render.mel
+# TODO  dab_rfm_pre_render.mel
 
 import json
 import os
@@ -197,6 +197,8 @@ class Render(object):
         task_permissions_preflight  = self.job.env.author.Task(title="Correct Permissions Preflight")
         task_generate_rib_preflight = self.job.env.author.Task(title="Generate RIB Preflight")
 
+        # TODO  this will fail on the .DS files osx creates - need to wrap this up in a python try rxcept clause
+
         command_permissions1 = self.job.env.author.Command(argv=["chmod","-R","g+w", self.mayaprojectpath],
                                               tags=["chmod", "theWholeFarm"],
                                               atleast=int(self.threads),
@@ -211,7 +213,7 @@ class Render(object):
                                               service="RfMRibGen")
         #TODO use command wrapper
         # dab_pre_render layerid start end phase
-        __command = "dab_pre_render"
+        __command = "dab_rfm_pre_render"
         # __command = "renderManBatchGenRibForLayer"
 
         command_ribgen = self.job.env.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,"-command",

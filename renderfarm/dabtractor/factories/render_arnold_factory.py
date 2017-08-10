@@ -89,6 +89,34 @@ Example:
 Acknowledgements: armengol ben brian cliff colman erco francisco quarkx rene scot sergio xray yiotis
 
 '''
+
+
+
+'''
+generating ass files
+
+Exporting an .ass File and Batch Rendering Through MEL
+It is possible to export an .ass file and perform a batch render for a single frame using the following commands:
+arnoldExportAss -f <filename>
+arnoldRender -b;
+In both cases you will need to prepend with the following:
+currentTime <frameNum>;
+For example:
+currentTime 1; arnoldExportAss -f "/tmp/scene.001.ass";
+The arnoldRender command allows you to render either individual frames or frame ranges. You can specify multiple different frames or frame ranges. These have to be separated with either ; or a whitespace character. Mixing the two separators will not work. When defining frame ranges, you must separate the start and end frame by using .. string. By adding a : to the frame range and adding an extra number after that, you can define the step for the frame. The following examples can also use ; instead of the whitespace:
+-seq "1 2 3" - rendering frame 1, 2 and 3.
+-seq "1 3..6" - rendering frame 1, and frames between 3 and 6 using a step of 1.
+-seq "2 4..7 15..27:4" - rendering frame 2, frames between 4 and 7, and frames between 15 and 27 using a step of 4.
+
+arnoldExportAss  -f "arnold/out.ass" -startFrame 1 -endFrame 3 -frameStep 1 -mask 255 -lightLinks 1 -shadowLinks 2 ;
+
+maya -batch -proj /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Renderfarm  -command "arnoldExportAss -f xxx.ass -startFrame 1 -endFrame 10" -file /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Renderfarm/scenes/test_spiral_ARNOLD2.0001.ma
+
+
+
+'''
+
+
 # TODO
 
 import os
@@ -261,7 +289,7 @@ class Render(object):
         task_preflight = self.job.env.site.Task(title="Preflight")
         task_preflight.serialsubtasks = 1
         task_thisjob.addChild(task_preflight)
-        task_generate_rib_preflight = self.job.env.site.Task(title="Generate RIB Preflight")
+        task_generate_rib_preflight = self.job.env.site.Task(title="Generate ASS Preflight")
         command_ribgen = self.job.env.site.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,"-command",
                                               "renderManBatchGenRibForLayer {layerid} {start} {end} {phase}".format(
                                                   layerid=0, start=self.startframe, end=self.endframe, phase=1),

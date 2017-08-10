@@ -70,7 +70,7 @@
   },
 
   "nuke": {
-    "version"      : [ "10.5v4" ]
+    "version"      : [ "10.5v5", "10.5v4" ]
   },
 
   "houdini": {

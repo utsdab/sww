@@ -129,7 +129,7 @@ def diff(first, second):
     :return: list
     """
     second = set(second)
-    differences= [item for item in first if item not in second]
+    differences = [item for item in first if item not in second]
     return differences
 
 def setpermissionsontree(rootpath):
