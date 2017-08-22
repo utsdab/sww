@@ -186,8 +186,10 @@ def getfloat(inputstring):
     cleanstring = inputstring.strip(string.punctuation)
     return cleanstring
 
+
 def getnow():
     return datetime.datetime.now().strftime("%Y-%m-%d__%H-%M")
+
 
 def makedirectoriesinpath(path):
     #looks at a path and makes the directories that may be missing
@@ -199,16 +201,18 @@ def makedirectoriesinpath(path):
         # sys.exit("Cant make directory")
         raise
 
-def dictfromlistofdicts(dlist=[{}],dkey="code",dvalue="id"):
-        #  used for shotgun find returns,  cherry pick dictionary values to be the key and value in a simple new
-        # dictionary
-        logger.debug("...{} Key={} Value={}".format(dlist[0].keys(),dkey,dvalue))
+
+def dictfromlistofdicts(dlist=[{}], dkey="code", dvalue="id"):
+        # used for shotgun find returns,  cherry pick dictionary values to
+        # be the key and value in a simple new dictionary
+        logger.debug("...{} Key={} Value={}".format(dlist[0].keys(), dkey, dvalue))
         _result={}
-        for i,d in enumerate(dlist):
-            _uniqdkey="{} ({})".format(d.get(dkey),d.get(dvalue))
+        for i, d in enumerate(dlist):
+            _uniqdkey="{} ({})".format(d.get(dkey), d.get(dvalue))
             _result[_uniqdkey]=d.get(dvalue)
         logger.debug("{}".format( _result ))
         return _result
+
 
 def truncatepath(inputpath,truncatebit):
     if os.path.isdir(inputpath):
@@ -226,6 +230,7 @@ def truncatepath(inputpath,truncatebit):
             return _truncatedpath
     else:
         logger.warn("Not a path when truncating")
+
 
 def cleanname(email):
         _nicename = email.split("@")[0]

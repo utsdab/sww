@@ -5,7 +5,7 @@
 
 #TODO
 
-from sww.renderfarm.dabtractor.factories.command_factory import Bash
+from renderfarm.dabtractor.factories.command_factory import Bash
 
 import logging
 logger = logging.getLogger(__name__)

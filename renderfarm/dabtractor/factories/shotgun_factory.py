@@ -11,10 +11,11 @@ import string
 import sys
 import logging
 import os
-from sww.shotgun_api3 import Shotgun
-from sww.renderfarm.dabtractor.factories.site_factory import JsonConfig
-from sww.renderfarm.dabtractor.factories.utils_factory import dictfromlistofdicts
-from sww.renderfarm.dabtractor.factories.utils_factory import cleanname
+# import Set
+from shotgun_api3 import Shotgun
+from renderfarm.dabtractor.factories.site_factory import JsonConfig
+from renderfarm.dabtractor.factories.utils_factory import dictfromlistofdicts
+from renderfarm.dabtractor.factories.utils_factory import cleanname
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -40,13 +41,34 @@ class ShotgunBase(object):
         self.scriptkey  = str(self.config.getdefault("shotgun", "scriptkey"))
         try:
             self.sg = Shotgun(self.serverpath, self.scriptname, self.scriptkey)
-        except Exception, err:
+        except RuntimeError, err:
             logger.warn("SHOTGUN: Cant talk to shotgun")
             self.sg=None
         else:
             logger.info("SHOTGUN: talking to shotgun ...... %s" % self.serverpath)
 
-class Person(ShotgunBase):
+
+class ShotgunLink(object):
+    """ this is the target in shotgun you want to link the output to"""
+    def __init__(self):
+        self.username=None
+        self.userid=None
+        self.linkproject=None
+        self.linkprojectid=None
+        self.linkclass=None
+        self.linksequence=None
+        self.linksequenceid=None
+        self.linkshot=None
+        self.linkshotid=None
+        self.linkasset=None
+        self.linkassetid=None
+        self.linkassettype=None
+        self.linkassettypeid=None
+        self.linktype=None
+        self.linktypeid=None
+
+
+class  Person(ShotgunBase):
     """
     This is a model of the user account as registered in shotgun
     Basically used for authentication, need a proxy account if we cant reach shotgun.
@@ -78,16 +100,15 @@ class Person(ShotgunBase):
         else:
             self.getInfo()
 
-
     def getInfo(self):
-
-        __fields = ['login','name','firstname','lastname','department','email','sg_tractor','id']
-        __filters =  [['login','is', self.shotgunlogin]]
-        __person=None
+        __fields = ['login', 'name', 'firstname', 'lastname', 'department',
+                    'email', 'sg_tractor', 'id']
+        __filters = [['login', 'is', self.shotgunlogin]]
+        __person = None
 
         try:
             __person=self.sg.find_one("HumanUser",filters=__filters,fields=__fields)
-        except Exception, err:
+        except RuntimeError, err:
             logger.warn("%s"%err)
             raise
         else:
@@ -126,176 +147,134 @@ class Person(ShotgunBase):
         self.user_work = os.path.join(os.environ["DABWORK"], "user_work", self.dabname)
 
     def myProjects(self):
+        # Return a simple dictionary of projects and project ids
         try:
-            __fields = ['id', 'login','name', 'users', 'email', 'projects', 'groups']
-            __filters = [['login','is',self.dabnumber]]
+            __fields = ['id', 'name', 'projects']
+            __filters = [['login', 'is', self.dabnumber]]
             _result = self.sg.find("HumanUser",filters=__filters,fields=__fields)
-            _me = dictfromlistofdicts(_result,"name","id")
-            _projects=_result[0].get('projects')
-            _myprojects = dictfromlistofdicts(_projects,"name","id")
-        except Exception, err:
-            _myprojects={}
-        else:
-            pass
+            _projects = _result[0].get('projects')
+            _myprojects = dictfromlistofdicts(_projects, "name", "id")
+        except RuntimeError, err:
+            _myprojects = {}
         finally:
             return _myprojects
 
-    def seqFromProject(self,project_id=None):
-        # project_id = _myprojects.get('YR3_2017--171') # 171 # Demo Project
+
+    def myGroups(self):
+        # Return a simple dictionary of projects and project ids
         try:
-            fields = ['id', 'code']
-            filters = [['project', 'is', {'type': 'Project', 'id': project_id} ]]
-            seq = self.sg.find("Sequence",filters,fields)
-            _sequences = dictfromlistofdicts(seq,"code","id")
-        except Exception, err:
-            logger.warn("Cant find any sequences")
-            _sequences={}
+            __fields = ['id', 'name', 'groups']
+            __filters = [['login', 'is', self.dabnumber]]
+            _result = self.sg.find("HumanUser",filters=__filters,fields=__fields)
+            _groups = _result[0].get('groups')
+            _mygroups = dictfromlistofdicts(_groups, "name", "id")
+        except RuntimeError, err:
+            _mygroups = {}
         finally:
-            return _sequences
+            return _mygroups
 
-    def assetFromProject(self, project_id=None):
-        # project_id = _myprojects.get('YR3_2017--171') # 171 # Demo Project
-        _assets={}
+    def me(self):
+        # Return a simple dictionary of user info
+        _result = []
         try:
-            fields = ['id', 'code']
-            filters = [['project', 'is', {'type': 'Project', 'id': project_id} ]]
-            seq = self.sg.find("Asset",filters,fields)
-            _assets = dictfromlistofdicts(seq,"code","id")
-        except Exception, err:
-            logger.warn("Cant find any sequences")
+            __fields = ['id', 'login', 'name', 'users', 'email']
+            __filters = [['login', 'is', self.dabnumber]]
+            _result = self.sg.find("HumanUser", filters=__filters, fields=__fields)
+            # _me = dictfromlistofdicts(_result, "name", "id")
+            # _email =  dictfromlistofdicts(_result, "name", "email")
+        except:
+            pass
         finally:
-            return _assets
-
-    def assettypeFromAsset(self,project_id=None,asset_id=None):
-        pass
+            return _result[0]
 
 
-    def taskFromAsset(self,project_id=None, asset_id=None):
-        # asset_id = _shots.get('ssA_gp1_tm2_01--3127')
-        try:
-            fields = ['id','cached_display_name']
-            filters = [
-                ['project', 'is', {'type': 'Project', 'id': project_id}],
-                ['entity', 'is', {'type': 'Shot', 'id': asset_id}]
-                 ]
-            task = self.sg.find("Task",filters,fields)
-            _tasks=dictfromlistofdicts(task,"cached_display_name","id")
-        except Exception, err:
-            logger.warn("Cant find any tasks")
-            _tasks={}
-        finally:
-            return _tasks
-
-    def shotFromSeq(self,project_id=None,sequence_id=None):
-        # sequence_id = _sequences.get("ssA_gp1--277")
-        try:
-            fields = ['id', 'code']
-            filters = [
-                ['project', 'is', {'type': 'Project', 'id': project_id}],
-                ['sg_sequence', 'is', {'type': 'Sequence', 'id': sequence_id}]
-                 ]
-            shottask = self.sg.find("Shot", filters, fields)
-            _shots=dictfromlistofdicts(shottask,"code","id")
-        except Exception, err:
-            logger.warn("Cant find any shots")
-            _shots={}
-        finally:
-            return _shots
-
-    def taskFromShot(self,project_id=None,shot_id=None):
-        # shot_id = _shots.get('ssA_gp1_tm2_01--3127')
-        try:
-            fields = ['id','cached_display_name']
-            filters = [
-                ['project', 'is', {'type': 'Project', 'id': project_id}],
-                ['entity', 'is', {'type': 'Shot', 'id': shot_id}]
-                 ]
-            task = self.sg.find("Task",filters,fields)
-            _tasks=dictfromlistofdicts(task,"cached_display_name","id")
-        except Exception, err:
-            logger.warn("Cant find any tasks")
-            _tasks={}
-        finally:
-            return _tasks
-
-
-class Projects(ShotgunBase):
+class Project(ShotgunBase):
     def __init__(self):
-        super(Projects, self).__init__()
-        self.allprojects=None
-        self.projects()
+        super(Project, self).__init__()
+        self.allprojects = None
+        # self.projects()
 
     def projects(self):
-        __fields = ['id', 'name']
-        __filters = [['id', 'greater_than', 0]]
+        # get all non archived projects
+        _fields = ['id', 'name']
+        _filters = [
+            ['id', 'greater_than', 0],
+            ['archived', 'is', False],
+        ]
         try:
-            self.allprojects = self.sg.find("Project",__filters,__fields)
-        except Exception, err:
+            self.allprojects = self.sg.find("Project", _filters, _fields)
+        except RuntimeError:
             logger.warn("Projects %s".format(err))
         else:
             logger.info("Found %d Projects" % (len(self.allprojects)))
             for project in self.allprojects:
-                logger.debug("  Id = {:4} - {:20}".format(project['id'],project['name']))
-            pprint(self.allprojects)
+                logger.info("  Id = {:4} - {:20}".format(project['id'],project['name']))
+        finally:
+            return self.allprojects
 
-    def assets(self, projectid):
-        # returns a list of dicts  [ {code:, type:, id: } ] of assets for a given projectid
-
-        fields = ['id', 'code', 'sg_asset_type', 'type']
-        filters = [
+    def assets(self, projectid, sg_asset_type):
+        # get assets from project and asset type
+        _assets = []
+        _fields = ['id', 'code', 'sg_asset_type', 'type']
+        _filters = [
                     ['project', 'is', {'type': 'Project', 'id': projectid} ],
+                    ['sg_asset_type', 'is', sg_asset_type ],
                     # ['sg_status_list', 'is', 'ip'],
                   ]
-
-        _assets = self.sg.find("Asset", filters, fields)
-
-        if len(_assets) < 1:
-            print "couldn't find any Assets"
+        try:
+            _assets = self.sg.find("Asset", _filters, _fields)
+        except RuntimeError:
+            logger.warn("Couldn't find any Assets")
         else:
-            print "Found %d Assets" % (len(_assets))
-            pprint (_assets)
+            logger.info("Found {} Assets".format(len(_assets)))
+        finally:
+            return _assets
 
-    def assettype(self, projectid, assetid):
-        # returns a list of dicts  [ {code:, type:, id: } ] of sequences for a given projectid
-        fields = ['id', 'code', 'sg_asset_type' ]
-        filters = [
+    def assettypes(self, projectid):
+        # get asset types in project
+        _assettypes = set([])
+        _fields = ['sg_asset_type' ]
+        _filters = [
                     ['project', 'is', {'type': 'Project', 'id': projectid}],
-                    # ['asset', 'is', {'type': 'Asset', 'id': assetid }],
-                    # ['entity', 'is', {'type': 'Asset', 'id': assetid}]
                   ]
-        _assettype = self.sg.find("Asset", filters, fields)
-
-        if len(_assettype) < 1:
-            print "couldn't find any AssetTypes"
+        try:
+            _assettype = self.sg.find("Asset", _filters, _fields)
+        except RuntimeError:
+            logger.warn("couldn't find any AssetTypes")
         else:
-            print "Found %d AssetTypes" % (len(_assettype))
-            pprint (_assettype)
+            for each in _assettype:
+                _assettypes.add(each["sg_asset_type"])
+            logger.info( "Found %d AssetTypes" % (len(_assettypes)))
+        finally:
+            return list(_assettypes)
 
     def assettask(self, projectid, assetid):
-        # returns a list of dicts  [ {code:, type:, id: } ] of sequences for a given projectid
-        fields = ['id','code',
+        # get tasks from assets and project
+        _assettasks = []
+        _fields = ['id','code',
                   # 'cached_display_name',
                   'content',
                   "step",
                   # 'project',
                   # 'sibling_tasks'
                   ]
-        filters = [
+        _filters = [
                     ['project', 'is', {'type': 'Project', 'id': projectid}],
                     # ['asset', 'is', {'type': 'Asset', 'id': assetid }],
                     ['entity', 'is', {'type': 'Asset', 'id': assetid}]
                     ]
-        _assettask = self.sg.find("Task", filters, fields)
-
-        if len(_assettask) < 1:
-            print "couldn't find any AssetTypes"
+        try:
+            _assettask = self.sg.find("Task", _filters, _fields)
+            _assettasks = dictfromlistofdicts(_assettask, "content", "id")
+        except RuntimeError:
+            logger.warn("Couldn't find any AssetTypes")
         else:
-            print "Found %d Asset Tasks" % (len(_assettask))
-            pprint (_assettask)
-        # pprint (self.sg.schema_field_read("Task"))
+            logger.info("Found {} Asset Tasks".format(len(_assettask)))
+        finally:
+            return _assettasks
 
     def sequences(self, projectid):
-        # returns a list of dicts  [ {code:, type:, id: } ] of sequences for a given projectid
+        # get sequences from project
         fields = ['id', 'code']
         filters = [['project', 'is', {'type': 'Project', 'id': projectid}]]
         sequences= self.sg.find("Sequence", filters, fields)
@@ -306,35 +285,146 @@ class Projects(ShotgunBase):
             print "Found %d Sequences" % (len(sequences))
             print sequences
 
-    def shots(self, projectid, sequenceid):
-        # returns a list of dicts  [ {code:, type:, id: } ] of sequences for a given projectid
-        _fields  = ['id', 'code', 'shots']
+    def shots(self, project_id, sequence_id):
+        # get shots from sequence and project
+        _shots = None
+        _fields = ['id', 'code', 'shots']
         _filters = [
-                     ['project',   'is', {'type': 'Project',  'id': projectid}],
-                     # ['sequences', 'is', {'type': 'Sequence', 'id': sequenceid }]
-                  ]
-        shots = self.sg.find("Sequence", _filters, _fields)
+            ['project', 'is', {'type': 'Project', 'id': project_id}],
+            ['sg_sequence', 'is', {'type': 'Sequence', 'id': sequence_id}]
+        ]
+        try:
+            _shot = self.sg.find("Shot", _filters, _fields)
+            _shots = dictfromlistofdicts(_shot, "code", "id")
+        except RuntimeError:
+            logger.warn("Cant find any shots")
+        finally:
+            return _shots
 
-        if len(shots) < 1:
-            print "couldn't find any shots"
-        else:
-            print "Found %d shots" % (len(shots))
-            print shots
 
-    def tasks(self):
+    def shottasks(self, project_id, shot_id):
+        # get tasks from shot and project
+        _tasks = {}
+        _fields = ['id','cached_display_name']
+        _filters = [
+            ['project', 'is', {'type': 'Project', 'id': project_id}],
+            ['entity', 'is', {'type': 'Shot', 'id': shot_id}]
+        ]
+        try:
+            _task = self.sg.find("Task", _filters, _fields)
+            _tasks = dictfromlistofdicts(_task, "cached_display_name", "id")
+        except RuntimeError:
+            logger.warn("Cant find any tasks")
+        finally:
+            return _tasks
+
+    def episodeFromProject(self, project_id=None):
+        # get episodes from project
+        _episodes = None
+        _fields = ['id', 'code', 'episode' ]
+        _filters = [
+            ['project', 'is', {'type': 'Project', 'id': project_id}],
+        ]
+        try:
+            _ep = self.sg.find("Episode", _filters, _fields)
+            _episodes = dictfromlistofdicts(_ep, "code", "id")
+        except RuntimeError, err:
+            logger.warn("Cant find any episodes in project {pr}".format(pr=project_id))
+        finally:
+            return _episodes
+
+    def seqFromProject(self,project_id=None):
+        # get sequence from project
+        _sequences = {}
+        _fields = ['id', 'code']
+        _filters = [
+            ['project', 'is', {'type': 'Project', 'id': project_id}]
+        ]
+        try:
+            _seq = self.sg.find("Sequence", _filters, _fields)
+            _sequences = dictfromlistofdicts(_seq,"code","id")
+        except RuntimeError, err:
+            logger.warn("Cant find any sequences")
+        finally:
+            return _sequences
+
+    def assetFromProject(self, project_id=None):
+        # get assets from
+        _assets = {}
+        _fields = ['id', 'code']
+        _filters = [
+            ['project', 'is', {'type': 'Project', 'id': project_id}]
+        ]
+        try:
+            _asset = self.sg.find("Asset", _filters, _fields)
+            _assets = dictfromlistofdicts(_asset, "code", "id")
+        except RuntimeError:
+            logger.warn("Cant find any sequences")
+        finally:
+            return _assets
+
+    def assettypeFromAsset(self, project_id=None, asset_id=None):
         pass
+
+    def taskFromAsset(self, project_id=None, asset_id=None):
+        # get task from asset
+        _tasks = {}
+        _fields = ['id','cached_display_name']
+        _filters = [
+            ['project', 'is', {'type': 'Project', 'id': project_id}],
+            ['entity', 'is', {'type': 'Shot', 'id': asset_id}]
+        ]
+        try:
+            _task = self.sg.find("Task", _fields, _filters)
+            _tasks = dictfromlistofdicts(_task,"cached_display_name","id")
+        except RuntimeError:
+            logger.warn("Cant find any tasks")
+        finally:
+            return _tasks
+
+    def shotFromSeq(self, project_id=None, sequence_id=None):
+        # get shots from sequence and project
+        _shots = {}
+        _fields = ['id', 'code']
+        _filters = [
+            ['project', 'is', {'type': 'Project', 'id': project_id}],
+            ['sg_sequence', 'is', {'type': 'Sequence', 'id': sequence_id}]
+        ]
+        try:
+            _shottask = self.sg.find("Shot", _filters, _fields)
+            _shots = dictfromlistofdicts(_shottask,"code","id")
+        except RuntimeError:
+            logger.warn("Cant find any shots")
+        finally:
+            return _shots
+
+    def taskFromShot(self, project_id=None, shot_id=None):
+        # get tasks from shot
+        _tasks = {}
+        _fields = ['id','cached_display_name']
+        _filters = [
+            ['project', 'is', {'type': 'Project', 'id': project_id}],
+            ['entity', 'is', {'type': 'Shot', 'id': shot_id}]
+        ]
+        try:
+            _task = self.sg.find("Task", _filters, _fields)
+            _tasks=dictfromlistofdicts(_task, "cached_display_name", "id")
+        except RuntimeError:
+            logger.warn("Cant find any tasks")
+        finally:
+            return _tasks
 
 class People(ShotgunBase):
     def __init__(self):
         super(People, self).__init__()
-
-        __fields = ['login','name','firstname','lastname','department','email','sg_tractor']
-        __filters =  [['sg_tractor','is', True]]
-        __people=None
-        self.people=None
+        __fields = ['login', 'name', 'firstname', 'lastname',
+                    'department', 'email', 'sg_tractor']
+        __filters = [['sg_tractor','is', True]]
+        __people = None
+        self.people = None
         try:
-            __people=self.sg.find("HumanUser",filters=__filters,fields=__fields)
-        except Exception, err:
+            __people = self.sg.find("HumanUser", __filters, __fields)
+        except RuntimeError, err:
             logger.warn("Cant get Human user info from shotgun %s"%err)
             raise
         else:
@@ -378,7 +468,7 @@ class People(ShotgunBase):
 
 
 
-class NewVersion(ShotgunBase):
+class Version(ShotgunBase):
     # new version object
     def __init__(self, media = None,
                  projectid = None,
@@ -389,7 +479,7 @@ class NewVersion(ShotgunBase):
                  ownerid = None,
                  tag = "RenderFarm Proxy"
                  ):
-        super(NewVersion, self).__init__()
+        super(Version, self).__init__()
 
         self.project = {'type': 'Project', 'id': projectid}
         self.shotid=shotid
@@ -445,7 +535,7 @@ if __name__ == "__main__":
     # ----------------------------------------------
     # upload a movie example
     # a = ShotgunBase()
-    # b=NewVersion(projectid=171,
+    # b=Version(projectid=171,
     #              shotid=3130,
     #              taskid=9374,
     #              versioncode='from tractor 1',
@@ -460,23 +550,30 @@ if __name__ == "__main__":
     # sys.exit()
     #
     # ----------------------------------------------
-    p=Person()
-    # pprint(dir(p))
-    logger.info("Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(\
-        name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department))
-    logger.info("--------- FINISHED TESTING -------------")
+    p = Person()
+    print "Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department)
 
     print p.myProjects()
-    p.assetFromProject()
+    print p.myGroups()
+    print p.me()
 
 
-    pr=Projects()
-    pr.assets(175)
 
-    pr.assettask(175,1241)
+    pr = Project()
+    print pr.projects()
+    print pr.assettypes(175)
+    print pr.assets(175, "Prop")
+    print pr.assettask(175,1241)
+
+    # pr.sequences(175)
+    # pr.shots(175,304)
+    # pr.shottasks(175,4140)
+    # p.assetFromProject()
+    # p.episodeFromProject(135)
+    # pr.taskFromAsset(175,1241)
 
 
-    sys.exit()
+    raise SystemExit("done")
 
     # ----------------------------------------------
     # pe=People()

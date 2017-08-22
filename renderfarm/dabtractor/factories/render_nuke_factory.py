@@ -22,7 +22,7 @@ import time
 import sys
 import user_factory as ufac
 import utils_factory as utils
-import sww.renderfarm.dabtractor.factories.environment_factory as envfac
+import renderfarm.dabtractor.factories.environment_factory as envfac
 
 
 class Job(object):

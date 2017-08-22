@@ -17,7 +17,7 @@ logger.addHandler(sh)
 
 import os
 import sys
-from sww.renderfarm.dabtractor.factories.shotgun_factory import Person
+from renderfarm.dabtractor.factories.shotgun_factory import Person
 
 def getuserprefs():
     try:

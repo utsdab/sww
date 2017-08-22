@@ -15,7 +15,7 @@ logger.addHandler(sh)
 import argparse
 import os
 import sys
-from sww.renderfarm.dabtractor.factories import shotgun_factory as sgt
+from renderfarm.dabtractor.factories import shotgun_factory as sgt
 
 def parseArguments():
     parser = argparse.ArgumentParser(description="Simple sendmail wrapper",  epilog="This is a pain to get right")
@@ -77,7 +77,7 @@ if __name__ == '__main__':
         logger.warn("Wronh type of input data: {}".format(err))
         sys.exit(0)
     try:
-        sgt.NewVersion(
+        sgt.Version(
                  ownerid=ownerid,
                  projectid=projectid,
                  # assetid=assetid,

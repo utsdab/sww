@@ -8,7 +8,7 @@ Main submission of a proxy generation job to tractor.
 
 import os
 import sys
-from sww.renderfarm.dabtractor.factories import interface_proxy_factory as ui
+from renderfarm.dabtractor.factories import interface_proxy_factory as ui
 import logging
 
 

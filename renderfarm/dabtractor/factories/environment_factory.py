@@ -13,10 +13,11 @@
 import os
 import json
 from pprint import pprint
-from sww.renderfarm.dabtractor.factories.shotgun_factory import Person
-from sww.renderfarm.dabtractor.factories.site_factory import JsonConfig
+from renderfarm.dabtractor.factories.shotgun_factory import Person
+from renderfarm.dabtractor.factories.shotgun_factory import Project
+from renderfarm.dabtractor.factories.site_factory import JsonConfig
 
-import sww.renderfarm as rf
+import renderfarm as rf
 import tractor.api.author as author
 import tractor.api.query as tq
 
@@ -50,6 +51,11 @@ class TractorJob(object):
             self.useremail=self.person.email
             self.department= self.person.department
 
+        try:
+            self.sgtproject=Project()
+        except Exception, err:
+            logger.warn("Cant get project from Shotgun %s" % err)
+
         self.hostname = str(self.config.getdefault("tractor","engine"))
         self.port= int(self.config.getdefault("tractor","port"))
         self.jobowner=str(self.config.getdefault("tractor","jobowner"))
@@ -57,6 +63,7 @@ class TractorJob(object):
         self.dabwork=self.config.getenvordefault("DABWORK","site")
         self.author.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
         self.tq.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
+
     def devmode(self):
         self.username="matthewgidney"
         self.usernumber="120988"
@@ -82,7 +89,7 @@ class Environment(object):
             else:
                 logger.info("{} = {}".format(envar,e))
 
-        self.environ=os.environ
+        self.environ = os.environ
         logger.debug(self.environ.items())
 
     def setnewenv(self,key,value):

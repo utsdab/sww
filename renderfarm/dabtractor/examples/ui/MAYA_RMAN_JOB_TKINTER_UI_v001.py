@@ -20,7 +20,7 @@ from tkMessageBox import *
 
 import datetime
 import tractor.api.author as author
-import sww.renderfarm.dabtractor.factories.environment_factory as envfac
+import renderfarm.dabtractor.factories.environment_factory as envfac
 
 BASE = RAISED
 SELECTED = FLAT

@@ -226,8 +226,8 @@ class Render(object):
                                               atmost=int(self.threads),
                                               service="RfMRibGen")
 
-        task_permissions_preflight.addCommand(command_permissions1)
-        task_permissions_preflight.addCommand(command_permissions2)
+        #task_permissions_preflight.addCommand(command_permissions1)
+        #task_permissions_preflight.addCommand(command_permissions2)
 
         task_generate_rib_preflight.addCommand(command_ribgen)
 

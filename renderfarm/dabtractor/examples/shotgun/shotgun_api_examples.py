@@ -9,7 +9,7 @@ Shotgun API examples
 import os
 from pprint import pprint
 import sys
-import sww.renderfarm.dabtractor.factories.shotgun_factory as sgfac
+import renderfarm.dabtractor.factories.shotgun_factory as sgfac
 
 import logging
 

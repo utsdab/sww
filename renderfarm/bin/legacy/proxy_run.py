@@ -4,7 +4,7 @@ This script
 '''
 import argparse
 import os,sys
-from sww.renderfarm.dabtractor.factories import environment_factory as config
+from renderfarm.dabtractor.factories import environment_factory as config
 
 
 # ##############################################################
@@ -19,7 +19,7 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 # ##############################################################
 
-from sww.renderfarm.dabtractor.utils import proxy_runner as pr
+from renderfarm.dabtractor.utils import proxy_runner as pr
 
 
 if __name__ == '__main__':
