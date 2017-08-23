@@ -54,118 +54,118 @@ contextCmdName = "spMoveManipCtxCmd"
 nodeName = "spMoveManip"
 
 class moveManip(OpenMayaMPx.MPxManipContainer):
-	fDistanceManip = OpenMaya.MDagPath()
-	fFreePointManip = OpenMaya.MDagPath()
+    fDistanceManip = OpenMaya.MDagPath()
+    fFreePointManip = OpenMaya.MDagPath()
 
-	def __init__(self):
-		OpenMayaMPx.MPxManipContainer.__init__(self)
+    def __init__(self):
+        OpenMayaMPx.MPxManipContainer.__init__(self)
 
-	def createChildren(self):
-		self.fDistanceManip = self.addDistanceManip("distanceManip", "distance")
-		distanceManipFn = OpenMayaUI.MFnDistanceManip(self.fDistanceManip)
-		startPoint = OpenMaya.MPoint(0.0, 0.0, 0.0)
-		direction = OpenMaya.MVector(0.0, 1.0, 0.0)
-		distanceManipFn.setStartPoint(startPoint)
-		distanceManipFn.setDirection(direction)
-		self.fFreePointManip = self.addFreePointTriadManip("pointManip", "freePoint")
+    def createChildren(self):
+        self.fDistanceManip = self.addDistanceManip("distanceManip", "distance")
+        distanceManipFn = OpenMayaUI.MFnDistanceManip(self.fDistanceManip)
+        startPoint = OpenMaya.MPoint(0.0, 0.0, 0.0)
+        direction = OpenMaya.MVector(0.0, 1.0, 0.0)
+        distanceManipFn.setStartPoint(startPoint)
+        distanceManipFn.setDirection(direction)
+        self.fFreePointManip = self.addFreePointTriadManip("pointManip", "freePoint")
 
-	def connectToDependNode(self, node):
-		nodeFn = OpenMaya.MFnDependencyNode(node)
+    def connectToDependNode(self, node):
+        nodeFn = OpenMaya.MFnDependencyNode(node)
 
-		try:
-			syPlug = nodeFn.findPlug("scaleY")
-			tPlug = nodeFn.findPlug("translate")
-			distanceManipFn = OpenMayaUI.MFnDistanceManip(self.fDistanceManip)
-			distanceManipFn.connectToDistancePlug(syPlug)
-			freePointManipFn = OpenMayaUI.MFnFreePointTriadManip(self.fFreePointManip)
-			freePointManipFn.connectToPointPlug(tPlug)
-			OpenMayaMPx.MPxManipContainer.finishAddingManips(self)
-			OpenMayaMPx.MPxManipContainer.connectToDependNode(self,node)
-		except:
-			sys.stderr.write( "Error finding and connecting plugs\n" )
-			raise
+        try:
+            syPlug = nodeFn.findPlug("scaleY")
+            tPlug = nodeFn.findPlug("translate")
+            distanceManipFn = OpenMayaUI.MFnDistanceManip(self.fDistanceManip)
+            distanceManipFn.connectToDistancePlug(syPlug)
+            freePointManipFn = OpenMayaUI.MFnFreePointTriadManip(self.fFreePointManip)
+            freePointManipFn.connectToPointPlug(tPlug)
+            OpenMayaMPx.MPxManipContainer.finishAddingManips(self)
+            OpenMayaMPx.MPxManipContainer.connectToDependNode(self,node)
+        except:
+            sys.stderr.write( "Error finding and connecting plugs\n" )
+            raise
 
 def moveManipCreator():
-	return OpenMayaMPx.asMPxPtr( moveManip() )
+    return OpenMayaMPx.asMPxPtr( moveManip() )
 
 def moveManipInitialize():
-	OpenMayaMPx.MPxManipContainer.initialize()
+    OpenMayaMPx.MPxManipContainer.initialize()
 
 class moveManipContext(OpenMayaMPx.MPxSelectionContext):
-	def __init__(self):
-		OpenMayaMPx.MPxSelectionContext.__init__(self)
+    def __init__(self):
+        OpenMayaMPx.MPxSelectionContext.__init__(self)
 
-	def toolOnSetup(self,event):
-		updateManipulators(self)
-		OpenMaya.MModelMessage.addCallback(OpenMaya.MModelMessage.kActiveListModified, updateManipulators, self)
+    def toolOnSetup(self,event):
+        updateManipulators(self)
+        OpenMaya.MModelMessage.addCallback(OpenMaya.MModelMessage.kActiveListModified, updateManipulators, self)
 
 
 def updateManipulators(clientData):
-	clientData.deleteManipulators()
-	selectionList = OpenMaya.MSelectionList()
+    clientData.deleteManipulators()
+    selectionList = OpenMaya.MSelectionList()
 
-	OpenMaya.MGlobal.getActiveSelectionList(selectionList)
-	selectionIter = OpenMaya.MItSelectionList(selectionList, OpenMaya.MFn.kInvalid)
-	while not selectionIter.isDone():
-		dependNode = OpenMaya.MObject()
-		selectionIter.getDependNode(dependNode)
-		if dependNode.isNull() or not dependNode.hasFn(OpenMaya.MFn.kDependencyNode):
-			print "depend node is null"
-			continue
-		dependNodeFn = OpenMaya.MFnDependencyNode(dependNode)
-		rPlug = dependNodeFn.findPlug("translate", False)
-		sPlug = dependNodeFn.findPlug("scaleY", False)
-		if rPlug.isNull() or sPlug.isNull():
-			print "translate and/or scale plugs are null"
-			selectionIter.next()
-			continue
-		manipObject = OpenMaya.MObject()
-		manipulator = OpenMayaMPx.MPxManipContainer.newManipulator(nodeName, manipObject)
-		if manipulator is not None:
-			clientData.addManipulator(manipObject)
-			manipulator.connectToDependNode(dependNode)
-		selectionIter.next()
+    OpenMaya.MGlobal.getActiveSelectionList(selectionList)
+    selectionIter = OpenMaya.MItSelectionList(selectionList, OpenMaya.MFn.kInvalid)
+    while not selectionIter.isDone():
+        dependNode = OpenMaya.MObject()
+        selectionIter.getDependNode(dependNode)
+        if dependNode.isNull() or not dependNode.hasFn(OpenMaya.MFn.kDependencyNode):
+            print "depend node is null"
+            continue
+        dependNodeFn = OpenMaya.MFnDependencyNode(dependNode)
+        rPlug = dependNodeFn.findPlug("translate", False)
+        sPlug = dependNodeFn.findPlug("scaleY", False)
+        if rPlug.isNull() or sPlug.isNull():
+            print "translate and/or scale plugs are null"
+            selectionIter.next()
+            continue
+        manipObject = OpenMaya.MObject()
+        manipulator = OpenMayaMPx.MPxManipContainer.newManipulator(nodeName, manipObject)
+        if manipulator is not None:
+            clientData.addManipulator(manipObject)
+            manipulator.connectToDependNode(dependNode)
+        selectionIter.next()
 
 
 class moveManipCtxCmd(OpenMayaMPx.MPxContextCommand):
-	def __init__(self):
-		OpenMayaMPx.MPxContextCommand.__init__(self)
+    def __init__(self):
+        OpenMayaMPx.MPxContextCommand.__init__(self)
 
-	def makeObj(self):
-		return OpenMayaMPx.asMPxPtr( moveManipContext() )
+    def makeObj(self):
+        return OpenMayaMPx.asMPxPtr( moveManipContext() )
 
 def contextCmdCreator():
-	return OpenMayaMPx.asMPxPtr( moveManipCtxCmd() )
+    return OpenMayaMPx.asMPxPtr( moveManipCtxCmd() )
 
 # initialize the script plug-in
 def initializePlugin(mobject):
-	mplugin = OpenMayaMPx.MFnPlugin(mobject)
+    mplugin = OpenMayaMPx.MFnPlugin(mobject)
 
-	try:
-		mplugin.registerContextCommand( contextCmdName, contextCmdCreator )
-	except:
-		print "Failed to register context command: %s" % contextCmdName
-		raise
+    try:
+        mplugin.registerContextCommand( contextCmdName, contextCmdCreator )
+    except:
+        print "Failed to register context command: %s" % contextCmdName
+        raise
 
-	try:
-		mplugin.registerNode(nodeName, moveManipId, moveManipCreator, moveManipInitialize, OpenMayaMPx.MPxNode.kManipContainer)
-	except:
-		print "Failed to register node: %s" % nodeName
-		raise
+    try:
+        mplugin.registerNode(nodeName, moveManipId, moveManipCreator, moveManipInitialize, OpenMayaMPx.MPxNode.kManipContainer)
+    except:
+        print "Failed to register node: %s" % nodeName
+        raise
 
 # uninitialize the script plug-in
 def uninitializePlugin(mobject):
-	mplugin = OpenMayaMPx.MFnPlugin(mobject)
+    mplugin = OpenMayaMPx.MFnPlugin(mobject)
 
-	try:
-		mplugin.deregisterContextCommand(contextCmdName)
-	except:
-		print "Failed to deregister context command: %s" % contextCmdName
-		raise
+    try:
+        mplugin.deregisterContextCommand(contextCmdName)
+    except:
+        print "Failed to deregister context command: %s" % contextCmdName
+        raise
 
-	try:
-		mplugin.deregisterNode(moveManipId)
-	except:
-		print "Failed to deregister node: %s" % nodeName
-		raise
+    try:
+        mplugin.deregisterNode(moveManipId)
+    except:
+        print "Failed to deregister node: %s" % nodeName
+        raise
 
