@@ -84,7 +84,7 @@ class Window(WindowBase):
         __row = 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor3, text="Maya RIB generation then Ar").grid(row=__row, column=0,
+        tk.Label(self.canvas, bg=self.bgcolor3, text="Maya ass generation then kick").grid(row=__row, column=0,
                                                                                         columnspan=5, sticky=tk.W + tk.E)
         __row += 1
 
@@ -242,23 +242,23 @@ class Window(WindowBase):
         tk.Label(self.canvas, bg=self.bgcolor3,text="Renderer Specific Details").grid(row=__row,column=0, columnspan=4,sticky=tk.W + tk.E)
         __row += 1
 
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="Renderman Version").grid(row=__row, column=0, sticky=tk.E)
-        self.rendermanversion = tk.StringVar()
-        self.rendermanversion.set(self.job.env.config.getdefault("renderman","version"))
-        self.rendermanversionbox = ttk.Combobox(self.canvas, textvariable=self.rendermanversion)
-        self.rendermanversionbox.config(values=self.job.env.config.getoptions("renderman","version"), justify=tk.CENTER)
-        self.rendermanversionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        __row += 1
+        # # ###################################################################
+        # tk.Label(self.canvas, bg=self.bgcolor1,text="Arnold Version").grid(row=__row, column=0, sticky=tk.E)
+        # self.rendermanversion = tk.StringVar()
+        # self.rendermanversion.set(self.job.env.config.getdefault("arnold","version"))
+        # self.rendermanversionbox = ttk.Combobox(self.canvas, textvariable=self.rendermanversion)
+        # self.rendermanversionbox.config(values=self.job.env.config.getoptions("arnold","version"), justify=tk.CENTER)
+        # self.rendermanversionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        # __row += 1
 
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="Intergrator").grid(row=__row, column=0, sticky=tk.E)
-        self.integrator = tk.StringVar()
-        self.integrator.set(self.job.env.config.getdefault("renderman","integrator"))
-        self.integratorbox = ttk.Combobox(self.canvas, textvariable=self.integrator)
-        self.integratorbox.config(values=self.job.env.config.getoptions("renderman","integrator"), justify=tk.CENTER)
-        self.integratorbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        __row += 1
+        # # ###################################################################
+        # tk.Label(self.canvas, bg=self.bgcolor1,text="Intergrator").grid(row=__row, column=0, sticky=tk.E)
+        # self.integrator = tk.StringVar()
+        # self.integrator.set(self.job.env.config.getdefault("renderman","integrator"))
+        # self.integratorbox = ttk.Combobox(self.canvas, textvariable=self.integrator)
+        # self.integratorbox.config(values=self.job.env.config.getoptions("renderman","integrator"), justify=tk.CENTER)
+        # self.integratorbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        # __row += 1
 
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1,text="Max Samples").grid(row=__row, column=0, sticky=tk.E)

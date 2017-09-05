@@ -363,8 +363,23 @@ class Project(ShotgunBase):
         finally:
             return _assets
 
-    def assettypeFromAsset(self, project_id=None, asset_id=None):
-        pass
+    def assetFromAssetType(self, project_id=None, asset_type=None):
+        # get asset
+        _assets = {}
+        _fields = ['id','code','sg_asset_type' ]
+        _filters = [
+                    ['project', 'is', {'type': 'Project', 'id': project_id}],
+                    ['sg_asset_type', 'is', asset_type],
+        ]
+        # print project_id,asset_type
+        try:
+            _asset = self.sg.find("Asset", _filters, _fields)
+            _assets = dictfromlistofdicts(_asset, "code", "id")
+
+        except RuntimeError:
+            logger.warn("Cant find any {at} assets".format(at=asset_type))
+        finally:
+            return _assets
 
     def taskFromAsset(self, project_id=None, asset_id=None):
         # get task from asset
@@ -564,6 +579,7 @@ if __name__ == "__main__":
     print pr.assettypes(175)
     print pr.assets(175, "Prop")
     print pr.assettask(175,1241)
+    print pr.assetFromAssetType(175,"character")
 
     # pr.sequences(175)
     # pr.shots(175,304)

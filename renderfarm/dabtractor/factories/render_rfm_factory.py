@@ -49,6 +49,7 @@ class Job(object):
 
         self.farmtier=None
 
+        # This gets department from shotgun and checks it is a valid one in the json file
         if self.env.department in self.env.config.getoptions("renderjob", "projectgroup"):
             logger.info("Department {}".format(self.env.department))
         else:
@@ -83,13 +84,12 @@ class Job(object):
         self.shotgunSeqAss = None
         self.shotgunShot = None
         self.shotgunClass = None
-        # self.shotgunAsset = None
-        # self.shotgunAssettype = None
+        self.shotgunShotAsset = None
+        self.shotgunShotAssetType = None
         self.shotgunTask = None
         self.shotgunProjectId = None
-
-        self.shotgunSeqAssId = None
-        self.shotgunShotAssettypeId = None
+        self.shotgunShotAssetId = None
+        self.shotgunShotAssetTypeId = None
         self.shotgunTaskId = None
         self.sendToShotgun = False
 
