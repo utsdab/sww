@@ -88,6 +88,7 @@ class Job(object):
         self.shotgunShotAssetType = None
         self.shotgunTask = None
         self.shotgunProjectId = None
+        self.shotgunSeqAssId = None
         self.shotgunShotAssetId = None
         self.shotgunShotAssetTypeId = None
         self.shotgunTaskId = None

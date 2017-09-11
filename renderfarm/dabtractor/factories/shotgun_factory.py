@@ -429,6 +429,22 @@ class Project(ShotgunBase):
         finally:
             return _tasks
 
+    def taskFromAsset(self, project_id=None, asset_id=None):
+        # get tasks from shot
+        _tasks = {}
+        _fields = ['id','cached_display_name']
+        _filters = [
+            ['project', 'is', {'type': 'Project', 'id': project_id}],
+            ['entity', 'is', {'type': 'Asset', 'id': asset_id}]
+        ]
+        try:
+            _task = self.sg.find("Task", _filters, _fields)
+            _tasks=dictfromlistofdicts(_task, "cached_display_name", "id")
+        except RuntimeError:
+            logger.warn("Cant find any tasks")
+        finally:
+            return _tasks
+
 class People(ShotgunBase):
     def __init__(self):
         super(People, self).__init__()
