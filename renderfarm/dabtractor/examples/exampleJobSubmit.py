@@ -15,6 +15,32 @@ def test_short():
     bgTask = compTask.newTask(title="render bg", argv="prman foreground.rib")
     print job
 
+def test_mayahandler():
+    """This test shows how a two task job can be built with many more
+    statements.
+    """
+    job = author.Job()
+    job.title = "Simple maya job and handler"
+    job.priority = 10
+    job.comment = "This is a test job"
+    job.projects = ["admin"]
+    job.tier = "batch"
+    job.tags = ["theWholeFarm"]
+    job.envkey = ["maya2017"]
+
+    mayaTask = author.Task()
+    mayaTask.title = "Maya Job"
+    #mayaTask.service = "Maya"
+
+    mayaCommand = author.Command()
+    mayaCommand.argv = "maya -batch -version"
+    mayaCommand.service = "Maya"
+    # mayaCommand.type = "RC"
+    mayaTask.addCommand(mayaCommand)
+
+
+    job.addChild(mayaTask)
+    print job.asTcl()
 
 def test_long():
     """This test shows how a two task job can be built with many more
@@ -235,12 +261,13 @@ def test_postscript_error():
 
 if __name__ == "__main__":
     """Run testing."""
-    test_short()
-    test_long()
-    test_all()
-    test_instance()
-    test_double_add()
-    test_bad_attr()
-    test_postscript()
-    test_postscript_error()
+    # test_short()
+    # test_long()
+    # test_all()
+    # test_instance()
+    # test_double_add()
+    # test_bad_attr()
+    # test_postscript()
+    # test_postscript_error()
     # test_spool()
+    test_mayahandler()

@@ -21,7 +21,7 @@ def parseArguments():
     parser = argparse.ArgumentParser(description="Simple sendmail wrapper",  epilog="This is a pain to get right")
     parser.add_argument("-o", dest="Ownerid",  help="Shotgun Owner id")
     parser.add_argument("-p", dest="Projectid",  help="What you are sending")
-    # parser.add_argument("--aid", dest="assetid",   help="Shotgun asset id")
+    parser.add_argument("-a", dest="Assetid",   help="Shotgun asset id")
     # parser.add_argument("--atid", dest="assettypeid",   help="Shotgun asset type id")
     # parser.add_argument("--sqid", dest="sequenceid",  help="Shotgun sequence id")
     # parser.add_argument("--epid", dest="episodeid",  help="Shotgun episode id")
@@ -74,7 +74,7 @@ if __name__ == '__main__':
         description=arguments.Description
         media=arguments.Media
     except Exception, err:
-        logger.warn("Wronh type of input data: {}".format(err))
+        logger.warn("Wrong type of input data: {}".format(err))
         sys.exit(0)
     try:
         sgt.Version(

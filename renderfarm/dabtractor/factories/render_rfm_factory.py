@@ -27,7 +27,6 @@ class Job(object):
     def __init__(self):
         """
         The payload of gui-data needed to describe a rfm render job
-
         """
         self.usernumber = None
         self.username = None
@@ -81,16 +80,13 @@ class Job(object):
         self.mayaversion = None
         self.rendermanversion = None
         self.shotgunProject = None
-        self.shotgunSeqAss = None
-        self.shotgunShot = None
+        self.shotgunProjectId = None
         self.shotgunClass = None
         self.shotgunShotAsset = None
-        self.shotgunShotAssetType = None
-        self.shotgunTask = None
-        self.shotgunProjectId = None
-        self.shotgunSeqAssId = None
         self.shotgunShotAssetId = None
-        self.shotgunShotAssetTypeId = None
+        self.shotgunSeqAssetType = None
+        self.shotgunSeqAssetTypeId = None
+        self.shotgunTask = None
         self.shotgunTaskId = None
         self.sendToShotgun = False
 
@@ -308,8 +304,8 @@ class Render(object):
             _ribfile = "{proj}/rib/{frame:04d}/{frame:04d}.rib".format(
                 proj=self.rendermanpath, frame=frame)
             _shotgunupload = "PR:{} SQ:{} SH:{} TA:{}".format(self.job.shotgunProject,
-                                                  self.job.shotgunSequence,
-                                                  self.job.shotgunShot,
+                                                  self.job.shotgunSeqAssetType,
+                                                  self.job.shotgunShotAsset,
                                                   self.job.shotgunTask)
 
             _taskMetaData={}
@@ -459,14 +455,15 @@ class Render(object):
 
         # ############## 6 SEND TO SHOTGUN ###############
         if self.job.sendToShotgun:
-            logger.info("Sending to Shotgun = {} {} {} {}".format(self.job.shotgunProjectId,self.job.shotgunSequenceId,self.job.shotgunShotId,self.job.shotgunTaskId))
+            logger.info("Sending to Shotgun = {} {} {} {}".format(self.job.shotgunProjectId,self.job.shotgunSeqAssetTypeId,self.job.shotgunShotAssetId,self.job.shotgunTaskId))
             _description = "Auto Uploaded from {} {} {} {}".format(self.job.envtype,self.job.envproject, self.job.envshow,self.job.envscene)
             _uploadcmd = ""
             if self.job.shotgunTaskId:
                 _uploadcmd = ["shotgunupload.py",
                               "-o", self.job.shotgunOwnerId,
                               "-p", self.job.shotgunProjectId,
-                              "-s", self.job.shotgunShotId,
+                              "-s", self.job.shotgunShotAssetId,
+                              "-a", self.job.shotgunShotAssetId,
                               "-t", self.job.shotgunTaskId,
                               "-n", _mov,
                               "-d", _description,
@@ -475,11 +472,12 @@ class Render(object):
                 _uploadcmd = ["shotgunupload.py",
                               "-o", self.job.shotgunOwnerId,
                               "-p", self.job.shotgunProjectId,
-                              "-s", self.job.shotgunShotId,
+                              "-s", self.job.shotgunShotAssetId,
+                              "-a", self.job.shotgunShotAssetId,
                               "-n", _mov,
                               "-d", _description,
                               "-m", _outmov ]
-            task_upload = self.job.env.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSequence,self.job.shotgunShot, self.job.shotgunTask))
+            task_upload = self.job.env.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSeqAssetType,self.job.shotgunShotAsset, self.job.shotgunTask))
             uploadcommand = self.job.env.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"], envkey=["PixarRender"])
             task_upload.addCommand(uploadcommand)
             task_thisjob.addChild(task_upload)

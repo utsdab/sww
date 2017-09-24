@@ -1,21 +1,14 @@
 #!/usr/bin/env rmanpy
-
-# TODO move this into a tabbed single interface
-# TODO handle layers
-# TODO handle integrators
-# TODO handle ribgen only
+'''
+Build Interface for Arnold submission
+'''
 
 
-###############################################################
-import logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-sh = logging.StreamHandler()
-sh.setLevel(logging.INFO)
-formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
-sh.setFormatter(formatter)
-logger.addHandler(sh)
-###############################################################
+
+
+
+
+
 
 import Tkinter as tk
 import ttk
@@ -23,11 +16,17 @@ import tkFileDialog
 import Tkconstants
 import os
 import renderfarm.dabtractor as dabtractor
-# import renderfarm.dabtractor.factories.site_factory as config
-# import renderfarm.dabtractor.factories.environment_factory as envfac
 import renderfarm.dabtractor.factories.render_arnold_factory as rfac
-from renderfarm.dabtractor.factories.shotgun_factory import Person
 import renderfarm.dabtractor.factories.utils_factory as utils
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+sh = logging.StreamHandler()
+sh.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
+sh.setFormatter(formatter)
+logger.addHandler(sh)
 
 
 class WindowBase(object):
@@ -36,14 +35,14 @@ class WindowBase(object):
         self.spooljob = False
         self.validatejob = False
         self.master = tk.Tk()
-        self.job=rfac.Job()
-        # self.shotgun=Person()
-        # self.job.shotgunOwner=self.shotgun.shotgunname
-        # self.job.shotgunOwnerId=self.shotgun.shotgun_id
-        self.shotgun=self.job.env.person
-        self.job.shotgunOwner=self.shotgun.shotgunname
-        self.job.shotgunOwnerId=self.shotgun.shotgun_id
-
+        try:
+            self.job=rfac.Job()
+        except Exception, err:
+            logger.warn("Couldnt get the job definition {}".format(err))
+        else:
+            self.shotgun=self.job.env.person
+            self.job.shotgunOwner=self.shotgun.shotgunname
+            self.job.shotgunOwnerId=self.shotgun.shotgun_id
 
 class Window(WindowBase):
     """ Ui Class for render submit  """
@@ -55,10 +54,14 @@ class Window(WindowBase):
         self.msg_selectshow = 'Select your SHOW'
         self.msg_workspaceok = 'workspace.mel FOUND'
         self.msg_workspacebad = 'WARNING - no workspace.mel in your project'
-        self.msg_selectSgtProject = 'Select your shotgun project to upload to'
-        self.msg_selectSgtSequence = 'Now Select your shotgun sequence'
-        self.msg_selectSgtShot = 'Now Select your shotgun shot'
-        self.msg_selectSgtTask = 'Lastly Select your shotgun task'
+        self.msg_selectSgtProject = 'Select your shotgun PROJECT'
+        self.msg_selectSgtSequence = 'Now Select your project SEQUENCE'
+        self.msg_selectSgtAssetType = 'Now Select your asset TYPE'
+        self.msg_selectSgtShot = 'Now Select your sequence SHOT'
+        self.msg_selectSgtAsset = 'Now Select your project ASSET'
+        self.msg_selectSgtTask = 'Optionally Select your TASK'
+        self.msg_selectSgtClass = 'ASSETS or SHOTS ?'
+        self.msg_null = ""
         self.filefullpath = ""
         self.projfullpath = ""
         self.workspace = ""
@@ -68,13 +71,14 @@ class Window(WindowBase):
         self.bgcolor3 = "pale green"
         self.master.configure(background=self.bgcolor1)
         self.user = os.getenv("USER")
-        self.master.title("Renderman For Maya Tractor Submit: {u}".format(u=self.user))
+        self.master.title("Arnold Tractor Submit: {u}".format(u=self.user))
 
         # ################ Options for buttons and canvas ####################
         self.button_opt = {'fill': Tkconstants.BOTH, 'padx': 5, 'pady': 5}
         self.label_opt = {'fill': Tkconstants.BOTH, 'padx': 5, 'pady': 5}
+
         self.canvas = tk.Canvas(self.master, height=200, width=300)
-        self.canvas.pack(expand=True, fill=tk.BOTH)
+        self.canvas.pack(expand=False, fill=tk.BOTH)
 
         imagepath = os.path.join(os.path.dirname(dabtractor.__file__),"icons","Arnold_logo_small.gif")
         imagetk = tk.PhotoImage(file=imagepath)
@@ -135,11 +139,12 @@ class Window(WindowBase):
         __row += 1
 
         self.sgtProject = tk.StringVar()
-        self.sgtSequence = tk.StringVar()
-        self.sgtShot = tk.StringVar()
+        self.sgtClass = tk.StringVar()
+        self.sgtShotAss = tk.StringVar()
+        self.sgtSeqAssType = tk.StringVar()
         self.sgtTask = tk.StringVar()
 
-        # ###################################################################
+        # ########################### S H O T G U N ############################
         _txt="Send the resulting proxy to Shotgun"
         self.sendToShotgun = tk.IntVar()
         self.sendToShotgun.set(1)
@@ -148,43 +153,53 @@ class Window(WindowBase):
         self.sendtoshotgunbut.config(text=_txt)
         self.sendtoshotgunbut.grid(row=__row,column=1,sticky=tk.W)
         __row += 1
+
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1,text="SHOTGUN PROJ").grid(row=__row, column=0, sticky=tk.E)
         self.sgtProject.set(self.msg_selectSgtProject)
         self.sgtProjectBox = ttk.Combobox(self.canvas, textvariable=self.sgtProject)
-        self.sgtProjectBox.config(values=self.getShotgunProjectValues(), justify=tk.CENTER)
+        self.sgtProjectBox.config(values=self.getSgtProjectValues(), justify=tk.CENTER)
         self.sgtProjectBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        self.sgtProjectBox.bind("<<ComboboxSelected>>", self.setShotgunProject)
+        self.sgtProjectBox.bind("<<ComboboxSelected>>", self.setSgtProject)
         __row += 1
+
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="SHOTGUN SEQ").grid(row=__row, column=0, sticky=tk.E)
-        self.sgtSequence.set(self.msg_selectSgtSequence)
-        self.sgtSequenceBox = ttk.Combobox(self.canvas, textvariable=self.sgtSequence)
-        self.sgtSequenceBox.config(values=self.getShotgunSequenceValues(),justify=tk.CENTER)
-        self.sgtSequenceBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        self.sgtSequenceBox.bind("<<ComboboxSelected>>", self.setShotgunSequence)
+        tk.Label(self.canvas, bg=self.bgcolor1,text="SHOTS or ASSETS").grid(row=__row, column=0, sticky=tk.E)
+        self.sgtClass.set(self.msg_null)
+        self.sgtClassBox = ttk.Combobox(self.canvas, textvariable=self.sgtClass)
+        self.sgtClassBox.config(values=self.getSgtClassValues(), justify=tk.CENTER)
+        self.sgtClassBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        self.sgtClassBox.bind("<<ComboboxSelected>>", self.setSgtClass)
         __row += 1
+
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="SHOTGUN SHOT").grid(row=__row, column=0, sticky=tk.E)
-        self.sgtShot.set(self.msg_selectSgtShot)
-        self.sgtShotBox = ttk.Combobox(self.canvas, textvariable=self.sgtShot)
-        self.sgtShotBox.config(values=self.getShotgunShotValues(),justify=tk.CENTER)
-        self.sgtShotBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        self.sgtShotBox.bind("<<ComboboxSelected>>", self.setShotgunShot)
+        tk.Label(self.canvas, bg=self.bgcolor1, text="SEQUENCE or ASSETTYPE").grid(row=__row, column=0, sticky=tk.E)
+        self.sgtSeqAssType.set(self.msg_null)
+        self.sgtSeqAssTypeBox = ttk.Combobox(self.canvas, textvariable=self.sgtSeqAssType)
+        self.sgtSeqAssTypeBox.config(values=self.getSgtSeqAssTypeValues(), justify=tk.CENTER)
+        self.sgtSeqAssTypeBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        self.sgtSeqAssTypeBox.bind("<<ComboboxSelected>>", self.setSgtSeqAssetType)
         __row += 1
+
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="SHOTGUN TASK").grid(row=__row, column=0, sticky=tk.E)
-        self.sgtShot.set(self.msg_selectSgtShot)
+        tk.Label(self.canvas, bg=self.bgcolor1,text="SHOT or ASSET").grid(row=__row, column=0, sticky=tk.E)
+        self.sgtShotAss.set(self.msg_null)
+        self.sgtShotAssBox = ttk.Combobox(self.canvas, textvariable=self.sgtShotAss)
+        self.sgtShotAssBox.config(values=self.getSgtShotAssValues(), justify=tk.CENTER)
+        self.sgtShotAssBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        self.sgtShotAssBox.bind("<<ComboboxSelected>>", self.setSgtShotAss)
+        __row += 1
+
+        # ###################################################################
+        tk.Label(self.canvas, bg=self.bgcolor1,text="TASK").grid(row=__row, column=0, sticky=tk.E)
+        self.sgtTask.set(self.msg_null)
         self.sgtTaskBox = ttk.Combobox(self.canvas, textvariable=self.sgtTask)
-        self.sgtTaskBox.config(values=self.getShotgunTaskValues(),justify=tk.CENTER)
+        self.sgtTaskBox.config(values=self.getSgtTaskValues(), justify=tk.CENTER)
         self.sgtTaskBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        self.sgtTaskBox.bind("<<ComboboxSelected>>", self.setShotgunTask)
+        self.sgtTaskBox.bind("<<ComboboxSelected>>", self.setSgtTask)
         __row += 1
 
-
-
-
-        # ###################################################################
+        # ########################## M A Y A ##########################
         tk.Label(self.canvas, bg=self.bgcolor3,text="Maya Generic Details").grid(row=__row, column=0, columnspan=4, rowspan=1, sticky=tk.W + tk.E)
         __row += 1
 
@@ -238,7 +253,7 @@ class Window(WindowBase):
         self.resolutionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
-        # ###################################################################
+        # ############################ D E T A I L S ##########################
         tk.Label(self.canvas, bg=self.bgcolor3,text="Renderer Specific Details").grid(row=__row,column=0, columnspan=4,sticky=tk.W + tk.E)
         __row += 1
 
@@ -314,15 +329,14 @@ class Window(WindowBase):
         tk.Label(self.canvas, bg=self.bgcolor3,text="Make Proxy").grid(row=__row,column=0,columnspan=4,sticky=tk.W + tk.E)
         __row += 1
 
-        # ###################################################################
+        # ########################### P R O X Y ############################
         _txt="Make Movie from Finished Frames"
         self.makeproxy = tk.IntVar()
         self.makeproxy.set(1)
-        tk.Checkbutton(self.canvas, bg=self.bgcolor1, text=_txt, variable=self.makeproxy).grid(row=__row, column=1,
-                                                                                            sticky=tk.W)
+        tk.Checkbutton(self.canvas, bg=self.bgcolor1, text=_txt, variable=self.makeproxy).grid(row=__row, column=1,sticky=tk.W)
         __row += 1
 
-        # ###################################################################
+        # ########################### N O T I F I C A T I O N S #############
         _txt="Tractor Notifications"
         tk.Label(self.canvas, bg=self.bgcolor3, text=_txt).grid(row=__row,column=0,columnspan=4,sticky=tk.W + tk.E)
         __row += 1
@@ -344,10 +358,8 @@ class Window(WindowBase):
         self.emailtaskendbut=tk.Checkbutton(self.canvas, variable=self.emailtaskend, bg=self.bgcolor1, text="Each Frame End").grid(row=__row, column=1, sticky=tk.W)
         __row += 1
 
-
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor3, text="Submit Job To Tractor").grid(\
-            row=__row, column=0, columnspan=4, sticky=tk.W + tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor3, text="Submit Job To Tractor").grid(row=__row, column=0, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
@@ -365,202 +377,189 @@ class Window(WindowBase):
     # ############################################################
     def setSendToShotgun(self):
         if  not self.sendToShotgun.get():
-            self.sgtProjectBox.set(self.msg_selectSgtProject)
-            self.sgtSequence.set(self.msg_selectSgtSequence)
-            self.sgtShot.set(self.msg_selectSgtShot)
-            self.sgtTask.set(self.msg_selectSgtTask)
+            self.sgtProjectBox.set(self.msg_null)
+            self.sgtSeqAssType.set(self.msg_null)
+            self.sgtShotAss.set(self.msg_null)
+            self.sgtTask.set(self.msg_null)
+            self.sgtClass.set(self.msg_null)
             self.sgtProjectBox.config(values=[], justify=tk.CENTER)
-            self.sgtSequenceBox.configure(values=[], justify=tk.CENTER)
-            self.sgtShotBox.config(values=[],justify=tk.CENTER)
+            self.sgtSeqAssTypeBox.configure(values=[], justify=tk.CENTER)
+            self.sgtShotAssBox.config(values=[], justify=tk.CENTER)
             self.sgtTaskBox.config(values=[],justify=tk.CENTER)
             self.job.sendToShotgun = False
             #set widget off too!
         else:
-            self.sgtProjectBox.config(values=self.getShotgunProjectValues(), justify=tk.CENTER)
+            self.sgtProjectBox.set(self.msg_selectSgtProject)
+            self.sgtSeqAssType.set(self.msg_null)
+            self.sgtShotAss.set(self.msg_null)
+            self.sgtTask.set(self.msg_null)
+            self.sgtProjectBox.config(values=self.getSgtProjectValues(), justify=tk.CENTER)
             self.job.sendToShotgun = True
 
 
-    def getShotgunProjectValues(self):
-        return self.shotgun.myProjects().keys()
+    def getSgtProjectValues(self):
+        logger.debug("Run: {}".format("getSgtProjectValues"))
+        _ret = self.shotgun.myProjects().keys()
+        _ret.sort()
+        return _ret
 
-    def setShotgunProject(self, entity):
+    def setSgtProject(self, entity):
+        logger.debug("Run: {}".format("setSgtProject"))
         try:
-            self.sgtSequence.set(self.msg_selectSgtSequence)
+            self.sgtClass.set(self.msg_selectSgtClass)
+            self.sgtShotAss.set(self.msg_null)
+            self.sgtSeqAssType.set(self.msg_null)
+            self.sgtTask.set(self.msg_null)
         except:
             pass
-        try:
-            self.sgtShot.set(self.msg_selectSgtShot)
-        except:
-            pass
-        try:
-            self.sgtTask.set(self.msg_selectSgtTask)
-        except:
-            pass
-        try:
-            self.sgtSequenceBox.configure(values=[], justify=tk.CENTER)
-        except:
-            pass
-        try:
-            self.sgtShotBox.config(values=[],justify=tk.CENTER)
-        except:
-            pass
-        try:
-            self.sgtTaskBox.config(values=[],justify=tk.CENTER)
-        except:
-            pass
+
         self.job.shotgunProject = self.sgtProject.get()
         self.job.shotgunProjectId = self.shotgun.myProjects().get(self.job.shotgunProject)
         logger.info("Shotgun Project is {} id {}".format( self.job.shotgunProject, self.job.shotgunProjectId))
-        self.getShotgunSequenceValues()
+        self.getSgtClassValues()
 
-    def getShotgunSequenceValues(self):
-        _ret=None
-        # print self.job.shotgunProjectId
-        if not self.job.shotgunProjectId:
-            try:
-                self.sgtSequence.set(self.msg_selectSgtSequence)
-            except:
-                pass
-            try:
-                self.sgtShot.set(self.msg_selectSgtShot)
-            except:
-                pass
-            try:
-                self.sgtTask.set(self.msg_selectSgtTask)
-            except:
-                pass
-            try:
-                self.sgtSequenceBox.configure(values=[], justify=tk.CENTER)
-            except:
-                pass
-            try:
-                self.sgtShotBox.config(values=[],justify=tk.CENTER)
-            except:
-                pass
-            try:
-                self.sgtTaskBox.config(values=[],justify=tk.CENTER)
-            except:
-                pass
-        else:
-            _ret=self.shotgun.seqFromProject(self.job.shotgunProjectId).keys()
-            self.sgtSequenceBox.configure(values=_ret, justify=tk.CENTER)
-        # print _ret
+    def getSgtClassValues(self):
+        logger.debug("Run: {}".format("getSgtClassValues"))
+        _ret = ["ASSETS", "SHOTS"]
+        _ret.sort()
         return _ret
 
-    def setShotgunSequence(self,entity):
-        # print self.job.shotgunProjectId
+    def setSgtClass(self, event):
+        logger.debug("Run: {}".format("setSgtClass"))
+        # Just bind the virtual event <<ComboboxSelected>> to the Combobox widget
+        self.job.shotgunClass = self.sgtClass.get()
+        if self.job.shotgunClass == "ASSETS":
+            self.sgtSeqAssType.set(self.msg_selectSgtAssetType)
+            self.sgtShotAss.set(self.msg_null)
+            self.sgtTask.set(self.msg_null)
+        elif self.job.shotgunClass == "SHOTS":
+            self.sgtSeqAssType.set(self.msg_selectSgtSequence)
+            self.sgtShotAss.set(self.msg_null)
+            self.sgtTask.set(self.msg_null)
+        else:
+            self.sgtClass.set(self.msg_selectSgtClass)
+
+        logger.info("Shotgun Class is {}".format(self.job.shotgunClass))
+        self.getSgtSeqAssTypeValues()
+
+
+    def getSgtSeqAssTypeValues(self):
+        logger.debug("Run: {}".format("getSgtSeqAssTypeValues"))
+        _ret = []
         try:
-            self.sgtShot.set(self.msg_selectSgtShot)
+            self.sgtTask.set(self.msg_null)
+            self.sgtTaskBox.config(values=[], justify=tk.CENTER)
         except:
             pass
+
+        if self.sgtClass.get() == "SHOTS":
+            _ret = self.sgtproject.seqFromProject(self.job.shotgunProjectId).keys()
+
+        elif self.sgtClass.get() == "ASSETS":
+            # just get ones for the asset type
+            _ret = self.sgtproject.assettypes(self.job.shotgunProjectId)
+
+        _ret.sort()
+        self.sgtSeqAssTypeBox.configure(values=_ret, justify=tk.CENTER)
+
+    def setSgtSeqAssetType(self, entity):
+        logger.debug("Run: {}".format("setSgtSeqAssetType"))
         try:
-            self.sgtTask.set(self.msg_selectSgtTask)
-        except:
-            pass
-        try:
-            self.sgtShotBox.config(values=[],justify=tk.CENTER)
-        except:
-            pass
-        try:
+            self.sgtTask.set(self.msg_null)
             self.sgtTaskBox.config(values=[],justify=tk.CENTER)
         except:
             pass
+
+        if self.job.shotgunClass == 'ASSETS':
+            self.sgtShotAss.set(self.msg_selectSgtAsset)
+            self.job.shotgunSeqAss = self.sgtSeqAssType.get()
+            self.job.shotgunSeqAssId = None
+
+        elif self.job.shotgunClass == 'SHOTS':
+            self.sgtShotAss.set(self.msg_selectSgtShot)
+            self.job.shotgunSeqAss = self.sgtSeqAssType.get()
+            _seqs = self.sgtproject.seqFromProject(self.job.shotgunProjectId)
+            self.job.shotgunSeqAssId = _seqs.get(self.job.shotgunSeqAss)
+        else:
+            self.sgtShotAss.set(self.msg_null)
+
+        logger.info("Shotgun Seq/Ass is {} id {}".format(self.job.shotgunSeqAss, self.job.shotgunSeqAssId))
+        self.getSgtShotAssValues()
+
+
+    def getSgtShotAssValues(self):
+        logger.debug("Run: {}".format("getSgtShotAssValues"))
+        _ret = []
+        if self.job.shotgunClass == 'SHOTS':
+            try:
+                _ret = self.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssId).keys()
+            except RuntimeError:
+                print "boing"
+        elif self.job.shotgunClass == 'ASSETS':
+            try:
+                _ret = self.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAss).keys()
+            except RuntimeError:
+                print "bam"
+        _ret.sort()
+        self.sgtShotAssBox.configure(values=_ret, justify=tk.CENTER)
+
+    def setSgtShotAss(self, entity):
+        logger.debug("Run: {}".format("setSgtShotAss"))
+        try:
+            self.sgtTask.set(self.msg_null)
+            self.sgtTaskBox.config(values=[],justify=tk.CENTER)
+        except:
+            pass
+
         if not self.job.shotgunProjectId:
             try:
-                self.sgtSequence.set(self.msg_selectSgtSequence)
-            except:
-                pass
-            try:
-                self.sgtSequenceBox.configure(values=[], justify=tk.CENTER)
+                self.sgtShotAss.set(self.msg_null)
+                self.sgtTask.set(self.msg_null)
             except:
                 pass
         else:
-            self.job.shotgunSequence = self.sgtSequence.get()
-            _seqs = self.shotgun.seqFromProject(self.job.shotgunProjectId)
-            self.job.shotgunSequenceId = _seqs.get(self.job.shotgunSequence)
+            if self.job.shotgunClass == 'SHOTS':
+                self.job.shotgunShotAsset = self.sgtShotAss.get()
+                _shots = self.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssId)
+                # print "x",_shots
+                self.job.shotgunShotAssetId = _shots.get(self.job.shotgunShotAsset)
+            elif self.job.shotgunClass == 'ASSETS':
+                self.job.shotgunShotAsset = self.sgtShotAss.get()
+                _ass = self.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAss)
+                # print "z",_ass
+                self.job.shotgunShotAssetId = _ass.get(self.job.shotgunShotAsset)
+                # self.job.shotgunShotAssetType = _ass.get(self.job.shotgunShotAssetType)
+        logger.info("Shotgun Shot/Asset is {} id {}".format(self.job.shotgunShotAsset, self.job.shotgunShotAssetId))
+        self.getSgtTaskValues()
 
-            logger.info("Shotgun Sequence is {} id {}".format( self.job.shotgunSequence, self.job.shotgunSequenceId))
-        self.getShotgunShotValues()
-
-    def getShotgunShotValues(self):
-        _ret=None
-        try:
-            self.sgtTask.set(self.msg_selectSgtTask)
-        except:
-            pass
-        try:
+    def getSgtTaskValues(self):
+        logger.debug("Run: {}".format("getSgtTaskValues"))
+        _ret = []
+        if not self.job.shotgunShotAssetId:
+            self.sgtTask.set(self.msg_null)
             self.sgtTaskBox.config(values=[],justify=tk.CENTER)
-        except:
-            pass
-        if not self.job.shotgunSequenceId:
-            try:
-                self.sgtShot.set(self.msg_selectSgtShot)
-            except:
-                pass
-            try:
-                self.sgtShotBox.config(values=[],justify=tk.CENTER)
-            except:
-                pass
-        else:
-            _ret=self.shotgun.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSequenceId).keys()
-            self.sgtShotBox.configure(values=_ret, justify=tk.CENTER)
-        # print _ret
-        return _ret
-
-    def setShotgunShot(self,entity):
-        # print self.job.shotgunProjectId
-        # print self.job.shotgunSeqAssId
-        try:
-            self.sgtTask.set(self.msg_selectSgtTask)
-        except:
-            pass
-        try:
-            self.sgtTaskBox.config(values=[],justify=tk.CENTER)
-        except:
-            pass
-        if not self.job.shotgunSequenceId:
-            try:
-                self.sgtShot.set(self.msg_selectSgtShot)
-            except:
-                pass
-            try:
-                self.sgtShotBox.config(values=[],justify=tk.CENTER)
-            except:
-                pass
-        else:
-            self.job.shotgunShot = self.sgtShot.get()
-            _shots = self.shotgun.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSequenceId)
-            # print _shots
-            self.job.shotgunShotId = _shots.get(self.job.shotgunShot)
-            logger.info("Shotgun Shot is {} id {}".format( self.job.shotgunShot, self.job.shotgunShotId))
-        self.getShotgunTaskValues()
-
-    def getShotgunTaskValues(self):
-        _ret=None
-        # print self.job.shotgunProjectId
-        # print self.job.shotgunShotAssettypeId
-        if not self.job.shotgunShotId:
-            self.sgtTask.set(self.msg_selectSgtTask)
-            self.sgtTaskBox.config(values=[],justify=tk.CENTER)
-        else:
-            _ret=self.shotgun.taskFromShot(self.job.shotgunProjectId,self.job.shotgunShotId).keys()
+        elif self.job.shotgunClass == 'SHOTS':
+            _ret=self.sgtproject.taskFromShot(self.job.shotgunProjectId, self.job.shotgunShotAssetId).keys()
+            _ret.sort()
+            # print "n",_ret
             self.sgtTaskBox.configure(values=_ret, justify=tk.CENTER)
-        # print _ret
-        return _ret
+            # self.job.shotgunTaskId = _ret.get(self.job.shotgunTask)
+        elif self.job.shotgunClass == 'ASSETS':
+            _ret=self.sgtproject.taskFromAsset(self.job.shotgunProjectId, self.job.shotgunShotAssetId).keys()
+            _ret.sort()
+            # print "n",_ret
+            self.sgtTaskBox.configure(values=_ret, justify=tk.CENTER)
+            # self.job.shotgunTaskId = _ret.get(self.job.shotgunTask)
 
-    def setShotgunTask(self,entity):
-        # print self.job.shotgunProjectId
-        # print self.job.shotgunSeqAssId
-        if not self.job.shotgunShotId:
+    def setSgtTask(self, entity):
+        logger.debug("Run: {}".format("setSgtTask"))
+        if not self.job.shotgunShotAssetId:
             self.sgtTask.set(self.msg_selectSgtTask)
         else:
             self.job.shotgunTask = self.sgtTask.get()
-            _tasks = self.shotgun.taskFromShot(self.job.shotgunProjectId,self.job.shotgunShotId)
-            # print _shots
+            _tasks = self.sgtproject.taskFromShot(self.job.shotgunProjectId, self.job.shotgunShotAssetId)
             self.job.shotgunTaskId = _tasks.get(self.job.shotgunTask)
             logger.info("Shotgun Task is {} id {}".format( self.job.shotgunTask, self.job.shotgunTaskId))
-
-
 
 
     def setscene(self):
@@ -702,9 +701,8 @@ class Window(WindowBase):
         self.master.destroy()
 
 
+
 if __name__ == "__main__":
-    logger.setLevel(logging.DEBUG)
-    logger.info("--------- TESTING {} ------".format(__file__))
     w=Window()
     # for key in w.job.__dict__.keys():
     #     print "{:20} = {}".format(key,w.job.__dict__.get(key))

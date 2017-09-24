@@ -62,7 +62,7 @@ class Window(WindowBase):
         self.msg_selectSgtAsset = 'Now Select your project ASSET'
         self.msg_selectSgtTask = 'Optionally Select your TASK'
         self.msg_selectSgtClass = 'ASSETS or SHOTS ?'
-        self.msg_null = ''
+        self.msg_null = ""
         self.filefullpath = ""
         self.projfullpath = ""
         self.workspace = ""
@@ -78,13 +78,9 @@ class Window(WindowBase):
         self.button_opt = {'fill': Tkconstants.BOTH, 'padx': 5, 'pady': 5}
         self.label_opt = {'fill': Tkconstants.BOTH, 'padx': 5, 'pady': 5}
 
-
-        # ################  workingon scroll bars for whole canvas  ##########
         self.canvas = tk.Canvas(self.master, height=200, width=300)
         self.canvas.pack(expand=False, fill=tk.BOTH)
 
-
-        # ###################################################################
         imagepath = os.path.join(os.path.dirname(dabtractor.__file__), "icons", "Pixar_logo_small.gif")
         imagetk = tk.PhotoImage(file=imagepath)
         # keep a link to the image to stop the image being garbage collected
@@ -177,7 +173,7 @@ class Window(WindowBase):
         __row += 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1, text="SEQUENCE or ASSET-TYPE").grid(row=__row, column=0, sticky=tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor1, text="SEQUENCE or ASSETTYPE").grid(row=__row, column=0, sticky=tk.E)
         self.sgtSeqAssType.set(self.msg_null)
         self.sgtSeqAssTypeBox = ttk.Combobox(self.canvas, textvariable=self.sgtSeqAssType)
         self.sgtSeqAssTypeBox.config(values=self.getSgtSeqAssTypeValues(), justify=tk.CENTER)
@@ -383,20 +379,20 @@ class Window(WindowBase):
         logger.debug("Run: {}".format("setSendToShotgun"))
         if not self.sendToShotgun.get():
             self.sgtProjectBox.set(self.msg_null)
-            self.sgtSeqAss.set(self.msg_null)
-            self.sgtShotAssType.set(self.msg_null)
+            self.sgtSeqAssType.set(self.msg_null)
+            self.sgtShotAss.set(self.msg_null)
             self.sgtTask.set(self.msg_null)
             self.sgtClass.set(self.msg_null)
             self.sgtProjectBox.config(values=[], justify=tk.CENTER)
-            self.sgtSeqAssBox.configure(values=[], justify=tk.CENTER)
-            self.sgtShotAssTypeBox.config(values=[], justify=tk.CENTER)
+            self.sgtSeqAssTypeBox.configure(values=[], justify=tk.CENTER)
+            self.sgtShotAssBox.config(values=[], justify=tk.CENTER)
             self.sgtTaskBox.config(values=[],justify=tk.CENTER)
             self.job.sendToShotgun = False
             #set widget off too!
         else:
             self.sgtProjectBox.set(self.msg_selectSgtProject)
-            self.sgtSeqAss.set(self.msg_null)
-            self.sgtShotAssType.set(self.msg_null)
+            self.sgtSeqAssType.set(self.msg_null)
+            self.sgtShotAss.set(self.msg_null)
             self.sgtTask.set(self.msg_null)
             self.sgtProjectBox.config(values=self.getSgtProjectValues(), justify=tk.CENTER)
             self.job.sendToShotgun = True
@@ -497,12 +493,12 @@ class Window(WindowBase):
         _ret = []
         if self.job.shotgunClass == 'SHOTS':
             try:
-                _ret = self.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssId).keys()
+                _ret = self.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssetTypeId).keys()
             except RuntimeError:
                 print "boing"
         elif self.job.shotgunClass == 'ASSETS':
             try:
-                _ret = self.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAss).keys()
+                _ret = self.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAssetTypeId).keys()
             except RuntimeError:
                 print "bam"
         _ret.sort()
@@ -525,12 +521,12 @@ class Window(WindowBase):
         else:
             if self.job.shotgunClass == 'SHOTS':
                 self.job.shotgunShotAsset = self.sgtShotAss.get()
-                _shots = self.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssId)
+                _shots = self.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssetTypeId)
                 # print "x",_shots
                 self.job.shotgunShotAssetId = _shots.get(self.job.shotgunShotAsset)
             elif self.job.shotgunClass == 'ASSETS':
                 self.job.shotgunShotAsset = self.sgtShotAss.get()
-                _ass = self.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAss)
+                _ass = self.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAssetTypeId)
                 # print "z",_ass
                 self.job.shotgunShotAssetId = _ass.get(self.job.shotgunShotAsset)
                 # self.job.shotgunShotAssetType = _ass.get(self.job.shotgunShotAssetType)
