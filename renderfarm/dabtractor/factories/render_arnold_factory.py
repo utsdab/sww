@@ -295,13 +295,13 @@ class Render(object):
         __command = "arnoldExportAss"
 
         # loop thru chunks
-        for i,chunk in enumerate(range(1,_chunks+1)):
-            _offset=i*_framesperchunk
-            _chunkstart = int(self.job.jobstartframe) + _offset
-            _chunkend = _offset+_framesperchunk
-            logger.info("Chunk {} is frames {}-{}".format(chunk, _chunkstart, _chunkend))
 
-            if chunk == _chunks:
+        for i, chunk in enumerate(range( 1, _chunks + 1 )):
+            _offset = i * _framesperchunk
+            _chunkstart = int(self.job.jobstartframe) + _offset
+            _chunkend = _chunkstart + _framesperchunk - 1
+
+            if chunk >= _chunks:
                 _chunkend = int(self.job.jobendframe)
 
             task_generate_ass = self.job.env.author.Task(title="ASS GEN chunk {} frames {}-{}".format(

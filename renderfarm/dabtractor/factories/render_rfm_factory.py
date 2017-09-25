@@ -264,11 +264,12 @@ class Render(object):
         for i, chunk in enumerate(range( 1, _chunks + 1 )):
             _offset = i * _framesperchunk
             _chunkstart = int(self.job.jobstartframe) + _offset
-            _chunkend = _offset+_framesperchunk
-            logger.info("Chunk {} is frames {}-{}".format(chunk, _chunkstart, _chunkend))
+            _chunkend = _chunkstart + _framesperchunk - 1
 
-            if chunk == _chunks:
+            if chunk >= _chunks:
                 _chunkend = int(self.job.jobendframe)
+
+            logger.info("Chunk {} is frames {}-{}".format(chunk, _chunkstart, _chunkend))
 
             task_generate_rib = self.job.env.author.Task(title="RIB GEN chunk {} frames {}-{}".format(
                     chunk, _chunkstart, _chunkend ))
