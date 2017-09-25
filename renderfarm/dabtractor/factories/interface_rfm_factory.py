@@ -56,10 +56,10 @@ class Window(WindowBase):
         self.msg_workspaceok = 'workspace.mel FOUND'
         self.msg_workspacebad = 'WARNING - no workspace.mel in your project'
         self.msg_selectSgtProject = 'Select your shotgun PROJECT'
-        self.msg_selectSgtSequence = 'Now Select your project SEQUENCE'
-        self.msg_selectSgtAssetType = 'Now Select your asset TYPE'
-        self.msg_selectSgtShot = 'Now Select your sequence SHOT'
-        self.msg_selectSgtAsset = 'Now Select your project ASSET'
+        self.msg_selectSgtSequence = 'Now Select your SEQUENCE'
+        self.msg_selectSgtAssetType = 'Now Select your ASSET TYPE'
+        self.msg_selectSgtShot = 'Now Select your SHOT'
+        self.msg_selectSgtAsset = 'Now Select your ASSET'
         self.msg_selectSgtTask = 'Optionally Select your TASK'
         self.msg_selectSgtClass = 'ASSETS or SHOTS ?'
         self.msg_null = ""
@@ -164,7 +164,7 @@ class Window(WindowBase):
         __row += 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="SHOTS or ASSETS").grid(row=__row, column=0, sticky=tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor1,text="CLASS").grid(row=__row, column=0, sticky=tk.E)
         self.sgtClass.set(self.msg_null)
         self.sgtClassBox = ttk.Combobox(self.canvas, textvariable=self.sgtClass)
         self.sgtClassBox.config(values=self.getSgtClassValues(), justify=tk.CENTER)
@@ -473,20 +473,19 @@ class Window(WindowBase):
 
         if self.job.shotgunClass == 'ASSETS':
             self.sgtShotAss.set(self.msg_selectSgtAsset)
-            self.job.shotgunSeqAss = self.sgtSeqAssType.get()
-            self.job.shotgunSeqAssId = None
+            self.job.shotgunSeqAssetType = self.sgtSeqAssType.get()
+            self.job.shotgunSeqAssetTypeId = None
 
         elif self.job.shotgunClass == 'SHOTS':
             self.sgtShotAss.set(self.msg_selectSgtShot)
-            self.job.shotgunSeqAss = self.sgtSeqAssType.get()
+            self.job.shotgunSeqAssetType = self.sgtSeqAssType.get()
             _seqs = self.sgtproject.seqFromProject(self.job.shotgunProjectId)
-            self.job.shotgunSeqAssId = _seqs.get(self.job.shotgunSeqAss)
+            self.job.shotgunSeqAssetTypeId = _seqs.get(self.job.shotgunSeqAssetType)
         else:
             self.sgtShotAss.set(self.msg_null)
 
-        logger.info("Shotgun Seq/Ass is {} id {}".format(self.job.shotgunSeqAss, self.job.shotgunSeqAssId))
+        logger.info("Shotgun Seq/Ass is {} id {}".format(self.job.shotgunSeqAssetType, self.job.shotgunSeqAssetTypeId))
         self.getSgtShotAssValues()
-
 
     def getSgtShotAssValues(self):
         logger.debug("Run: {}".format("getSgtShotAssValues"))
@@ -522,16 +521,15 @@ class Window(WindowBase):
             if self.job.shotgunClass == 'SHOTS':
                 self.job.shotgunShotAsset = self.sgtShotAss.get()
                 _shots = self.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssetTypeId)
-                # print "x",_shots
                 self.job.shotgunShotAssetId = _shots.get(self.job.shotgunShotAsset)
             elif self.job.shotgunClass == 'ASSETS':
                 self.job.shotgunShotAsset = self.sgtShotAss.get()
                 _ass = self.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAssetTypeId)
-                # print "z",_ass
                 self.job.shotgunShotAssetId = _ass.get(self.job.shotgunShotAsset)
-                # self.job.shotgunShotAssetType = _ass.get(self.job.shotgunShotAssetType)
         logger.info("Shotgun Shot/Asset is {} id {}".format(self.job.shotgunShotAsset, self.job.shotgunShotAssetId))
         self.getSgtTaskValues()
+        self.sgtTask.set(self.msg_selectSgtTask)
+
 
     def getSgtTaskValues(self):
         logger.debug("Run: {}".format("getSgtTaskValues"))
@@ -542,13 +540,11 @@ class Window(WindowBase):
         elif self.job.shotgunClass == 'SHOTS':
             _ret=self.sgtproject.taskFromShot(self.job.shotgunProjectId, self.job.shotgunShotAssetId).keys()
             _ret.sort()
-            # print "n",_ret
             self.sgtTaskBox.configure(values=_ret, justify=tk.CENTER)
             # self.job.shotgunTaskId = _ret.get(self.job.shotgunTask)
         elif self.job.shotgunClass == 'ASSETS':
             _ret=self.sgtproject.taskFromAsset(self.job.shotgunProjectId, self.job.shotgunShotAssetId).keys()
             _ret.sort()
-            # print "n",_ret
             self.sgtTaskBox.configure(values=_ret, justify=tk.CENTER)
             # self.job.shotgunTaskId = _ret.get(self.job.shotgunTask)
 
