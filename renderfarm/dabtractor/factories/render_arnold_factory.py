@@ -217,64 +217,6 @@ class Render(object):
             task_thisjob.addChild(task_notify_start)
 
 
-        # # ############## 1 PREFLIGHT ##############
-        # task_preflight = self.job.env.author.Task(title="Preflight")
-        # task_preflight.serialsubtasks = 1
-        # task_thisjob.addChild(task_preflight)
-        #
-        # task_permissions_preflight  = self.job.env.author.Task(title="Correct Permissions Preflight")
-        # task_generate_ass_preflight = self.job.env.author.Task(title="Generate ASS Preflight")
-        #
-        # # TODO  this will fail on the .DS files osx creates - need to wrap this up in a python try rxcept clause
-        #
-        # command_permissions1 = self.job.env.author.Command(argv=["chmod","-R","g+w", self.mayaprojectpath],
-        #                                       tags=["chmod", "theWholeFarm"],
-        #                                       atleast=int(self.threads),
-        #                                       atmost=int(self.threads),
-        #                                       service="RfMRibGen")
-        #
-        # command_permissions2 = self.job.env.author.Command(argv=["find",self.mayaprojectpath,"-type","d",
-        #                                                         "-exec", "chmod", "g+s", "{}", "\;"],
-        #                                       tags=["chmod", "theWholeFarm"],
-        #                                       atleast=int(self.threads),
-        #                                       atmost=int(self.threads),
-        #                                       service="RfMRibGen")
-        #
-        # #TODO use command wrapper here for arnold job
-        # __command = "arnoldExportAss"
-        #
-        # command_assgen = self.job.env.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,"-command",
-        #                                       "{command} {layerid} {start} {end} {phase}".format(
-        #                                           command=__command,
-        #                                           layerid=0, start=self.job.jobstartframe, end=self.job.jobendframe, phase=1),
-        #                                       "-file", self.mayascenefilefullpath],
-        #                                       tags=["maya", "theWholeFarm"],
-        #                                       atleast=int(self.threads),
-        #                                       atmost=int(self.threads),
-        #                                       service="RfMRibGen")
-        #
-        # #task_permissions_preflight.addCommand(command_permissions1)
-        # #task_permissions_preflight.addCommand(command_permissions2)
-        #
-        # task_generate_ass_preflight.addCommand(command_assgen)
-        #
-        # task_preflight.addChild(task_permissions_preflight)
-        # task_preflight.addChild(task_generate_ass_preflight)
-        #
-        # # task_render_preflight = self.job.env.author.Task(title="Render Preflight")
-        # #
-        # # command_render_preflight = self.job.env.author.Command(argv=[
-        # #         "prman","-t:{}".format(self.threads), "-Progress", "-recover", "%r", "-checkpoint", "5m",
-        # #         "-cwd", self.mayaprojectpath,
-        # #         "renderman/{}/rib/job/job.rib".format(self.scenebasename)],
-        # #         tags=["prman", "theWholeFarm"],
-        # #         atleast=int(self.threads),
-        # #         atmost=int(self.threads),
-        # #         service="PixarRender")
-        # #
-        # # task_render_preflight.addCommand(command_render_preflight)
-        # # task_preflight.addChild(task_render_preflight)
-
         # ############## 3 ASSGEN ##############
         task_render_allframes = self.job.env.author.Task(title="ALL FRAMES {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
         task_render_allframes.serialsubtasks = 1
@@ -291,7 +233,8 @@ class Render(object):
 
         #TODO use command wrapper here for arnold job
         __command = "arnoldExportAss"
-        _assFile = "out.ass"
+        _assFileBase = os.path.join(self.job.mayaprojectfullpath,"arnold",self.scenebasename)
+        _assFileBaseExt = "{}.ass".format(_assFileBase)
 
         # loop thru chunks
 
@@ -308,9 +251,9 @@ class Render(object):
 
 
             command_generate_ass = self.job.env.author.Command(argv=[
-                    "maya", "-batch", "-proj", self.mayaprojectpath, "-command", __command,
-                    "-f {file} -startFrame {start} -endFrame {end} -frameStep {step}".format(
-                            file=_assFile, start=_chunkstart, end=_chunkend, step=1),
+                    "maya", "-batch", "-proj", self.mayaprojectpath, "-command",
+                    "{command} -f {file} -startFrame {start} -endFrame {end}".format(
+                            command=__command, file=_assFileBaseExt, start=_chunkstart, end=_chunkend, step=1),
                             "-file", self.mayascenefilefullpath],
                     tags=["maya", "theWholeFarm"],
                     atleast=int(self.threads),
@@ -334,8 +277,7 @@ class Render(object):
                 proj=self.renderdirectory, scenebase=self.scenebasename, frame=frame, ext=self.outformat)
             # _statsfile = "{proj}/rib/{frame:04d}/{frame:04d}.xml".format(
             #     proj=self.renderpath, frame=frame)
-            _assfile = "{proj}/ass/{frame:04d}/{frame:04d}.ass".format(
-                proj=self.renderpath, frame=frame)
+            _assfile = "{base}.{frame:04d}.ass".format(base=_assFileBase, frame=frame)
             _shotgunupload = "PR:{} SQ:{} SH:{} TA:{}".format(self.job.shotgunProject,
                                                   self.job.shotgunSeqAssetType,
                                                   self.job.shotgunShotAsset,
@@ -382,7 +324,6 @@ class Render(object):
 
             rendererspecificargs.extend([
                 "-t", "{}".format(self.threads),
-
 
             ])
             userspecificargs = [ utils.expandargumentstring(self.options)]
