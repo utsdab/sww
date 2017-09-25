@@ -276,11 +276,9 @@ class Render(object):
         # # task_preflight.addChild(task_render_preflight)
 
         # ############## 3 ASSGEN ##############
-        task_render_allframes = self.job.env.author.Task(title="ALL FRAMES {}-{}".format(self.job.jobstartframe,
-                                                                                         self.job.jobendframe))
+        task_render_allframes = self.job.env.author.Task(title="ALL FRAMES {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
         task_render_allframes.serialsubtasks = 1
-        task_assgen_allframes = self.job.env.author.Task(title="ASS GEN {}-{}".format(self.job.jobstartframe,
-                                                                                    self.job.jobendframe))
+        task_assgen_allframes = self.job.env.author.Task(title="ASS GEN {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
 
         # divide the frame range up into chunks
         _totalframes = int(self.job.jobendframe) - int(self.job.jobstartframe) + 1
@@ -293,6 +291,7 @@ class Render(object):
 
         #TODO use command wrapper here for arnold job
         __command = "arnoldExportAss"
+        _assFile = "out.ass"
 
         # loop thru chunks
 
@@ -310,8 +309,8 @@ class Render(object):
 
             command_generate_ass = self.job.env.author.Command(argv=[
                     "maya", "-batch", "-proj", self.mayaprojectpath, "-command", __command,
-                    "{layerid} {start} {end} {phase}".format(
-                            layerid=0, start=_chunkstart, end=_chunkend, phase=2),
+                    "-f {file} -startFrame {start} -endFrame {end} -frameStep {step}".format(
+                            file=_assFile, start=_chunkstart, end=_chunkend, step=1),
                             "-file", self.mayascenefilefullpath],
                     tags=["maya", "theWholeFarm"],
                     atleast=int(self.threads),
@@ -354,22 +353,26 @@ class Render(object):
             # task_render_ass = self.job.env.author.Task(title=_title, preview=_preview, metadata=_jsontaskMetaData)
             task_render_ass = self.job.env.author.Task(title=_title, metadata=_jsontaskMetaData)
 
-            commonargs = ["prman", "-cwd", self.mayaprojectpath]
-            rendererspecificargs = []
+            '''
+            kick -i /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Renderfarm/data/xxx.0001.ass -t 6 -dp -ds 8 -r 1280 720
+            '''
+
+            commonargs = ["kick", "-i", _assfile]
+            rendererspecificargs = [ "-dp", "-ds", "6" ]
 
             # ################ handle image resolution formats ###########
             if self.resolution == "720p":
                 self.xres, self.yres = 1280, 720
-                rendererspecificargs.extend(["-res", "%s" % self.xres, "%s" % self.yres])
+                rendererspecificargs.extend(["-r", "%s" % self.xres, "%s" % self.yres])
             elif self.resolution == "1080p":
                 self.xres, self.yres = 1920, 1080
-                rendererspecificargs.extend(["-res", "%s" % self.xres, "%s" % self.yres])
+                rendererspecificargs.extend(["-r", "%s" % self.xres, "%s" % self.yres])
             elif self.resolution == "540p":
                 self.xres, self.yres = 960, 540
-                rendererspecificargs.extend(["-res", "%s" % self.xres, "%s" % self.yres])
+                rendererspecificargs.extend(["-r", "%s" % self.xres, "%s" % self.yres])
             elif self.resolution == "108p":
                 self.xres, self.yres = 192, 108
-                rendererspecificargs.extend(["-res", "%s" % self.xres, "%s" % self.yres])
+                rendererspecificargs.extend(["-r", "%s" % self.xres, "%s" % self.yres])
 
             if self.rendermaxsamples != "FROMFILE":
                 rendererspecificargs.extend([ "-maxsamples", "{}".format(self.rendermaxsamples) ])
@@ -378,13 +381,13 @@ class Render(object):
             #     rendererspecificargs.extend([ "-memorylimit", "{}".format(self.threadmemory) ])
 
             rendererspecificargs.extend([
-                "-t:{}".format(self.threads),
+                "-t", "{}".format(self.threads),
 
 
             ])
-            userspecificargs = [ utils.expandargumentstring(self.options),"{}".format(_assfile)]
+            userspecificargs = [ utils.expandargumentstring(self.options)]
 
-            finalargs = commonargs + rendererspecificargs + userspecificargs
+            finalargs = commonargs + rendererspecificargs
             command_render = self.job.env.author.Command(argv=finalargs,
                                             tags=["kick", "theWholeFarm"],
                                             atleast=int(self.threads),

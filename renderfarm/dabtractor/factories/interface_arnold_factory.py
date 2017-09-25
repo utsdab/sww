@@ -40,9 +40,10 @@ class WindowBase(object):
         except Exception, err:
             logger.warn("Couldnt get the job definition {}".format(err))
         else:
-            self.shotgun=self.job.env.person
-            self.job.shotgunOwner=self.shotgun.shotgunname
-            self.job.shotgunOwnerId=self.shotgun.shotgun_id
+            self.shotgun = self.job.env.person
+            self.sgtproject = self.job.env.sgtproject
+            self.job.shotgunOwner = self.shotgun.shotgunname
+            self.job.shotgunOwnerId = self.shotgun.shotgun_id
 
 class Window(WindowBase):
     """ Ui Class for render submit  """
@@ -55,11 +56,11 @@ class Window(WindowBase):
         self.msg_workspaceok = 'workspace.mel FOUND'
         self.msg_workspacebad = 'WARNING - no workspace.mel in your project'
         self.msg_selectSgtProject = 'Select your shotgun PROJECT'
-        self.msg_selectSgtSequence = 'Now Select your project SEQUENCE'
-        self.msg_selectSgtAssetType = 'Now Select your asset TYPE'
-        self.msg_selectSgtShot = 'Now Select your sequence SHOT'
-        self.msg_selectSgtAsset = 'Now Select your project ASSET'
-        self.msg_selectSgtTask = 'Optionally Select your TASK'
+        self.msg_selectSgtSequence = 'Now Select your  SEQUENCE'
+        self.msg_selectSgtAssetType = 'Now Select your Asset TYPE'
+        self.msg_selectSgtShot = 'Now Select your  SHOT'
+        self.msg_selectSgtAsset = 'Now Select your  ASSET'
+        self.msg_selectSgtTask = 'Optionally Select  TASK'
         self.msg_selectSgtClass = 'ASSETS or SHOTS ?'
         self.msg_null = ""
         self.filefullpath = ""
@@ -238,8 +239,8 @@ class Window(WindowBase):
         self.ef.set("4")
         self.bar4 = tk.Entry(self.canvas, bg=self.bgcolor1, textvariable=self.ef, width=8).grid(row=__row, column=2,sticky=tk.E)
         __row += 1
-        # ###################################################################
 
+        # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1, text="By").grid(row=__row, column=0, sticky=tk.E)
         self.bf = tk.StringVar()
         self.bf.set("1")
@@ -346,7 +347,6 @@ class Window(WindowBase):
         self.emailjobstart.set(1)
         self.emailjobstartbut=tk.Checkbutton(self.canvas, variable=self.emailjobstart, bg=self.bgcolor1, text="Job Start").grid(row=__row, column=1,sticky=tk.W)
 
-
         self.emailjobend = tk.IntVar()
         self.emailjobend.set(1)
         self.emailjobendbut=tk.Checkbutton(self.canvas, variable=self.emailjobend, bg=self.bgcolor1,text="Job End").grid(row=__row, column=2, sticky=tk.W)
@@ -395,7 +395,6 @@ class Window(WindowBase):
             self.sgtTask.set(self.msg_null)
             self.sgtProjectBox.config(values=self.getSgtProjectValues(), justify=tk.CENTER)
             self.job.sendToShotgun = True
-
 
     def getSgtProjectValues(self):
         logger.debug("Run: {}".format("getSgtProjectValues"))
@@ -492,12 +491,12 @@ class Window(WindowBase):
         _ret = []
         if self.job.shotgunClass == 'SHOTS':
             try:
-                _ret = self.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssId).keys()
+                _ret = self.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssetTypeId).keys()
             except RuntimeError:
                 print "boing"
         elif self.job.shotgunClass == 'ASSETS':
             try:
-                _ret = self.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAss).keys()
+                _ret = self.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAssetType).keys()
             except RuntimeError:
                 print "bam"
         _ret.sort()
@@ -520,12 +519,12 @@ class Window(WindowBase):
         else:
             if self.job.shotgunClass == 'SHOTS':
                 self.job.shotgunShotAsset = self.sgtShotAss.get()
-                _shots = self.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssId)
+                _shots = self.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssetTypeId)
                 # print "x",_shots
                 self.job.shotgunShotAssetId = _shots.get(self.job.shotgunShotAsset)
             elif self.job.shotgunClass == 'ASSETS':
                 self.job.shotgunShotAsset = self.sgtShotAss.get()
-                _ass = self.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAss)
+                _ass = self.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAssetType)
                 # print "z",_ass
                 self.job.shotgunShotAssetId = _ass.get(self.job.shotgunShotAsset)
                 # self.job.shotgunShotAssetType = _ass.get(self.job.shotgunShotAssetType)
@@ -636,10 +635,11 @@ class Window(WindowBase):
             self.job.envscene=None
 
     def consolidate(self):
+        print self.filefullpath
         try:
             _checkpath=utils.hasBadNaming(self.filefullpath)
         except Exception, err:
-            logger.critical("Problem validating %s" % err)
+            logger.critical("Problem consolidating %s" % err)
         else:
             if _checkpath:
                 logger.critical("Problem with naming" % _checkpath)
@@ -662,7 +662,7 @@ class Window(WindowBase):
             self.job.jobthreadmemory=self.memory.get()
             self.job.jobchunks=self.chunks.get()
             self.job.mayaversion=self.mayaversion.get()
-            self.job.rendermanversion=self.rendermanversion.get()
+            # self.job.renderversion=self.renderversion.get()
         except Exception,err:
             logger.warn(err)
 
@@ -677,12 +677,13 @@ class Window(WindowBase):
             logger.info("Skip Existing Frames:" % self.skipframes)
             logger.info("Make Proxy:" % self.makeproxy)
             self.consolidate()
-            rj=rfac.Render(self.job)
-            rj.build()
-            rj.validate()
 
         except Exception, validateError:
             logger.warn("Problem validating %s" % validateError)
+        else:
+            rj=rfac.Render(self.job)
+            rj.build()
+            rj.validate()
 
     def submit(self):
         try:
