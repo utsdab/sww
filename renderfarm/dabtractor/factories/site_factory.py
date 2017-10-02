@@ -19,6 +19,7 @@ logger.addHandler(sh)
 import os
 import json
 import renderfarm as rf
+from pprint import pprint
 
 class JsonConfig(object):
     """
@@ -89,9 +90,9 @@ class JsonConfig(object):
     def getenvordefault(self, group, attribute):
         """ Returns the envar OR first index if a list or just the value if not a list """
         _return = None
-        if attribute == "site":
+        if attribute == "environment":
             try:
-                _return = os.environ[group]
+                _return = os.environ[attribute]
             except Exception,err:
                 logger.debug("Cant get envar {} {}".format(group,err))
             else:
@@ -159,3 +160,15 @@ class JsonConfig(object):
                 if attribute=="fj":
                     _haspath.append(group)
         return _haspath
+
+
+if __name__ == '__main__':
+
+    sh.setLevel(logging.DEBUG)
+
+    logger.debug("\n-------- JSON Config ------------")
+    config=JsonConfig()
+    # logger.debug( _E2.requiredenvars)
+    pprint(config.getalldefaults())
+    pprint(config.getenvordefault("environment","DABSWW"))
+

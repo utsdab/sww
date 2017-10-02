@@ -130,8 +130,8 @@ class  Person(ShotgunBase):
                 self.user_prefs = os.path.join(os.environ["DABWORK"], "user_prefs", self.dabnumber)
         finally:
             if  not self.tractor:
-                    logger.critical("Shotgun user {} is not Active. Sorry.".format(self.shotgunlogin))
-                    sys.exit()
+                logger.critical("Shotgun user {} is not Active. Sorry.".format(self.shotgunlogin))
+                sys.exit()
             logger.debug("Shotgun Login {} : {}".format(self.shotgunlogin,__person))
 
     def getDevInfo(self):
@@ -203,7 +203,7 @@ class Project(ShotgunBase):
         ]
         try:
             self.allprojects = self.sg.find("Project", _filters, _fields)
-        except RuntimeError:
+        except RuntimeError, err:
             logger.warn("Projects %s".format(err))
         else:
             logger.info("Found %d Projects" % (len(self.allprojects)))

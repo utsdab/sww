@@ -23,77 +23,23 @@ formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
 
-class Job(object):
+class Job(envfac.TractorJob):
     def __init__(self):
+        super(Job, self).__init__()
         """
         The payload of gui-data needed to describe a rfm render job
         """
-        self.usernumber = None
-        self.username = None
-        self.useremail = None
-
-        try:
-            self.env = envfac.TractorJob()
-            self.usernumber = self.env.usernumber
-            self.username = self.env.username
-            self.useremail = self.env.useremail
-            self.department = self.env.department
-            self.dabwork = self.env.dabwork
-
-        except Exception, err:
-            logger.warn("Cant get user Job  credentials: {}".format(err))
-
         self.mayaprojectfullpath=None
         self.mayascenefullpath=None
 
-        self.farmtier=None
-
         # This gets department from shotgun and checks it is a valid one in the json file
-        if self.env.department in self.env.config.getoptions("renderjob", "projectgroup"):
-            logger.info("Department {}".format(self.env.department))
+        if self.department in self.config.getoptions("renderjob", "projectgroup"):
+            logger.info("Department {}".format(self.department))
         else:
             self.department="Other"
 
-        self.farmpriority = None
-        self.farmcrew = None
-
-        self.jobtitle = None
-        self.jobenvkey = None
-        self.jobfile = None
-        self.jobstartframe = None
-        self.jobendframe = None
-        self.jobchunks = None
-        self.jobthreads = None
-        self.jobthreadmemory = None
-
-        self.optionskipframe = None
-        self.optionmakeproxy = None
-        # self.optionsendemail = None
-        self.optionresolution = None
-        self.optionmaxsamples = None
-
-        self.envtype = None
-        self.envshow = None
-        self.envproject = None
-        self.envscene = None
-
-        self.mayaversion = None
-        self.rendermanversion = None
-        self.shotgunProject = None
-        self.shotgunProjectId = None
-        self.shotgunClass = None
-        self.shotgunShotAsset = None
-        self.shotgunShotAssetId = None
-        self.shotgunSeqAssetType = None
-        self.shotgunSeqAssetTypeId = None
-        self.shotgunTask = None
-        self.shotgunTaskId = None
-        self.sendToShotgun = False
-
-
 class Render(object):
     ''' Renderman job defined using the tractor api '''
-
     def __init__(self, job):
         self.job=job
 
@@ -157,7 +103,7 @@ class Render(object):
 
 
         # ################ 0 JOB ################
-        self.renderjob = self.job.env.author.Job(title="RM: {} {} {}-{}".format(
+        self.renderjob = self.job.author.Job(title="RM: {} {} {}-{}".format(
               self.job.username, self.scenename, self.job.jobstartframe, self.job.jobendframe),
               priority=10,
               envkey=[self.envkey_rfm,"ProjectX",
@@ -175,34 +121,34 @@ class Render(object):
 
 
         # ############## 0 ThisJob #################
-        task_thisjob = self.job.env.author.Task(title="Renderman Job")
+        task_thisjob = self.job.author.Task(title="Renderman Job")
         task_thisjob.serialsubtasks = 1
 
         # ############## 5 NOTIFY JOB START ###############
         if self.optionsendjobstartemail:
             logger.info("email = {}".format(self.job.useremail))
-            task_notify_start = self.job.env.author.Task(title="Notify Start", service="ShellServices")
+            task_notify_start = self.job.author.Task(title="Notify Start", service="ShellServices")
             task_notify_start.addCommand(self.mail("JOB", "START", "{}".format(self.mayascenefilefullpath)))
             task_thisjob.addChild(task_notify_start)
 
 
         # ############## 1 PREFLIGHT ##############
-        task_preflight = self.job.env.author.Task(title="Preflight")
+        task_preflight = self.job.author.Task(title="Preflight")
         task_preflight.serialsubtasks = 1
         task_thisjob.addChild(task_preflight)
 
-        task_permissions_preflight  = self.job.env.author.Task(title="Correct Permissions Preflight")
-        task_generate_rib_preflight = self.job.env.author.Task(title="Generate RIB Preflight")
+        task_permissions_preflight  = self.job.author.Task(title="Correct Permissions Preflight")
+        task_generate_rib_preflight = self.job.author.Task(title="Generate RIB Preflight")
 
         # TODO  this will fail on the .DS files osx creates - need to wrap this up in a python try rxcept clause
 
-        command_permissions1 = self.job.env.author.Command(argv=["chmod","-R","g+w", self.mayaprojectpath],
+        command_permissions1 = self.job.author.Command(argv=["chmod","-R","g+w", self.mayaprojectpath],
                                               tags=["chmod", "theWholeFarm"],
                                               atleast=int(self.threads),
                                               atmost=int(self.threads),
                                               service="RfMRibGen")
 
-        command_permissions2 = self.job.env.author.Command(argv=["find",self.mayaprojectpath,"-type","d",
+        command_permissions2 = self.job.author.Command(argv=["find",self.mayaprojectpath,"-type","d",
                                                                 "-exec", "chmod", "g+s", "{}", "\;"],
                                               tags=["chmod", "theWholeFarm"],
                                               atleast=int(self.threads),
@@ -213,7 +159,7 @@ class Render(object):
         __command = "dab_rfm_pre_render"
         # __command = "renderManBatchGenRibForLayer"
 
-        command_ribgen = self.job.env.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,"-command",
+        command_ribgen = self.job.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,"-command",
                                               "{command} {layerid} {start} {end} {phase}".format(
                                                   command=__command,
                                                   layerid=0, start=self.job.jobstartframe, end=self.job.jobendframe, phase=1),
@@ -231,9 +177,9 @@ class Render(object):
         task_preflight.addChild(task_permissions_preflight)
         task_preflight.addChild(task_generate_rib_preflight)
 
-        task_render_preflight = self.job.env.author.Task(title="Render Preflight")
+        task_render_preflight = self.job.author.Task(title="Render Preflight")
 
-        command_render_preflight = self.job.env.author.Command(argv=[
+        command_render_preflight = self.job.author.Command(argv=[
                 "prman","-t:{}".format(self.threads), "-Progress", "-recover", "%r", "-checkpoint", "5m",
                 "-cwd", self.mayaprojectpath,
                 "renderman/{}/rib/job/job.rib".format(self.scenebasename)],
@@ -246,10 +192,10 @@ class Render(object):
         task_preflight.addChild(task_render_preflight)
 
         # ############## 3 RIBGEN ##############
-        task_render_allframes = self.job.env.author.Task(title="ALL FRAMES {}-{}".format(self.job.jobstartframe,
+        task_render_allframes = self.job.author.Task(title="ALL FRAMES {}-{}".format(self.job.jobstartframe,
                                                                                          self.job.jobendframe))
         task_render_allframes.serialsubtasks = 1
-        task_ribgen_allframes = self.job.env.author.Task(title="RIB GEN {}-{}".format(self.job.jobstartframe, self.job.jobendframe))
+        task_ribgen_allframes = self.job.author.Task(title="RIB GEN {}-{}".format(self.job.jobstartframe, self.job.jobendframe))
 
         # divide the frame range up into chunks
         _totalframes = int(self.job.jobendframe) - int(self.job.jobstartframe) + 1
@@ -271,11 +217,11 @@ class Render(object):
 
             logger.info("Chunk {} is frames {}-{}".format(chunk, _chunkstart, _chunkend))
 
-            task_generate_rib = self.job.env.author.Task(title="RIB GEN chunk {} frames {}-{}".format(
+            task_generate_rib = self.job.author.Task(title="RIB GEN chunk {} frames {}-{}".format(
                     chunk, _chunkstart, _chunkend ))
 
 
-            command_generate_rib = self.job.env.author.Command(argv=[
+            command_generate_rib = self.job.author.Command(argv=[
                     "maya", "-batch", "-proj", self.mayaprojectpath, "-command",
                     "{command} {layerid} {start} {end} {phase}".format(command = __command,
                             layerid=0, start=_chunkstart, end=_chunkend, phase=2),
@@ -291,7 +237,7 @@ class Render(object):
 
 
         # ############### 4 RENDER ##############
-        task_render_frames = self.job.env.author.Task(title="RENDER Frames {}-{}".format(self.job.jobstartframe,
+        task_render_frames = self.job.author.Task(title="RENDER Frames {}-{}".format(self.job.jobstartframe,
                                                                                          self.job.jobendframe))
         task_render_frames.serialsubtasks = 0
 
@@ -318,7 +264,7 @@ class Render(object):
             _title = "RENDER Frame {}".format(frame)
             _preview = "sho {""}".format(_imgfile)
 
-            task_render_rib = self.job.env.author.Task(title=_title, preview=_preview, metadata=_jsontaskMetaData)
+            task_render_rib = self.job.author.Task(title=_title, preview=_preview, metadata=_jsontaskMetaData)
             commonargs = ["prman", "-cwd", self.mayaprojectpath]
             rendererspecificargs = []
 
@@ -377,7 +323,7 @@ class Render(object):
             ])
             userspecificargs = [ utils.expandargumentstring(self.options),"{}".format(_ribfile)]
             finalargs = commonargs + rendererspecificargs + userspecificargs
-            command_render = self.job.env.author.Command(argv=finalargs,
+            command_render = self.job.author.Command(argv=finalargs,
                                             tags=["prman", "theWholeFarm"],
                                             atleast=int(self.threads),
                                             atmost=int(self.threads),
@@ -443,8 +389,8 @@ class Render(object):
 
                 _output = "-o %s" % _outmov
                 _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (_seq, _option1, _option2, _option3, _output)) ]
-                task_proxy = self.job.env.author.Task(title="Proxy Generation")
-                proxycommand = self.job.env.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"], envkey=["rvio"])
+                task_proxy = self.job.author.Task(title="Proxy Generation")
+                proxycommand = self.job.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"], envkey=["rvio"])
                 task_proxy.addCommand(proxycommand)
                 task_thisjob.addChild(task_proxy)
 
@@ -478,8 +424,8 @@ class Render(object):
                               "-n", _mov,
                               "-d", _description,
                               "-m", _outmov ]
-            task_upload = self.job.env.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSeqAssetType,self.job.shotgunShotAsset, self.job.shotgunTask))
-            uploadcommand = self.job.env.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"])
+            task_upload = self.job.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSeqAssetType,self.job.shotgunShotAsset, self.job.shotgunTask))
+            uploadcommand = self.job.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"])
             task_upload.addCommand(uploadcommand)
             task_thisjob.addChild(task_upload)
 
@@ -488,7 +434,7 @@ class Render(object):
         # ############## 5 NOTIFY JOB END ###############
         if self.optionsendjobendemail:
             logger.info("email = {}".format(self.job.useremail))
-            task_notify_end = self.job.env.author.Task(title="Notify End", service="ShellServices")
+            task_notify_end = self.job.author.Task(title="Notify End", service="ShellServices")
             task_notify_end.addCommand(self.mail("JOB", "COMPLETE", "{}".format(self.mayascenefilefullpath)))
             task_thisjob.addChild(task_notify_end)
 
@@ -500,7 +446,7 @@ class Render(object):
     def mail(self, level="Level", trigger="Trigger", body="Render Progress Body"):
         bodystring = "Prman Render Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
         subjectstring = "FARM JOB: {} {} {} {}".format(level,trigger, str(self.scenebasename), self.job.username)
-        mailcmd = self.job.env.author.Command(argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
+        mailcmd = self.job.author.Command(argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
         return mailcmd
 
     def spool(self):
@@ -510,7 +456,7 @@ class Render(object):
             try:
                 logger.info("Spooled correctly")
                 # all jobs owner by pixar user on the farm
-                self.renderjob.spool(owner=self.job.env.config.getdefault("tractor","jobowner"),port=int(self.job.env.config.getdefault("tractor","port")))
+                self.renderjob.spool(owner=self.job.config.getdefault("tractor","jobowner"),port=int(self.job.config.getdefault("tractor","port")))
 
             except Exception, spoolerr:
                 logger.warn("A spool error %s" % spoolerr)

@@ -32,7 +32,6 @@ class RenderBase(object):
         self.spooljob = False
         self.testing = False
         self.farmjob=envfac.TractorJob()
-
         try:
             # get the names of the central render location for the user
             ru = ufac.FarmUser()

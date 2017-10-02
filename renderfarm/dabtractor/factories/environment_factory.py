@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 '''
     This code handles the creation of a user area.
     At UTS the $USER is a number and there is no nice name exposed at all.
@@ -21,7 +20,6 @@ import renderfarm as rf
 import tractor.api.author as author
 import tractor.api.query as tq
 
-# ##############################################################
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -30,7 +28,6 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(filename)s as %(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-# ##############################################################
 
 
 class TractorJob(object):
@@ -39,17 +36,16 @@ class TractorJob(object):
         self.author=author
         self.tq=tq
         self.config=JsonConfig()
-        self.person=None
         try:
-            self.person=Person()
+            self.sgtperson=Person()
         except Exception, err:
-            logger.warn("Cant get actual person from Shotgun %s, assuming dev" % err)
+            logger.warn("Cant get actual person from Shotgun {}, assuming dev".format(err))
             self.devmode()
         else:
-            self.username=self.person.dabname
-            self.usernumber=self.person.dabnumber
-            self.useremail=self.person.email
-            self.department= self.person.department
+            self.username=self.sgtperson.dabname
+            self.usernumber=self.sgtperson.dabnumber
+            self.useremail=self.sgtperson.email
+            self.department= self.sgtperson.department
 
         try:
             self.sgtproject=Project()
@@ -60,9 +56,47 @@ class TractorJob(object):
         self.port= int(self.config.getdefault("tractor","port"))
         self.jobowner=str(self.config.getdefault("tractor","jobowner"))
         self.engine=str(self.config.getdefault("tractor","engine"))
-        self.dabwork=self.config.getenvordefault("DABWORK","site")
+        self.dabwork=self.config.getenvordefault("environment","DABWORK")
+
         self.author.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
         self.tq.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
+
+        self.jobtitle = None
+        self.jobenvkey = None
+        self.jobfile = None
+        self.jobstartframe = None
+        self.jobendframe = None
+        self.jobchunks = None
+        self.jobthreads = None
+        self.jobthreadmemory = None
+
+        self.envtype = None
+        self.envshow = None
+        self.envproject = None
+        self.envscene = None
+
+        self.mayaversion = None
+        self.rendermanversion = None
+        self.shotgunProject = None
+        self.shotgunProjectId = None
+        self.shotgunClass = None
+        self.shotgunShotAsset = None
+        self.shotgunShotAssetId = None
+        self.shotgunSeqAssetType = None
+        self.shotgunSeqAssetTypeId = None
+        self.shotgunTask = None
+        self.shotgunTaskId = None
+        self.sendToShotgun = False
+
+        self.farmpriority = None
+        self.farmcrew = None
+        self.farmtier=None
+
+        self.optionskipframe = None
+        self.optionmakeproxy = None
+        self.optionsendemail = None
+        self.optionresolution = None
+        self.optionmaxsamples = None
 
     def devmode(self):
         self.username="matthewgidney"
@@ -114,7 +148,7 @@ if __name__ == '__main__':
     logger.debug("\n-------- ENVIRONMENT ------------")
     _E2=Environment()
     # logger.debug( _E2.requiredenvars)
-    pprint(_E2.environ)
+    # pprint(_E2.environ)
 
 
     logger.debug("\n-------- TRACTOR JOB ------------")
