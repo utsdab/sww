@@ -6,25 +6,28 @@
     "DABASSETS" :      "/Volumes/dabrender/assets",
     "DABUSERPREFS" :   "/Volumes/dabrender/work/user_prefs",
     "DABSWW":          "/Volumes/dabrender/sww",
-    "DABRENDER" :      "/Volumes/dabrender"
+    "DABRENDER" :      "/Volumes/dabrender",
   },
 
   "class" : {
     "worktype"        : [ "user_work", "project_work" ]
   },
 
-  "CONFIG" : {
+  "config" : {
     "version"         : "CONFIG_V4.0",
     "template"        : "/Volumes/dabrender/assets/CONFIG/CONFIG_V4.0"
   },
 
-  "DABRENDER" : {
-    "env"            : "/Volumes/dabrender",
+  "dabrender" : {
     "usermapfile"     : "etc/map/user_map.json",
     "mapfilepickle"   : "etc/map/user_map.pickle",
     "tractorcrewlist" : "etc/map/tractor_crew_list.txt",
     "backuppath"      : "etc/map/backup",
-    "superuser"       : "120988"
+  },
+
+  "admin"   : {
+    "login"           : "120988",
+    "email"           : "120988@uts.edu.au"
   },
 
   "shotgun" : {
