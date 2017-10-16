@@ -520,6 +520,7 @@ class Version(ShotgunBase):
         self.ownerid = ownerid
         self.tag = tag
         self.media = media
+        self.hasslate = True
         logger.info("SHOTGUN: File to upload ...... %s"%self.media)
         if projectid and shotid and taskid:
             self.data = { 'project': self.project,
@@ -529,7 +530,8 @@ class Version(ShotgunBase):
                          # "sg_sequence": {"type": "Sequence", "id": 109},
                          'entity': {'type':'Shot', 'id':self.shotid},
                          'sg_task': {'type':'Task', 'id':self.taskid},
-                         'user': {'type': 'HumanUser', 'id': self.ownerid }
+                         'user': {'type': 'HumanUser', 'id': self.ownerid },
+                         'sg_movie_has_slate' : self.hasslate
                           }
         elif projectid and shotid and not taskid:
             self.data = { 'project': self.project,
@@ -539,7 +541,8 @@ class Version(ShotgunBase):
                          # "sg_sequence": {"type": "Sequence", "id": 109},
                          'entity': {'type':'Shot', 'id':self.shotid},
                          # 'sg_task': {'type':'Task', 'id':self.taskid},
-                         'user': {'type': 'HumanUser', 'id': self.ownerid }
+                         'user': {'type': 'HumanUser', 'id': self.ownerid },
+                          'sg_movie_has_slate' : self.hasslate
                           }
         self.version_result = self.sg.create('Version', self.data)
         logger.info("SHOTGUN: New Version Created : %s" % self.version_result)
