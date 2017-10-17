@@ -148,6 +148,7 @@ class  Person(ShotgunBase):
 
     def myProjects(self):
         # Return a simple dictionary of projects and project ids
+        _myprojects = {}
         try:
             __fields = ['id', 'name', 'projects']
             __filters = [['login', 'is', self.dabnumber]]
@@ -162,6 +163,7 @@ class  Person(ShotgunBase):
 
     def myGroups(self):
         # Return a simple dictionary of projects and project ids
+        _mygroups = {}
         try:
             __fields = ['id', 'name', 'groups']
             __filters = [['login', 'is', self.dabnumber]]
@@ -429,21 +431,7 @@ class Project(ShotgunBase):
         finally:
             return _tasks
 
-    def taskFromAsset(self, project_id=None, asset_id=None):
-        # get tasks from shot
-        _tasks = {}
-        _fields = ['id','cached_display_name']
-        _filters = [
-            ['project', 'is', {'type': 'Project', 'id': project_id}],
-            ['entity', 'is', {'type': 'Asset', 'id': asset_id}]
-        ]
-        try:
-            _task = self.sg.find("Task", _filters, _fields)
-            _tasks=dictfromlistofdicts(_task, "cached_display_name", "id")
-        except RuntimeError:
-            logger.warn("Cant find any tasks")
-        finally:
-            return _tasks
+
 
 class People(ShotgunBase):
     def __init__(self):
@@ -463,13 +451,22 @@ class People(ShotgunBase):
             for __person in self.people:
                 try:
                     logger.info("{l:12} # {d:9}{c:24}{n:24}{e:40}".format(l=__person.get('login'),
-                                                         n=__person.get('name'),
+                                                         n = __person.get('name'),
                                                          c = cleanname(__person.get('email')),
-                                                         e=__person.get('email'),
-                                                         d=__person.get('department').get('name')))
+                                                         e = __person.get('email'),
+                                                         d = __person.get('department').get('name')))
                 except:
                     logger.warn("Problem with user {}".format(__person))
 
+    @classmethod
+    def cleanname(cls, dirtyemail):
+        _return = None
+        try:
+            _return = cleanname(dirtyemail)
+        except AssertionError:
+            pass
+
+        return _return
 
     def writetractorcrewfile(self,crewfilefullpath=None):
         """
