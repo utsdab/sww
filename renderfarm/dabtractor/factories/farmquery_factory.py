@@ -79,8 +79,7 @@ class ArchiveJobDetails(TAQuery):
         print self.jid
         try:
             # tq.jobs("active", sortby=["-numactive"], limit=10)
-            _job = self.tq.jobs("jid in [{}]".format(jid),
-                                archives=True,
+            _job = self.tq.jobs("jid in [{}]".format(jid), archive=True,
                                 columns=["jid", "title","metadata","spooled"])
             _jmd=json.loads(_job[0]["metadata"])
             #
@@ -95,21 +94,27 @@ class ArchiveJobDetails(TAQuery):
             # self.spooltime = _job[0]["spooltime"]
             pass
 
+class RenderJobsDone(TQuery):
+    def __init__(self):
+        super(RenderJobsDone, self).__init__()
+        print self.__str__()
+
+
+
+
 if __name__ == '__main__':
 
-    print("**********************************************")
-    a=ArchiveJobDetails(jid=6118)
-    print dir(a)
-
-
+    # print("**********************************************")
+    # a=ArchiveJobDetails(jid=6118)
+    # print dir(a)
+    #
+    #
     # t=TQuery()
     # pprint(t.tq.jobs("done and not error"))
     # pprint(a.__dict__)
-    # print "**********************************************"
+    print "**********************************************"
     #
-    # j=JobDetails(jid=8042)
-    # pprint(j.__dict__)
-    # #
+    jobs=RenderJobsDone()
 
 
 

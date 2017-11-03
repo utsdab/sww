@@ -6,7 +6,7 @@
     "DABASSETS" :      "/Volumes/dabrender/assets",
     "DABUSERPREFS" :   "/Volumes/dabrender/work/user_prefs",
     "DABSWW":          "/Volumes/dabrender/sww",
-    "DABRENDER" :      "/Volumes/dabrender",
+    "DABRENDER" :      "/Volumes/dabrender"
   },
 
   "class" : {
@@ -22,7 +22,7 @@
     "usermapfile"     : "etc/map/user_map.json",
     "mapfilepickle"   : "etc/map/user_map.pickle",
     "tractorcrewlist" : "etc/map/tractor_crew_list.txt",
-    "backuppath"      : "etc/map/backup",
+    "backuppath"      : "etc/map/backup"
   },
 
   "admin"   : {
