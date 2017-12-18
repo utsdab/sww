@@ -3,7 +3,7 @@
 Main submission of a renderman for maya job to tractor.
 '''
 
-#TODO
+#TODO  ldap authentication is dissapearing
 
 import os
 import sys

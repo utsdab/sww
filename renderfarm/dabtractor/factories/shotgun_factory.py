@@ -5,6 +5,7 @@ as the main production tracking database.
 
 '''
 # TODO  handle no connection to shotgun especially in dev mode
+# TODO put project-if at top leve; of Project
 
 from pprint import pprint
 import string
@@ -68,7 +69,7 @@ class ShotgunLink(object):
         self.linktypeid=None
 
 
-class  Person(ShotgunBase):
+class Person(ShotgunBase):
     """
     This is a model of the user account as registered in shotgun
     Basically used for authentication, need a proxy account if we cant reach shotgun.
@@ -127,7 +128,7 @@ class  Person(ShotgunBase):
             if __person.has_key('login'):
                 self.login = __person.get('login')
                 self.dabnumber = self.login
-                self.user_prefs = os.path.join(os.environ["DABWORK"], "user_prefs", self.dabnumber)
+                self.user_prefs = os.path.join(os.environ["DABUSERPREFS"], self.dabnumber)
         finally:
             if  not self.tractor:
                 logger.critical("Shotgun user {} is not Active. Sorry.".format(self.shotgunlogin))
@@ -143,7 +144,7 @@ class  Person(ShotgunBase):
         self.dabname = cleanname(self.email)
         self.dabnumber = "120988"
         self.department = "development"
-        self.user_prefs = os.path.join(os.environ["DABWORK"], "user_prefs", self.dabnumber)
+        self.user_prefs = os.path.join(os.environ["DABUSERPREFS"], self.dabnumber)
         self.user_work = os.path.join(os.environ["DABWORK"], "user_work", self.dabname)
 
     def myProjects(self):
@@ -189,12 +190,44 @@ class  Person(ShotgunBase):
         finally:
             return _result[0]
 
+class Software(ShotgunBase):
+    '''
+    This class replesents software that may be configured in the projects
+    '''
+    def __init__(self):
+        super(Software, self).__init__()
+        # print the whole schema
+        pprint(self.sg.schema_entity_read())
+        # pprint( self.sg.schema_field_read('Software'))
+
+    def getprojectsoftware(self, project_id=None):
+        try:
+            pr=Project(project_id)
+        except Exception, err:
+            print err
+
+        _software = None
+        _fields = ['id', 'code','engine', 'cached_display_name', 'projects','version_names']
+        _filters = [['projects', 'is', {'type': 'Project', 'id': project_id } ]]
+        p=Person()
+        try:
+            software = p.sg.find("Software", _filters, _fields)
+        except Exception, err:
+            logger.warn("{}".format(err))
+        else:
+            pprint(software)
+            _software = dictfromlistofdicts(software,'code','version_names')
+        finally:
+            pprint(_software)
+
 
 class Project(ShotgunBase):
-    def __init__(self):
+    def __init__(self,pid=None):
         super(Project, self).__init__()
         self.allprojects = None
-        # self.projects()
+        self.project_id = pid
+        ## todo test pid validity
+
 
     def projects(self):
         # get all non archived projects
@@ -581,14 +614,19 @@ if __name__ == "__main__":
     # sys.exit()
     #
     # ----------------------------------------------
-    p = Person()
-    print "Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department)
-
-    print p.myProjects()
-    print p.myGroups()
-    print p.me()
+    s=Software()
+    #aa=s.getprojectsoftware(174)
+    #s.allsoftware()
 
 
+    # p = Person()
+    # print "Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department)
+    #
+    # print p.myProjects()
+    # print p.myGroups()
+    # print p.me()
+
+    raise SystemExit(".......done and exiting")
 
     pr = Project()
     print pr.projects()
