@@ -1,16 +1,16 @@
 {
-
   "environment":{
     "DABUSR":          "/Volumes/dabrender/usr",
     "DABWORK":         "/Volumes/dabrender/work",
     "DABASSETS" :      "/Volumes/dabrender/assets",
-    "DABUSERPREFS" :   "/Volumes/dabrender/work/user_prefs",
+    "DABPREFS" :       "/Volumes/dabrender/prefs",
+    "DABUSERPREFS" :   "/Volumes/dabrender/prefs/user_prefs",
     "DABSWW":          "/Volumes/dabrender/sww",
     "DABRENDER" :      "/Volumes/dabrender"
   },
 
   "class" : {
-    "worktype"        : [ "user_work", "project_work" ]
+    "worktype"        : [ "user_work", "project_work", "shotgun_work" ]
   },
 
   "config" : {
@@ -53,7 +53,7 @@
   },
 
   "nuke": {
-    "version"      : [ "10.5v5", "10.5v4" ]
+    "version"      : [ "10.5v5", "10.5v4", "11.0v2"]
   },
 
   "houdini": {
@@ -61,12 +61,12 @@
   },
 
   "renderman": {
-    "version"      : [ "21.5","21.4"],
+    "version"      : [ "21.6", "21.5","21.4"],
     "integrator"   : [ "FROMFILE", "pxr", "vcm", "visualiser", "occlusion"]
   },
 
   "renderjob"      : {
-    "tier"         : [ "batch", "low","default","preview","rush", "admin" ],
+    "tier"         : [ "batch", "low", "default", "preview", "rush", "admin" ],
     "projectgroup" : [ "Year1", "Year2", "Year3", "Year4", "Masters", "Staff" ]
   },
 

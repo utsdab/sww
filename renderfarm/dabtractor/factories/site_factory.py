@@ -18,8 +18,29 @@ logger.addHandler(sh)
 
 import os
 import json
+'''
+import yaml
+tractor seems to not have yaml in its rmanpy framework
+so need to use generic python? and call tractor?
+
+tractor.api.author is a Python API for building Tractor jobs.
+
+This module is installed with the Python interpreter that ships with Tractor, rmanpy. It may be used with other Python interpreters, but will require site-specific configuration to locate or install the required Tractor Python modules.
+The following examples assume that the query module has been imported as follows:
+
+>>> import tractor.api.author as author
+
+'''
 import renderfarm as rf
 from pprint import pprint
+
+
+# class YamlConfig(object):
+#     '''
+#     load the site yaml file
+#     '''
+#     def __init__(selfself):
+#         self.configyaml = os.path.join(os.path.dirname(rf.__file__), "etc","dabtractor_config.yml")
 
 class JsonConfig(object):
     """
@@ -167,8 +188,13 @@ if __name__ == '__main__':
     sh.setLevel(logging.DEBUG)
 
     logger.debug("\n-------- JSON Config ------------")
-    config=JsonConfig()
+
+    siteconfig=JsonConfig()
     # logger.debug( _E2.requiredenvars)
-    pprint(config.getalldefaults())
-    pprint(config.getenvordefault("environment","DABSWW"))
+    # pprint(siteconfig.getalldefaults())
+    pprint(siteconfig.getenvordefault("environment","DABSWW"))
+    pprint(siteconfig.getenvordefault("class","worktype"))
+    pprint(siteconfig.getattributes("class"))
+    pprint(siteconfig.getoptions("class","worktype"))
+
 

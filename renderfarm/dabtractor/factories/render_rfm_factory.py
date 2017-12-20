@@ -1,7 +1,6 @@
 #!/usr/bin/env rmanpy
 '''
 Renderman for maya job
-
 '''
 
 # TODO  wrap the rib command up in a sanity checker script.
@@ -24,15 +23,13 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 
 class Job(envfac.TractorJob):
+    ''' The payload of gui-data needed to describe a rfm render job '''
     def __init__(self):
         super(Job, self).__init__()
-        """
-        The payload of gui-data needed to describe a rfm render job
-        """
         self.mayaprojectfullpath=None
         self.mayascenefullpath=None
-
         # This gets department from shotgun and checks it is a valid one in the json file
+        # the department is year1 or year2 etc a user can only be in one department.
         if self.department in self.config.getoptions("renderjob", "projectgroup"):
             logger.info("Department {}".format(self.department))
         else:
@@ -46,18 +43,15 @@ class Render(object):
         utils.printdict( self.job.__dict__)
 
         self.job.dabwork="$DABWORK"
-
         self.mayaprojectpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT"
         self.mayaprojectpath = os.path.join(self.job.dabwork, self.job.envtype, self.job.envshow, self.job.envproject)
         self.job.envprojectalias = "$PROJECT"
         self.mayascenefilefullpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/$SCENE"
-        self.mayascenefilefullpath = os.path.join( self.job.dabwork, self.job.envtype, self.job.envshow,
-                                                   self.job.envproject,self.job.envscene)
+        self.mayascenefilefullpath = os.path.join( self.job.dabwork, self.job.envtype, self.job.envshow,self.job.envproject,self.job.envscene)
         self.scenename = os.path.basename(self.job.envscene)
         self.scenebasename = os.path.splitext(self.scenename)[0]
         self.sceneext = os.path.splitext(self.scenename)[1]
-        self.rendermanpath = os.path.join( self.job.dabwork, self.job.envtype, self.job.envshow, self.job.envproject,
-                                           "renderman", self.scenebasename)
+        self.rendermanpath = os.path.join( self.job.dabwork, self.job.envtype, self.job.envshow, self.job.envproject, "renderman", self.scenebasename)
         self.rendermanpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/renderman/$SCENENAME"
         self.renderdirectory = os.path.join(self.rendermanpath,"images")
         self.renderimagesalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/renderman/$SCENENAME/images"
@@ -85,10 +79,7 @@ class Render(object):
 
 
     def build(self):
-        '''
-        Main method to build the job
-        :return:
-        '''
+        ''' Main method to build the job '''
         # ################# Job Metadata as JSON
         _jobMetaData={}
         _jobMetaData["email"] = self.job.useremail
@@ -142,18 +133,19 @@ class Render(object):
 
         # TODO  this will fail on the .DS files osx creates - need to wrap this up in a python try rxcept clause
 
-        command_permissions1 = self.job.author.Command(argv=["chmod","-R","g+w", self.mayaprojectpath],
-                                              tags=["chmod", "theWholeFarm"],
-                                              atleast=int(self.threads),
-                                              atmost=int(self.threads),
-                                              service="RfMRibGen")
+        # command_permissions1 = self.job.author.Command(argv=["chmod","-R","g+w", self.mayaprojectpath],
+        #                                       tags=["chmod", "theWholeFarm"],
+        #                                       atleast=int(self.threads),
+        #                                       atmost=int(self.threads),
+        #                                       service="RfMRibGen")
+        #
+        # command_permissions2 = self.job.author.Command(argv=["find",self.mayaprojectpath,"-type","d",
+        #                                                         "-exec", "chmod", "g+s", "{}", "\;"],
+        #                                       tags=["chmod", "theWholeFarm"],
+        #                                       atleast=int(self.threads),
+        #                                       atmost=int(self.threads),
+        #                                       service="RfMRibGen")
 
-        command_permissions2 = self.job.author.Command(argv=["find",self.mayaprojectpath,"-type","d",
-                                                                "-exec", "chmod", "g+s", "{}", "\;"],
-                                              tags=["chmod", "theWholeFarm"],
-                                              atleast=int(self.threads),
-                                              atmost=int(self.threads),
-                                              service="RfMRibGen")
         #TODO use command wrapper
         # dab_pre_render layerid start end phase
         __command = "dab_rfm_pre_render"
@@ -171,12 +163,9 @@ class Render(object):
 
         #task_permissions_preflight.addCommand(command_permissions1)
         #task_permissions_preflight.addCommand(command_permissions2)
-
         task_generate_rib_preflight.addCommand(command_ribgen)
-
         task_preflight.addChild(task_permissions_preflight)
         task_preflight.addChild(task_generate_rib_preflight)
-
         task_render_preflight = self.job.author.Task(title="Render Preflight")
 
         command_render_preflight = self.job.author.Command(argv=[
@@ -216,20 +205,8 @@ class Render(object):
                 _chunkend = int(self.job.jobendframe)
 
             logger.info("Chunk {} is frames {}-{}".format(chunk, _chunkstart, _chunkend))
-
-            task_generate_rib = self.job.author.Task(title="RIB GEN chunk {} frames {}-{}".format(
-                    chunk, _chunkstart, _chunkend ))
-
-
-            command_generate_rib = self.job.author.Command(argv=[
-                    "maya", "-batch", "-proj", self.mayaprojectpath, "-command",
-                    "{command} {layerid} {start} {end} {phase}".format(command = __command,
-                            layerid=0, start=_chunkstart, end=_chunkend, phase=2),
-                            "-file", self.mayascenefilefullpath],
-                    tags=["maya", "theWholeFarm"],
-                    atleast=int(self.threads),
-                    atmost=int(self.threads),
-                    service="RfMRibGen")
+            task_generate_rib = self.job.author.Task(title="RIB GEN chunk {} frames {}-{}".format( chunk, _chunkstart, _chunkend ))
+            command_generate_rib = self.job.author.Command(argv=[ "maya", "-batch", "-proj", self.mayaprojectpath, "-command","{command} {layerid} {start} {end} {phase}".format(command = __command, layerid=0, start=_chunkstart, end=_chunkend, phase=2), "-file", self.mayascenefilefullpath],tags=["maya", "theWholeFarm"],atleast=int(self.threads), atmost=int(self.threads),service="RfMRibGen")
             task_generate_rib.addCommand(command_generate_rib)
             task_ribgen_allframes.addChild(task_generate_rib)
 
@@ -237,24 +214,16 @@ class Render(object):
 
 
         # ############### 4 RENDER ##############
-        task_render_frames = self.job.author.Task(title="RENDER Frames {}-{}".format(self.job.jobstartframe,
-                                                                                         self.job.jobendframe))
+        task_render_frames = self.job.author.Task(title="RENDER Frames {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
         task_render_frames.serialsubtasks = 0
 
         for frame in range( int(self.job.jobstartframe), int(self.job.jobendframe) + 1, int(self.job.jobbyframe) ):
 
             # ################# Job Metadata as JSON
-            _imgfile = "{proj}/{scenebase}.{frame:04d}.{ext}".format(
-                proj=self.renderdirectory, scenebase=self.scenebasename, frame=frame, ext=self.outformat)
-            _statsfile = "{proj}/rib/{frame:04d}/{frame:04d}.xml".format(
-                proj=self.rendermanpath, frame=frame)
-            _ribfile = "{proj}/rib/{frame:04d}/{frame:04d}.rib".format(
-                proj=self.rendermanpath, frame=frame)
-            _shotgunupload = "PR:{} SQ:{} SH:{} TA:{}".format(self.job.shotgunProject,
-                                                  self.job.shotgunSeqAssetType,
-                                                  self.job.shotgunShotAsset,
-                                                  self.job.shotgunTask)
-
+            _imgfile = "{proj}/{scenebase}.{frame:04d}.{ext}".format( proj=self.renderdirectory, scenebase=self.scenebasename, frame=frame, ext=self.outformat)
+            _statsfile = "{proj}/rib/{frame:04d}/{frame:04d}.xml".format( proj=self.rendermanpath, frame=frame)
+            _ribfile = "{proj}/rib/{frame:04d}/{frame:04d}.rib".format( proj=self.rendermanpath, frame=frame)
+            _shotgunupload = "PR:{} SQ:{} SH:{} TA:{}".format(self.job.shotgunProject,self.job.shotgunSeqAssetType,self.job.shotgunShotAsset,self.job.shotgunTask)
             _taskMetaData={}
             _taskMetaData["imgfile"] = _imgfile
             _taskMetaData["statsfile"] = _statsfile

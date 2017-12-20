@@ -41,7 +41,6 @@ class WindowBase(object):
         except Exception, err:
             logger.warn("Couldnt get the job definition {}".format(err))
         else:
-            # utils.printdict( self.job.__dict__)
             self.shotgun = self.job.sgtperson
 
             # self.sgtproject = self.job.sgtproject
@@ -107,7 +106,10 @@ class Window(WindowBase):
         self.envtype.set("user_work")
         self.job.envtype="user_work"
         self.envtypebox = ttk.Combobox(self.canvas, textvariable=self.envtype)
-        self.envtypebox.config(values=["user_work","project_work"], justify=tk.CENTER)
+        ###
+        # get from the json config
+        # self.job.config.getoptions("class", "worktype")
+        self.envtypebox.config(values=self.job.config.getoptions("class", "worktype"), justify=tk.CENTER)
         self.envtypebox.grid(row=__row, column=1, columnspan=4,sticky=tk.W + tk.E)
         self.envtypebox.bind("<<ComboboxSelected>>", self.settype)
         __row += 1
@@ -585,6 +587,8 @@ class Window(WindowBase):
         elif self.job.envtype == "project_work":
             self.job.envshow=None
             self.envshowbut["text"]= self.msg_selectshow
+        ####
+        # shotgun_work here
 
         self.envprojbut["text"]= self.msg_selectproject
         self.job.envproject=None
