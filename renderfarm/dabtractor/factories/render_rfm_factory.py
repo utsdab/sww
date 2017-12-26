@@ -94,7 +94,7 @@ class Render(object):
 
 
         # ################ 0 JOB ################
-        self.renderjob = self.job.author.Job(title="RM: {} {} {}-{}".format(
+        self.renderjob = self.job.author.Job(title="RFM: {} {} {}-{}".format(
               self.job.username, self.scenename, self.job.jobstartframe, self.job.jobendframe),
               priority=10,
               envkey=[self.envkey_rfm,"ProjectX",
@@ -112,7 +112,7 @@ class Render(object):
 
 
         # ############## 0 ThisJob #################
-        task_thisjob = self.job.author.Task(title="Renderman Job")
+        task_thisjob = self.job.author.Task(title="Renderman For Maya Job")
         task_thisjob.serialsubtasks = 1
 
         # ############## 5 NOTIFY JOB START ###############

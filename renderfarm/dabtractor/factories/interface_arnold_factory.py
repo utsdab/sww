@@ -3,13 +3,6 @@
 Build Interface for Arnold submission
 '''
 
-
-
-
-
-
-
-
 import Tkinter as tk
 import ttk
 import tkFileDialog
@@ -36,14 +29,12 @@ class WindowBase(object):
         self.validatejob = False
         self.master = tk.Tk()
         try:
-            self.job=rfac.Job()
+            self.job = rfac.Job()
+            logger.info("Created job definition")
         except Exception, err:
             logger.warn("Couldnt get the job definition {}".format(err))
         else:
-            self.shotgun = self.job.env.person
-            self.sgtproject = self.job.env.sgtproject
-            self.job.shotgunOwner = self.shotgun.shotgunname
-            self.job.shotgunOwnerId = self.shotgun.shotgun_id
+            self.shotgun = self.job.sgtperson
 
 class Window(WindowBase):
     """ Ui Class for render submit  """
@@ -207,9 +198,9 @@ class Window(WindowBase):
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1,text="Maya Version").grid(row=__row, column=0, sticky=tk.E)
         self.mayaversion = tk.StringVar()
-        self.mayaversion.set(self.job.env.config.getdefault("maya","version"))
+        self.mayaversion.set(self.job.config.getdefault("maya","version"))
         self.mayaversionbox = ttk.Combobox(self.canvas, textvariable=self.mayaversion)
-        self.mayaversionbox.config(values=self.job.env.config.getoptions("maya","version"), justify=tk.CENTER)
+        self.mayaversionbox.config(values=self.job.config.getoptions("maya","version"), justify=tk.CENTER)
         self.mayaversionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
@@ -222,9 +213,9 @@ class Window(WindowBase):
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1,text="Farm Tier").grid(row=__row, column=0, sticky=tk.E)
         self.tier = tk.StringVar()
-        self.tier.set(self.job.env.config.getdefault("renderjob","tier"))
+        self.tier.set(self.job.config.getdefault("renderjob","tier"))
         self.tierbox = ttk.Combobox(self.canvas, textvariable=self.tier)
-        self.tierbox.config(values=self.job.env.config.getoptions("renderjob","tier"), justify=tk.CENTER)
+        self.tierbox.config(values=self.job.config.getoptions("renderjob","tier"), justify=tk.CENTER)
         self.tierbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
@@ -248,9 +239,9 @@ class Window(WindowBase):
 
         tk.Label(self.canvas, bg=self.bgcolor1,text="Resolution").grid(row=__row, column=0, sticky=tk.E)
         self.resolution = tk.StringVar()
-        self.resolution.set(self.job.env.config.getdefault("render", "resolution"))
+        self.resolution.set(self.job.config.getdefault("render", "resolution"))
         self.resolutionbox = ttk.Combobox(self.canvas, textvariable=self.resolution)
-        self.resolutionbox.config(values=self.job.env.config.getoptions("render", "resolution"), justify=tk.CENTER)
+        self.resolutionbox.config(values=self.job.config.getoptions("render", "resolution"), justify=tk.CENTER)
         self.resolutionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
@@ -261,54 +252,54 @@ class Window(WindowBase):
         # # ###################################################################
         # tk.Label(self.canvas, bg=self.bgcolor1,text="Arnold Version").grid(row=__row, column=0, sticky=tk.E)
         # self.rendermanversion = tk.StringVar()
-        # self.rendermanversion.set(self.job.env.config.getdefault("arnold","version"))
+        # self.rendermanversion.set(self.job.config.getdefault("arnold","version"))
         # self.rendermanversionbox = ttk.Combobox(self.canvas, textvariable=self.rendermanversion)
-        # self.rendermanversionbox.config(values=self.job.env.config.getoptions("arnold","version"), justify=tk.CENTER)
+        # self.rendermanversionbox.config(values=self.job.config.getoptions("arnold","version"), justify=tk.CENTER)
         # self.rendermanversionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         # __row += 1
 
         # # ###################################################################
         # tk.Label(self.canvas, bg=self.bgcolor1,text="Intergrator").grid(row=__row, column=0, sticky=tk.E)
         # self.integrator = tk.StringVar()
-        # self.integrator.set(self.job.env.config.getdefault("renderman","integrator"))
+        # self.integrator.set(self.job.config.getdefault("renderman","integrator"))
         # self.integratorbox = ttk.Combobox(self.canvas, textvariable=self.integrator)
-        # self.integratorbox.config(values=self.job.env.config.getoptions("renderman","integrator"), justify=tk.CENTER)
+        # self.integratorbox.config(values=self.job.config.getoptions("renderman","integrator"), justify=tk.CENTER)
         # self.integratorbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         # __row += 1
 
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1,text="Max Samples").grid(row=__row, column=0, sticky=tk.E)
         self.maxsamples = tk.StringVar()
-        self.maxsamples.set(self.job.env.config.getdefault("render","maxsamples"))
+        self.maxsamples.set(self.job.config.getdefault("render","maxsamples"))
         self.maxsamplesbox = ttk.Combobox(self.canvas, textvariable=self.maxsamples)
-        self.maxsamplesbox.config(values=self.job.env.config.getoptions("render","maxsamples"), justify=tk.CENTER)
+        self.maxsamplesbox.config(values=self.job.config.getoptions("render","maxsamples"), justify=tk.CENTER)
         self.maxsamplesbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1,text="Render Threads").grid(row=__row, column=0, sticky=tk.E)
         self.threads = tk.StringVar()
-        self.threads.set(self.job.env.config.getdefault("render","threads"))
+        self.threads.set(self.job.config.getdefault("render","threads"))
         self.threadsbox = ttk.Combobox(self.canvas, textvariable=self.threads)
-        self.threadsbox.config(values=self.job.env.config.getoptions("render","threads"), justify=tk.CENTER)
+        self.threadsbox.config(values=self.job.config.getoptions("render","threads"), justify=tk.CENTER)
         self.threadsbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1,text="Render Memory").grid(row=__row, column=0, sticky=tk.E)
         self.memory = tk.StringVar()
-        self.memory.set(self.job.env.config.getdefault("render","memory"))
+        self.memory.set(self.job.config.getdefault("render","memory"))
         self.memorybox = ttk.Combobox(self.canvas, textvariable=self.memory)
-        self.memorybox.config(values=self.job.env.config.getoptions("render","memory"), justify=tk.CENTER)
+        self.memorybox.config(values=self.job.config.getoptions("render","memory"), justify=tk.CENTER)
         self.memorybox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1,text="Render Chunks").grid(row=__row, column=0, sticky=tk.E)
         self.chunks = tk.StringVar()
-        self.chunks.set(self.job.env.config.getdefault("render","chunks"))
+        self.chunks.set(self.job.config.getdefault("render","chunks"))
         self.chunksbox = ttk.Combobox(self.canvas, textvariable=self.chunks)
-        self.chunksbox.config(values=self.job.env.config.getoptions("render","chunks"), justify=tk.CENTER)
+        self.chunksbox.config(values=self.job.config.getoptions("render","chunks"), justify=tk.CENTER)
         self.chunksbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 

@@ -103,8 +103,10 @@ class Window(WindowBase):
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1,text="$TYPE").grid(row=__row, column=0, sticky=tk.E)
         self.envtype = tk.StringVar()
-        self.envtype.set("user_work")
-        self.job.envtype="user_work"
+        # _default=self.job.config.getdefault("class", "worktype")
+
+        self.envtype.set(self.job.config.getdefault("class", "worktype"))
+        self.job.envtype=self.job.config.getdefault("class", "worktype")
         self.envtypebox = ttk.Combobox(self.canvas, textvariable=self.envtype)
         ###
         # get from the json config
@@ -587,8 +589,9 @@ class Window(WindowBase):
         elif self.job.envtype == "project_work":
             self.job.envshow=None
             self.envshowbut["text"]= self.msg_selectshow
-        ####
-        # shotgun_work here
+        elif self.job.envtype == "shotgun_work":
+            self.job.envshow=None
+            self.envshowbut["text"]= self.msg_selectshow
 
         self.envprojbut["text"]= self.msg_selectproject
         self.job.envproject=None
@@ -601,8 +604,21 @@ class Window(WindowBase):
             self.job.envshow=self.job.username
             self.envshowbut["text"]=self.job.envshow
         elif self.job.envtype == "project_work":
-            self.envshowfullpath = tkFileDialog.askdirectory(parent=self.master,\
-                    initialdir=os.path.join(self.job.dabwork,"project_work"),title=self.msg_selectshow)
+            self.envshowfullpath = tkFileDialog.askdirectory(parent=self.master, initialdir=os.path.join(self.job.dabwork,"project_work"),title=self.msg_selectshow)
+            _typefullpath = os.path.join(self.job.dabwork,self.job.envtype)
+            _showrelpath=os.path.relpath(self.envshowfullpath,_typefullpath)
+
+            if os.path.exists(self.envshowfullpath):
+                self.envshowbut["text"] = str(_showrelpath) if self.envshowfullpath else self.msg_selectshow
+                self.job.envshow=_showrelpath
+            else:
+                self.job.envtype=self.envtype.get()
+                self.job.envproject=None
+                self.job.envshow=None
+                self.job.envscene=None
+
+        elif self.job.envtype == "shotgun_work":
+            self.envshowfullpath = tkFileDialog.askdirectory(parent=self.master, initialdir=os.path.join(self.job.dabwork,"shotgun_work"),title=self.msg_selectshow)
             _typefullpath = os.path.join(self.job.dabwork,self.job.envtype)
             _showrelpath=os.path.relpath(self.envshowfullpath,_typefullpath)
 

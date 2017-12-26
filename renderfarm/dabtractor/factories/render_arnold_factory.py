@@ -29,10 +29,87 @@ maya -batch -proj /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Render
 
 kick -i /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Renderfarm/data/xxx.0001.ass -t 6 -dp -ds 8 -r 1280 720
 
+-o outputfile eh out.exr
 
 
 https://github.com/kiryha/AnimationDNA/wiki/06-Tutorials
  
+ 
+Usage:  kick [options] ...
+  -i %s               Input .ass file
+  -o %s               Output filename
+  -of %s              Output format: exr jpg png tif 
+  -ocs %s             Output color space
+  -r %d %d            Image resolution
+  -sr %f              Scale resolution %f times in each dimension
+  -rg %d %d %d %d     Render region (minx miny maxx maxy)
+  -as %d              Anti-aliasing samples
+  -af %s %f           Anti-aliasing filter and width (box triangle gaussian ...)
+  -asc %f             Anti-aliasing sample clamp
+  -c %s               Active camera
+  -sh %f %f           Motion blur shutter (start end)
+  -fov %f             Camera FOV
+  -e %f               Camera exposure
+  -ar %f              Aspect ratio
+  -t %d               Threads
+  -bs %d              Bucket size
+  -bc %s              Bucket scanning (top left random spiral hilbert)
+  -td %d              Total ray depth
+  -dif %d             Diffuse depth
+  -spc %d             Specular depth
+  -trm %d             Transmission depth
+  -ds %d              Diffuse samples
+  -ss %d              Specular samples
+  -ts %d              Transmission samples
+  -d %s               Disable (ignore) a specific node or node.parameter
+  -it                 Ignore texture maps
+  -is                 Ignore shaders
+  -cm %s              Set the value of ai_default_reflection_shader.color_mode (use with -is)
+  -sm %s              Set the value of ai_default_reflection_shader.shade_mode (use with -is)
+  -om %s              Set the value of ai_default_reflection_shader.overlay_mode (use with -is)
+  -ib                 Ignore background shaders
+  -ia                 Ignore atmosphere shaders
+  -il                 Ignore lights
+  -id                 Ignore shadows
+  -isd                Ignore mesh subdivision
+  -idisp              Ignore displacement
+  -ibump              Ignore bump-mapping
+  -imb                Ignore motion blur
+  -idof               Ignore depth of field
+  -isss               Ignore sub-surface scattering
+  -flat               Flat shading
+  -sd %d              Max subdivisions
+  -set %s.%s %s       Set the value of a node parameter (-set name.parameter value)
+  -dw                 Disable render window (recommended for batch rendering)
+  -dp                 Disable progressive rendering (recommended for batch rendering)
+  -ipr [m|q]          Interactive rendering mode, using Maya (default) or Quake/WASD controls
+  -turn %d            Render n frames rotating the camera around the lookat point
+  -lookat %f %f %f    Override camera look_at point (useful if the camera is specified by a matrix)
+  -position %f %f %f  Override camera position
+  -up %f %f %f        Override camera up vector
+  -v %d               Verbose level (0..6)
+  -nw %d              Maximum number of warnings
+  -logfile %s         Write log file to the specified file path
+  -l %s               Add search path for plugin libraries
+  -nodes [n|t]        List all installed nodes, sorted by Name (default) or Type
+  -info [n|u] %s      Print detailed information for a given node, sorted by Name or Unsorted (default)
+  -tree %s            Print the shading tree for a given node
+  -repeat %d          Repeat the render n times (useful for debugging)
+  -resave %s          Re-save .ass scene to filename
+  -db                 Disable binary encoding when re-saving .ass files (useful for debugging)
+  -forceexpand        Force expansion of procedural geometry before re-saving
+  -lcs                List available color spaces in loaded .ass files
+  -nostdin            Ignore input from stdin
+  -nokeypress         Disable wait for ESC keypress after rendering to display window
+  -sl                 Skip license check (assume license is not available)
+  -licensecheck       Check the connection with the license servers and list installed licenses
+  -utest              Run unit tests for the Arnold API
+  -av, --version      Print Arnold version number
+  -notices            Print copyright notices
+  -h, --help          Show this help message
+where %d=integer, %f=float, %s=string
+Example:  kick -i teapot.ass -r 640 480 -as 4 -o teapot.tif
+
 
 '''
 
@@ -53,7 +130,22 @@ formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
 
-class Job(object):
+
+class Job(envfac.TractorJob):
+    ''' The payload of gui-data needed to describe a rfm render job '''
+    def __init__(self):
+        super(Job, self).__init__()
+        self.mayaprojectfullpath=None
+        self.mayascenefullpath=None
+        # This gets department from shotgun and checks it is a valid one in the json file
+        # the department is year1 or year2 etc a user can only be in one department.
+        if self.department in self.config.getoptions("renderjob", "projectgroup"):
+            logger.info("Department {}".format(self.department))
+        else:
+            self.department="Other"
+
+
+class Job2(object):
     def __init__(self):
         """
         The payload of gui-data needed to describe a arnold render job
@@ -188,7 +280,7 @@ class Render(object):
 
 
         # ################ 0 JOB ################
-        self.renderjob = self.job.env.author.Job(title="RM: {} {} {}-{}".format(
+        self.renderjob = self.job.author.Job(title="M2A: {} {} {}-{}".format(
               self.job.username, self.scenename, self.job.jobstartframe, self.job.jobendframe),
               priority=10,
               envkey=[self.envkey_maya,"ProjectX",
@@ -206,21 +298,57 @@ class Render(object):
 
 
         # ############## 0 ThisJob #################
-        task_thisjob = self.job.env.author.Task(title="Arnold Job")
+        task_thisjob = self.job.author.Task(title="Maya to Arnold Job")
         task_thisjob.serialsubtasks = 1
 
         # ############## 5 NOTIFY JOB START ###############
         if self.optionsendjobstartemail:
             logger.info("email = {}".format(self.job.useremail))
-            task_notify_start = self.job.env.author.Task(title="Notify Start", service="ShellServices")
+            task_notify_start = self.job.author.Task(title="Notify Start", service="ShellServices")
             task_notify_start.addCommand(self.mail("JOB", "START", "{}".format(self.mayascenefilefullpath)))
             task_thisjob.addChild(task_notify_start)
 
 
+        # ####### make a render directory - mayaproj/arnold/scene/[ass,images]
+        _mayaproj = self.mayaprojectpath
+        _arnolddir = os.path.join(self.mayaprojectpath,"arnold")
+        _arnoldWorkDir = os.path.join(_arnolddir, self.scenebasename)
+        _assDir = os.path.join(_arnoldWorkDir,"ass")
+        _imgDir = os.path.join(_arnoldWorkDir,"images")
+        _assFileBase = "{}.ass".format(self.scenebasename)
+
+
+        task_prefilight = self.job.author.Task(title="Make render directory")
+        command_mkdirs1 = self.job.author.Command(argv=[ "mkdir","-p", _arnolddir ],
+                    tags=["maya", "theWholeFarm"],
+                    atleast=1,
+                    atmost=1,
+                    service="Maya")
+        command_mkdirs2 = self.job.author.Command(argv=[ "mkdir","-p", _arnoldWorkDir ],
+                    tags=["maya", "theWholeFarm"],
+                    atleast=1,
+                    atmost=1,
+                    service="Maya")
+        command_mkdirs3 = self.job.author.Command(argv=[ "mkdir","-p", _assDir ],
+                    tags=["maya", "theWholeFarm"],
+                    atleast=1,
+                    atmost=1,
+                    service="Maya")
+        command_mkdirs4 = self.job.author.Command(argv=[ "mkdir", "-p",_imgDir ],
+                    tags=["maya", "theWholeFarm"],
+                    atleast=1,
+                    atmost=1,
+                    service="Maya")
+        task_prefilight.addCommand(command_mkdirs1)
+        task_prefilight.addCommand(command_mkdirs2)
+        task_prefilight.addCommand(command_mkdirs3)
+        task_prefilight.addCommand(command_mkdirs4)
+        task_thisjob.addChild(task_prefilight)
+
         # ############## 3 ASSGEN ##############
-        task_render_allframes = self.job.env.author.Task(title="ALL FRAMES {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
+        task_render_allframes = self.job.author.Task(title="ALL FRAMES {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
         task_render_allframes.serialsubtasks = 1
-        task_assgen_allframes = self.job.env.author.Task(title="ASS GEN {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
+        task_assgen_allframes = self.job.author.Task(title="ASS GEN {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
 
         # divide the frame range up into chunks
         _totalframes = int(self.job.jobendframe) - int(self.job.jobstartframe) + 1
@@ -232,9 +360,9 @@ class Render(object):
             _chunks=1
 
         #TODO use command wrapper here for arnold job
+        #TODO not needed now - can use quotes
         __command = "arnoldExportAss"
-        _assFileBase = os.path.join(self.job.mayaprojectfullpath,"arnold",self.scenebasename)
-        _assFileBaseExt = "{}.ass".format(_assFileBase)
+
 
         # loop thru chunks
 
@@ -246,14 +374,14 @@ class Render(object):
             if chunk >= _chunks:
                 _chunkend = int(self.job.jobendframe)
 
-            task_generate_ass = self.job.env.author.Task(title="ASS GEN chunk {} frames {}-{}".format(
+            task_generate_ass = self.job.author.Task(title="ASS GEN chunk {} frames {}-{}".format(
                     chunk, _chunkstart, _chunkend ))
 
 
-            command_generate_ass = self.job.env.author.Command(argv=[
+            command_generate_ass = self.job.author.Command(argv=[
                     "maya", "-batch", "-proj", self.mayaprojectpath, "-command",
-                    "{command} -f {file} -startFrame {start} -endFrame {end}".format(
-                            command=__command, file=_assFileBaseExt, start=_chunkstart, end=_chunkend, step=1),
+                    "{command} -f \"{file}\" -startFrame {start} -endFrame {end}".format(
+                            command=__command, file=os.path.join(_assDir,self.scenebasename), start=_chunkstart, end=_chunkend, step=1),
                             "-file", self.mayascenefilefullpath],
                     tags=["maya", "theWholeFarm"],
                     atleast=int(self.threads),
@@ -266,7 +394,7 @@ class Render(object):
 
 
         # ############### 4 RENDER ##############
-        task_render_frames = self.job.env.author.Task(title="RENDER Frames {}-{}".format(self.job.jobstartframe,
+        task_render_frames = self.job.author.Task(title="RENDER Frames {}-{}".format(self.job.jobstartframe,
                                                                                          self.job.jobendframe))
         task_render_frames.serialsubtasks = 0
 
@@ -277,14 +405,16 @@ class Render(object):
                 proj=self.renderdirectory, scenebase=self.scenebasename, frame=frame, ext=self.outformat)
             # _statsfile = "{proj}/rib/{frame:04d}/{frame:04d}.xml".format(
             #     proj=self.renderpath, frame=frame)
-            _assfile = "{base}.{frame:04d}.ass".format(base=_assFileBase, frame=frame)
+            _assfile = "{base}.{frame:04d}.ass".format(base=os.path.join(_assDir,self.scenebasename), frame=frame)
+
+            _outfile = "{base}.{frame:04d}.exr".format(base=os.path.join(_imgDir,self.scenebasename), frame=frame)
             _shotgunupload = "PR:{} SQ:{} SH:{} TA:{}".format(self.job.shotgunProject,
                                                   self.job.shotgunSeqAssetType,
                                                   self.job.shotgunShotAsset,
                                                   self.job.shotgunTask)
 
             _taskMetaData={}
-            _taskMetaData["imgfile"] = _imgfile
+            _taskMetaData["imgfile"] = _outfile
             # _taskMetaData["statsfile"] = _statsfile
             _taskMetaData["assfile"] = _assfile
             _taskMetaData["shotgunupload"] = _shotgunupload
@@ -292,15 +422,14 @@ class Render(object):
             _title = "RENDER Frame {}".format(frame)
             # _preview = "sho {""}".format(_imgfile)
 
-            # task_render_ass = self.job.env.author.Task(title=_title, preview=_preview, metadata=_jsontaskMetaData)
-            task_render_ass = self.job.env.author.Task(title=_title, metadata=_jsontaskMetaData)
+            task_render_ass = self.job.author.Task(title=_title, metadata=_jsontaskMetaData)
 
             '''
             kick -i /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Renderfarm/data/xxx.0001.ass -t 6 -dp -ds 8 -r 1280 720
             '''
 
-            commonargs = ["kick", "-i", _assfile]
-            rendererspecificargs = [ "-dp", "-ds", "6" ]
+            commonargs = ["kick", "-i", _assfile, "-o", _outfile]
+            rendererspecificargs = [ "-nstdin", "-nokeypress", "-dp", "-dw", "-ds", "6" ]
 
             # ################ handle image resolution formats ###########
             if self.resolution == "720p":
@@ -316,8 +445,8 @@ class Render(object):
                 self.xres, self.yres = 192, 108
                 rendererspecificargs.extend(["-r", "%s" % self.xres, "%s" % self.yres])
 
-            if self.rendermaxsamples != "FROMFILE":
-                rendererspecificargs.extend([ "-maxsamples", "{}".format(self.rendermaxsamples) ])
+            # if self.rendermaxsamples != "FROMFILE":
+                # rendererspecificargs.extend([ "-maxsamples", "{}".format(self.rendermaxsamples) ])
 
             # if self.threadmemory != "FROMFILE":
             #     rendererspecificargs.extend([ "-memorylimit", "{}".format(self.threadmemory) ])
@@ -329,7 +458,7 @@ class Render(object):
             userspecificargs = [ utils.expandargumentstring(self.options)]
 
             finalargs = commonargs + rendererspecificargs
-            command_render = self.job.env.author.Command(argv=finalargs,
+            command_render = self.job.author.Command(argv=finalargs,
                                             tags=["kick", "theWholeFarm"],
                                             atleast=int(self.threads),
                                             atmost=int(self.threads),
@@ -396,8 +525,8 @@ class Render(object):
 
                 _output = "-o %s" % _outmov
                 _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (_seq, _option1, _option2, _option3, _output)) ]
-                task_proxy = self.job.env.author.Task(title="Proxy Generation")
-                proxycommand = self.job.env.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"], envkey=["rvio"])
+                task_proxy = self.job.author.Task(title="Proxy Generation")
+                proxycommand = self.job.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"], envkey=["rvio"])
                 task_proxy.addCommand(proxycommand)
                 task_thisjob.addChild(task_proxy)
 
@@ -431,8 +560,8 @@ class Render(object):
                               "-n", _mov,
                               "-d", _description,
                               "-m", _outmov ]
-            task_upload = self.job.env.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSeqAssetType,self.job.shotgunShotAsset, self.job.shotgunTask))
-            uploadcommand = self.job.env.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"], envkey=["PixarRender"])
+            task_upload = self.job.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSeqAssetType,self.job.shotgunShotAsset, self.job.shotgunTask))
+            uploadcommand = self.job.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"], envkey=["PixarRender"])
             task_upload.addCommand(uploadcommand)
             task_thisjob.addChild(task_upload)
 
@@ -441,7 +570,7 @@ class Render(object):
         # ############## 5 NOTIFY JOB END ###############
         if self.optionsendjobendemail:
             logger.info("email = {}".format(self.job.useremail))
-            task_notify_end = self.job.env.author.Task(title="Notify End", service="ShellServices")
+            task_notify_end = self.job.author.Task(title="Notify End", service="ShellServices")
             task_notify_end.addCommand(self.mail("JOB", "COMPLETE", "{}".format(self.mayascenefilefullpath)))
             task_thisjob.addChild(task_notify_end)
 
@@ -453,7 +582,7 @@ class Render(object):
     def mail(self, level="Level", trigger="Trigger", body="Render Progress Body"):
         bodystring = "Arnold Render Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
         subjectstring = "FARM JOB: {} {} {} {}".format(level,trigger, str(self.scenebasename), self.job.username)
-        mailcmd = self.job.env.author.Command(argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
+        mailcmd = self.job.author.Command(argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
         return mailcmd
 
     def spool(self):
@@ -463,7 +592,7 @@ class Render(object):
             try:
                 logger.info("Spooled correctly")
                 # all jobs owner by pixar user on the farm
-                self.renderjob.spool(owner=self.job.env.config.getdefault("tractor","jobowner"),port=int(self.job.env.config.getdefault("tractor","port")))
+                self.renderjob.spool(owner=self.job.config.getdefault("tractor","jobowner"),port=int(self.job.config.getdefault("tractor","port")))
 
             except Exception, spoolerr:
                 logger.warn("A spool error %s" % spoolerr)
