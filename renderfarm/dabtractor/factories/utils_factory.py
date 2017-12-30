@@ -34,6 +34,7 @@ def ensure_dir(f):
     if not os.path.exists(d):
         logger.warn("Not found, Making {}".format(f))
         os.makedirs(os.path.expandvars(d))
+        # raise Exception ("Cant make directory")
     else:
         logger.debug("Found dir {}".format(f))
 
@@ -42,7 +43,7 @@ def ensure_link(f):
     logger.debug("Checking link {}".format(f))
     if not os.path.islink(f):
         logger.warn("Link Not found {}".format(f))
-        raise
+        # raise Exception ("Cant find file")
     else:
         logger.debug("Found link {}".format(f))
 

@@ -85,7 +85,7 @@ class Render(object):
         self.job.envprojectalias = "$PROJECT"
         self.nukescriptfilefullpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/$SCENE"
         self.nukescriptfullpath = os.path.join( self.job.dabwork, self.job.envtype, self.job.envshow,self.job.envproject,self.job.envscene)
-        logger.critical( "here" ) ################# <<<<<<<<<<<<<<<<<<<< #################
+        # logger.critical( "here" ) ################# <<<<<<<<<<<<<<<<<<<< #################
         self.scriptname = os.path.basename(self.job.envscene)
         self.scriptbasename = os.path.splitext(self.scriptname)[0]
         self.sceneext = os.path.splitext(self.scriptname)[1]

@@ -144,13 +144,13 @@ class JsonConfig(object):
         finally:
             return str(_return)
 
-    def getattributes(self,group):
+    def getattributes(self, group):
         """ Return a groups attributes """
         _return = None
         try:
             _return = self.groups.get(group).keys()
         except Exception, err:
-            logger.warn("Group %s not in site.json file, %s" % (group,err))
+            logger.warn("Group %s not in dabtractor_config.json file, %s" % (group,err))
             logger.debug("ALL DEFAULTS = %s" % self.getalldefaults())
         finally:
             return _return

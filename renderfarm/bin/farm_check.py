@@ -54,7 +54,7 @@ else:
 
 ## TODO  check user prefs has a site setup
 try:
-    config="{}/{}/site".format(os.environ["DABUSERPREFS"], os.environ["USER"])
+    config="{}/{}/config".format(os.environ["DABUSERPREFS"], os.environ["USER"])
     utf.ensure_link(config)
 except Exception, err:
     logger.critical("USERPREFS ### Config Link ERROR {} : {}".format (config, err))
@@ -64,10 +64,10 @@ else:
 
 ## TODO  check maya prefs has a site setup
 try:
-    mayaprefs="{}/{}/site/mayaprefs".format(os.environ["DABUSERPREFS"], os.environ["USER"])
+    mayaprefs="{}/{}/config/mayaprefs".format(os.environ["DABUSERPREFS"], os.environ["USER"])
     utf.ensure_dir(mayaprefs)
 except Exception, err:
-    logger.critical("USERPREFS ### mayaprefs link ERROR {} : {}".format (mayaprefs, err))
+    logger.critical("USERPREFS ### mayaprefs ERROR {} : {}".format (mayaprefs, err))
 else:
     logger.info("CHECK {:-^20} {}".format ("[mayprefs]",mayaprefs))
 

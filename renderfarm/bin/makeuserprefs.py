@@ -23,6 +23,25 @@ import renderfarm.dabtractor.factories.environment_factory as envfac
 people=sgt.People()
 tj=envfac.TractorJob()
 
+class Base(object):
+    def __init__(self):
+        self.peoplelist=[]
+        self.dabuserprefs = None
+        try:
+            self.dabuserprefs = tj.config.getenvordefault("DABUSERPREFS","env")
+        except Exception, err:
+            logger.critical("Cant find DABUSERPREFS or DABASSETS: {}".format(err))
+            sys.exit(1)
+
+class Prefs(Base):
+    def __init__(self):
+        super(Prefs, self).__init__()
+        pass
+
+
+
+
+
 def main():
     """
     This funtion calls from shotgun all the valid tractor users and creates the
@@ -33,13 +52,12 @@ def main():
     :return:
     """
     peoplelist=[]
-    # print os.environ.keys()
     try:
-        dabuserprefs = tj.config.getenvordefault("DABUSERPREFS","env")
+        dabuserprefs = tj.config.getenvordefault("environment","DABUSERPREFS")
 
     except Exception, err:
-        logger.critical("Cant find DABUSERPREFS or DABASSETS: {}".format(err))
-        sys.exit(1)
+        logger.critical("Cant find DABUSERPREFS: {}".format(err))
+        sys.exit(err)
 
     for person in people.people:
         peoplelist.append(person.get('login'))
@@ -54,6 +72,10 @@ def makedirectorytree(rootpath,rootnames=[]):
 
     for i, root in enumerate(rootnames):
         roottomake = os.path.join(rootpath, root)
+
+        # #### testing only
+        # if i > 2:
+        #     break
 
         if not os.path.exists(roottomake):
             try:
@@ -71,24 +93,24 @@ def makedirectorytree(rootpath,rootnames=[]):
 
 def setupconfig(path):
     # dabassets = people.site.environ["DABASSETS"]
-    template = people.config.getdefault("CONFIG", "template")
+    template = people.config.getdefault("config", "template")
     dest = os.path.join(path,os.path.basename(template))
     if os.path.exists(path) and os.path.exists(template):
         try:
             shutil.copytree(template, dest, symlinks=True, ignore=None)
         except Exception, err:
-            logger.warn("Cant copy site {}".format(err))
+            logger.warn("Cant copy config {}".format(err))
         else:
             logger.info("Copying {} to {}".format(template,dest))
         try:
-            _config=os.path.join(path,"site")
-            # TODO fix this so it is a relative path ../site
-            os.symlink(dest,_config)
+            # TODO fix this so it is a relative path ../config
+            linksrc = dest
+            linkdest =  os.path.join(path,"config")
+            os.symlink(linksrc, linkdest )
         except Exception, err:
-            logger.warn("Cant make site link: {}".format(err))
+            logger.warn("Cant make config link: {}".format(err))
         else:
-            logger.info("Linking {} to {}".format(dest,_config))
-
+            logger.info("Linking {} -> {}".format(linkdest, linksrc))
 
 
 def deprecatedirectory(rootpath,rootnames=[]):
@@ -112,7 +134,7 @@ def deprecatedirectory(rootpath,rootnames=[]):
                       os.path.join(zapdir,each))
     except Exception, err:
         logger.warn("Cant move bad alien directories")
-        sys.exit(1)
+        sys.exit(err)
 
 def listdir_nodotfiles(dir):
     # same as os.listdir but no dot files

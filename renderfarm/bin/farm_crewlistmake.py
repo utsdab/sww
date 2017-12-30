@@ -36,7 +36,7 @@ try:
     if os.path.exists(os.path.dirname(file)):
         people.writetractorcrewfile(file)
     else:
-        raise
+        raise Exception('Write Error')
 except Exception, err:
     logger.critical("Error Writing File {}".format (file, err))
 else:

@@ -429,7 +429,7 @@ class Render(object):
             '''
 
             commonargs = ["kick", "-i", _assfile, "-o", _outfile]
-            rendererspecificargs = [ "-nstdin", "-nokeypress", "-dp", "-dw", "-ds", "6" ]
+            rendererspecificargs = [ "-nstdin", "-nokeypress", "-dp", "-dw", "-ds", "6", "-sl" ]
 
             # ################ handle image resolution formats ###########
             if self.resolution == "720p":
