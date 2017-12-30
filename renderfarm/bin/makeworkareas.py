@@ -16,9 +16,13 @@ logger.addHandler(sh)
 # ##############################################################
 import os
 import sys
+import pwd
+import grp
 import renderfarm.dabtractor.factories.shotgun_factory as sgt
 import renderfarm.dabtractor.factories.environment_factory as envfac
+
 tj=envfac.TractorJob()
+people=sgt.People()
 
 def main():
     """
@@ -29,10 +33,10 @@ def main():
 
     :return:
     """
-    people=sgt.People()
+    # people=sgt.People()
     peoplelist=[]
     try:
-        dabwork = people.config.getenvordefault("DABWORK","env")
+        dabwork = people.config.getenvordefault("environment","DABWORK")
     except Exception, err:
         logger.critical("Cant find DABWORK: {}".format(err))
         sys.exit(1)
@@ -42,21 +46,6 @@ def main():
 
     makedirectorytree(dabwork,peoplelist)
     deprecatedirectory(dabwork,peoplelist)
-
-    # peoplelist=[]
-    # try:
-    #     dabuserprefs = tj.site.getenvordefault("DABUSERPREFS","env")
-    #
-    # except Exception, err:
-    #     logger.critical("Cant find DABUSERPREFS or DABASSETS: {}".format(err))
-    #     sys.exit(1)
-    #
-    # for person in people.people:
-    #     peoplelist.append(person.get('login'))
-    #
-    # makedirectorytree(dabuserprefs,peoplelist)
-    # deprecatedirectory(dabuserprefs,peoplelist)
-
 
 
 
@@ -71,8 +60,9 @@ def makedirectorytree(rootpath,rootnames=[]):
             else:
                 logger.info("All Good for  {}".format(roottomake))
 
-            # if os.environ["DABDEV"] == "development" and i>1000:
+            # if os.environ["DABDEV"] == "development" and i>1:
             #     sys.exit("development cap")
+            setpermissionsontree(roottomake)
 
     except Exception, err:
         logger.warn("Error making directories {}".format(err))
@@ -102,7 +92,7 @@ def deprecatedirectory(rootpath,rootnames=[]):
                       os.path.join(zapdir,each))
     except Exception, err:
         logger.warn("Cant move bad alien directories")
-        sys.exit(1)
+        sys.exit(err)
 
 def existingusers(rootpath):
     """
@@ -140,12 +130,27 @@ def setpermissionsontree(rootpath):
         chmod 770 test
         chmod g+s
     """
-    os.chmod('pixar', 0o2770)
-    os.chmod('pixar', 5327)  #2755 decimal  www.rapidtables.com/convert/number/decimal-to-octal.htm
-    #os.chown(path,uid,gid)
+    try:
+        pixar = people.config.getenvordefault("farm","user")
+        _uid = pwd.getpwnam(pixar).pw_uid
+        _gid = grp.getgrnam(pixar).gr_gid
+        # _uid=8888
+        # _gid=8888
+        os.chown(rootpath,_uid,_gid)
+        # os.chown(rootpath,'pixar', 0o2770)
+        # os.chmod(rootpath, 5327)  #2755 decimal  www.rapidtables.com/convert/number/decimal-to-octal.htm
+    except Exception, err:
+        logger.warn("Cant chown {} {} - {}".format(_uid,_gid,err))
 
-    # import os
-    # os.chmod('test', 02770)
+    try:
+        _mask = 0o2775
+        os.chmod(rootpath, _mask)  #2755 decimal  www.rapidtables.com/convert/number/decimal-to-octal.htm
+        #os.chown(path,uid,gid)
+        # import os
+        # os.chmod('test', 02770)
+    except Exception, err:
+        logger.warn("Cant chmod () - {}".format(_mask,err))
+
 
 
 # #################################################################################################
