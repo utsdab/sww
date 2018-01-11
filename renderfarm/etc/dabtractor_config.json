@@ -51,12 +51,12 @@
   },
 
   "maya": {
-    "version"      : [ "2017" ],
+    "version"      : [ "2018","2017" ],
     "mayarenderer" : [ "sw","arnold"]
   },
 
   "nuke": {
-    "version"      : [ "10.5v5", "10.5v4", "11.0v2"]
+    "version"      : [ "11.0v2", "10.5v5", "10.5v4"]
   },
 
   "houdini": {

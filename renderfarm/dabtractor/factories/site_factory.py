@@ -183,6 +183,7 @@ class JsonConfig(object):
         return _haspath
 
 
+
 if __name__ == '__main__':
 
     sh.setLevel(logging.DEBUG)
@@ -197,4 +198,11 @@ if __name__ == '__main__':
     pprint(siteconfig.getattributes("class"))
     pprint(siteconfig.getoptions("class","worktype"))
 
+    mayaversion= siteconfig.getdefault("maya","version")
+    rendermanversion= siteconfig.getdefault("renderman","version")
+    rmanver="renderman-{}".format(rendermanversion,mayaversion)
+    rfmver="renderman-{}-maya-{}".format(rendermanversion,mayaversion)
+
+    print rmanver
+    print rfmver
 

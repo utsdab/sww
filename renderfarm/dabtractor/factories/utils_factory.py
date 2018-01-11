@@ -11,7 +11,7 @@ import subprocess
 ###############################################################
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 sh = logging.StreamHandler()
 sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
@@ -206,14 +206,36 @@ def makedirectoriesinpath(path):
 def dictfromlistofdicts(dlist=[{}], dkey="code", dvalue="id"):
         # used for shotgun find returns,  cherry pick dictionary values to
         # be the key and value in a simple new dictionary
-        logger.debug("...{} Key={} Value={}".format(dlist[0].keys(), dkey, dvalue))
         _result={}
-        for i, d in enumerate(dlist):
-            _uniqdkey="{} ({})".format(d.get(dkey), d.get(dvalue))
-            _result[_uniqdkey]=d.get(dvalue)
-        logger.debug("{}".format( _result ))
-        return _result
+        try:
+            num=len(dlist)
+        except Exception, err:
+            logger.warn(err)
+        else:
+            logger.debug("...{} Key={} Value={}".format(dlist[0].keys(), dkey, dvalue))
+            for i, d in enumerate(dlist):
+                _uniqdkey = "{} ({})".format(d.get(dkey), d.get(dvalue))
+                _result[_uniqdkey] = d.get(dvalue)
+            logger.debug("{}".format( _result ))
+        finally:
+            return _result
 
+def dictfromlistofdictionaries(dlist=[{}], dkey="code", dvalue="id"):
+        # used for shotgun find returns,  cherry pick dictionary values to
+        # be the key and value in a simple new dictionary
+        _result={}
+        try:
+            num=len(dlist)
+        except Exception, err:
+            logger.warn(err)
+        else:
+            logger.debug("...{} Key={} Value={}".format(dlist[0].keys(), dkey, dvalue))
+            for i, d in enumerate(dlist):
+                # _uniqdkey = "{}".format(d.get(dkey), d.get(dvalue))
+                _result[d.get(dkey)] = d.get(dvalue)
+            logger.debug("{}".format( _result ))
+        finally:
+            return _result
 
 def truncatepath(inputpath,truncatebit):
     if os.path.isdir(inputpath):

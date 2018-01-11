@@ -12,16 +12,18 @@ import string
 import sys
 import logging
 import os
+import inspect
 # import Set
 from shotgun_api3 import Shotgun
 from renderfarm.dabtractor.factories.site_factory import JsonConfig
 from renderfarm.dabtractor.factories.utils_factory import dictfromlistofdicts
+from renderfarm.dabtractor.factories.utils_factory import dictfromlistofdictionaries
 from renderfarm.dabtractor.factories.utils_factory import cleanname
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
-sh.setLevel(logging.INFO)
+sh.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
@@ -30,6 +32,7 @@ logger.addHandler(sh)
 class ShotgunBase(object):
     # set up how to access shotgun if possible
     def __init__(self):
+        logger.debug("Initiated Base Class {}".format(self.__class__.__name__))
         # Get the keys to talk to shotgun from the configuration files
         self.development = None
         if os.environ.get("DABDEV"):
@@ -52,6 +55,7 @@ class ShotgunBase(object):
 class ShotgunLink(object):
     """ this is the target in shotgun you want to link the output to"""
     def __init__(self):
+        logger.debug("Initiated Class {}".format(self.__class__.__name__))
         self.username=None
         self.userid=None
         self.linkproject=None
@@ -79,6 +83,7 @@ class Person(ShotgunBase):
         :param shotgunlogin: optional name to use - defaults to $USER
         """
         super(Person, self).__init__()
+        logger.debug("Initiated Class {}".format(self.__class__.__name__))
         self.tractor = None
         self.shotgunname = None
         self.shotgun_id = None
@@ -192,20 +197,16 @@ class Person(ShotgunBase):
 
 class Software(ShotgunBase):
     '''
-    This class replesents software that may be configured in the projects
+    This class replesents software that may be configured in  projects
     '''
     def __init__(self):
         super(Software, self).__init__()
         # print the whole schema
-        pprint(self.sg.schema_entity_read())
+        # pprint(self.sg.schema_entity_read())
         # pprint( self.sg.schema_field_read('Software'))
+        logger.debug("Initiated Class {}".format(self.__class__.__name__))
 
     def getprojectsoftware(self, project_id=None):
-        try:
-            pr=Project(project_id)
-        except Exception, err:
-            print err
-
         _software = None
         _fields = ['id', 'code','engine', 'cached_display_name', 'projects','version_names']
         _filters = [['projects', 'is', {'type': 'Project', 'id': project_id } ]]
@@ -215,17 +216,25 @@ class Software(ShotgunBase):
         except Exception, err:
             logger.warn("{}".format(err))
         else:
-            pprint(software)
+            logger.debug(software)
             _software = dictfromlistofdicts(software,'code','version_names')
         finally:
-            pprint(_software)
-
+            logger.debug(_software)
+            pass
+    def getallsoftware(self):
+        # return all the software that is active
+        pass
+    def getdefaultsoftware(self):
+        # this comes from the json file
+        pass
 
 class Project(ShotgunBase):
     def __init__(self,pid=None):
         super(Project, self).__init__()
+        logger.debug("Initiated Class {}".format(self.__class__.__name__))
         self.allprojects = None
         self.project_id = pid
+        self.software = {}
         ## todo test pid validity
 
 
@@ -315,10 +324,10 @@ class Project(ShotgunBase):
         sequences= self.sg.find("Sequence", filters, fields)
 
         if len(sequences) < 1:
-            print "couldn't find any Sequences"
+            logger.info( "couldn't find any Sequences")
         else:
-            print "Found %d Sequences" % (len(sequences))
-            print sequences
+            logger.info("Found %d Sequences" % (len(sequences)))
+            logger.debug(sequences)
 
     def shots(self, project_id, sequence_id):
         # get shots from sequence and project
@@ -464,11 +473,72 @@ class Project(ShotgunBase):
         finally:
             return _tasks
 
+    def getsoftware(self, project_id=None):
+        '''
+        Looks to shotgun software to get definitions
+        Baseline defaults have  the group default attribute set
+        Group Name is used as the software key
+        Projects should only have one version set for the desktop, the defaults is just a way to identify
+        the baseline in order to define envars.
+        '''
+        _software = None
+
+        _fields = ['id',
+                   'code',
+                   # 'engine',
+                   # 'cached_display_name',
+                   # 'products',
+                   # 'projects',
+                   'group_name',
+                   'group_default',
+                   'version_names']
+        # _filters = [['projects', 'is', {'type': 'Project', 'id': project_id } ]]
+        # _filters = [['projects', 'is_not', {'type': 'Project', 'id': 0 } ]]
+
+        if project_id is None:
+            #general default
+            # logger.info("Project ID is {}".format("None"))
+            _filters = [['projects', 'is_not', {'type': 'Project', 'id': 0 } ],
+                        ['group_default', 'is', True]
+                        ]
+            try:
+                _software = self.sg.find("Software", _filters, _fields)
+            except Exception, err:
+                logger.warn("{}".format(err))
+            else:
+                # logger.debug(_software)
+                logger.info("Software defaults - if no project is specified")
+            finally:
+                _softwared = dictfromlistofdictionaries(_software,'group_name','version_names')
+                logger.info(_softwared)
+                # pprint(_softwared)
+                self.software=_softwared
+        else:
+            #specific for the project
+            # logger.info("Project ID is {}".format(project_id))
+            _filters = [['projects', 'is', {'type': 'Project', 'id': project_id } ],
+                        # ['group_default', 'is', True]
+                        ]
+            try:
+                _software = self.sg.find("Software", _filters, _fields)
+            except Exception, err:
+                logger.warn("{}".format(err))
+            else:
+                # logger.debug(_software)
+                logger.info("Software for Project {}".format(project_id))
+            finally:
+                _softwared = dictfromlistofdictionaries(_software,'group_name','version_names')
+                logger.info(_softwared)
+                # pprint(_softwared)
+                self.software=_softwared
+
+
 
 
 class People(ShotgunBase):
     def __init__(self):
         super(People, self).__init__()
+        logger.debug("Initiated Class {}".format(self.__class__.__name__))
         __fields = ['login', 'name', 'firstname', 'lastname',
                     'department', 'email', 'sg_tractor']
         __filters = [['sg_tractor','is', True]]
@@ -541,6 +611,7 @@ class Version(ShotgunBase):
                  tag = "RenderFarm Proxy"
                  ):
         super(Version, self).__init__()
+        logger.debug("Initiated Class {}".format(self.__class__.__name__))
 
         self.project = {'type': 'Project', 'id': projectid}
         self.shotid=shotid
@@ -594,8 +665,8 @@ class Version(ShotgunBase):
 # ##############################################################################
 
 if __name__ == "__main__":
-    logger.setLevel(logging.DEBUG)
-    logger.info("--------- TESTING {} ------".format(__file__))
+    logger.setLevel(logging.INFO)
+    logger.debug(">>>> TESTING {} ------".format(__file__))
     # ----------------------------------------------
     # upload a movie example
     # a = ShotgunBase()
@@ -614,11 +685,21 @@ if __name__ == "__main__":
     # sys.exit()
     #
     # ----------------------------------------------
-    s=Software()
-    #aa=s.getprojectsoftware(174)
-    #s.allsoftware()
+
+    # ############ SOFTWARE TEST
+    logger.debug("TEST CLASS SOFTWARE")
+    p=Project()
+    p.getsoftware()
+    # pprint (p.projects())
+    # s=Software()
+    # aa=s.getprojectsoftware(176)
+    q=Project()
+    q.getsoftware(176)
+
+    raise SystemExit(".......done and exiting")
 
 
+    # ########## PERSON TEST
     # p = Person()
     # print "Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department)
     #
@@ -626,14 +707,14 @@ if __name__ == "__main__":
     # print p.myGroups()
     # print p.me()
 
-    raise SystemExit(".......done and exiting")
 
-    pr = Project()
-    print pr.projects()
-    print pr.assettypes(175)
-    print pr.assets(175, "Prop")
-    print pr.assettask(175,1241)
-    print pr.assetFromAssetType(175,"character")
+    # ############# PROJECT TEST
+    # pr = Project()
+    # print pr.projects()
+    # print pr.assettypes(175)
+    # print pr.assets(175, "Prop")
+    # print pr.assettask(175,1241)
+    # print pr.assetFromAssetType(175,"character")
 
     # pr.sequences(175)
     # pr.shots(175,304)
@@ -643,9 +724,7 @@ if __name__ == "__main__":
     # pr.taskFromAsset(175,1241)
 
 
-    raise SystemExit("done")
-
-    # ----------------------------------------------
+    # ############# PEOPLE TEST
     # pe=People()
     # print pe.people
     # pe.writetractorcrewfile("/Users/120988/Desktop/crew.list.txt")
@@ -762,13 +841,13 @@ if __name__ == "__main__":
 
     # >>> # Find Assets..........................
 
-    pprint( p.sg.schema_field_read('Asset'))
-    project_id = _myprojects.get('YR3_2017--171') # 171 # Demo Project
-    fields = ['id', 'code']
-    filters = [['project', 'is', {'type': 'Project', 'id': project_id} ]]
-    asset = p.sg.find("Assets",filters,fields)
-    pprint(asset)
-    _assets = dictfromlistofdicts(assets,"code","id")
+    # pprint( p.sg.schema_field_read('Asset'))
+    # project_id = _myprojects.get('YR3_2017--171') # 171 # Demo Project
+    # fields = ['id', 'code']
+    # filters = [['project', 'is', {'type': 'Project', 'id': project_id} ]]
+    # asset = p.sg.find("Assets",filters,fields)
+    # pprint(asset)
+    # _assets = dictfromlistofdicts(assets,"code","id")
     #
     # pprint(p.sg.schema_entity_read('Shot'))
     # pprint(p.sg.schema_field_read('Shot'))
