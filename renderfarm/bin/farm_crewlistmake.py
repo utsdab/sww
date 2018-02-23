@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 import os
+import datetime
+import sys
+import time
 import stat
 from renderfarm.dabtractor.factories import user_factory as uf
 from renderfarm.dabtractor.factories import environment_factory as ef
@@ -29,9 +32,22 @@ logger.info(">>>>>>> Checking if you are a Farm User <<<<<<<<")
 
 people=sgt.People()
 
-file="/Volumes/dabrender/__tmp/new_crew.list.txt"
+# print "Current date and time: " , datetime.datetime.now()
+# print "Or like this: " ,datetime.datetime.now().strftime("%y-%m-%d-%H-%M")
+# print "Current year: ", datetime.date.today().strftime("%Y")
+# print "Month of year: ", datetime.date.today().strftime("%B")
+# print "Week number of the year: ", datetime.date.today().strftime("%W")
+# print "Weekday of the week: ", datetime.date.today().strftime("%w")
+# print "Day of year: ", datetime.date.today().strftime("%j")
+# print "Day of the month : ", datetime.date.today().strftime("%d")
+# print "Day of week: ", datetime.date.today().strftime("%A")
+# sys.exit("stopped")
+
+now = datetime.datetime.now().strftime("%y-%m-%d-%H-%M")
+file="/Volumes/dabrender/__tmp/new_crew_list_{now}.txt".format(now=now)
 
 ## TODO  check maya prefs has a site setup
+
 try:
     if os.path.exists(os.path.dirname(file)):
         people.writetractorcrewfile(file)

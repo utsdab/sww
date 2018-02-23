@@ -688,24 +688,24 @@ if __name__ == "__main__":
 
     # ############ SOFTWARE TEST
     logger.debug("TEST CLASS SOFTWARE")
-    p=Project()
-    p.getsoftware()
+    # p=Project()
+    # p.getsoftware()
     # pprint (p.projects())
     # s=Software()
     # aa=s.getprojectsoftware(176)
-    q=Project()
-    q.getsoftware(176)
+    # q=Project()
+    # q.getsoftware(176)
+    # raise SystemExit(".......done and exiting")
 
+
+    ########## PERSON TEST
+    p = Person()
+    print "Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department)
+
+    print p.myProjects()
+    print p.myGroups()
+    print p.me()
     raise SystemExit(".......done and exiting")
-
-
-    # ########## PERSON TEST
-    # p = Person()
-    # print "Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department)
-    #
-    # print p.myProjects()
-    # print p.myGroups()
-    # print p.me()
 
 
     # ############# PROJECT TEST

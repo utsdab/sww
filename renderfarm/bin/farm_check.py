@@ -22,6 +22,8 @@ logger.addHandler(sh)
 #TODO check LDAP
 # TODO handle timeout
 logger.info("{:+^70}".format(" Checking if you are a Farm User "))
+
+
 # #  Check if user has an LDAP account
 # try:
 #     a = uf.UtsUser()

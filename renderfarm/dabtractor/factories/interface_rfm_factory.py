@@ -41,8 +41,8 @@ class WindowBase(object):
         except Exception, err:
             logger.warn("Couldnt get the job definition {}".format(err))
         else:
+            # self.shotgun = self.job.sgtperson
             self.shotgun = self.job.sgtperson
-
             # self.sgtproject = self.job.sgtproject
             # self.job.shotgunOwner = self.shotgun.shotgunname
             # self.job.shotgunOwnerId = self.shotgun.shotgun_id

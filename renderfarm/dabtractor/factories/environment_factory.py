@@ -36,10 +36,12 @@ class TractorJob(object):
         self.author=author
         self.tq=tq
         self.config=JsonConfig()
+
         try:
             self.sgtperson=Person()
         except Exception, err:
             logger.warn("Cant get actual person from Shotgun {}, assuming dev".format(err))
+            self.sgtperson=None
             self.devmode()
         else:
             self.username=self.sgtperson.dabname
