@@ -658,8 +658,9 @@ class Window(WindowBase):
     def consolidate(self):
         try:
             _checkpath=utils.hasBadNaming(self.filefullpath)
+            print _checkpath
         except Exception, err:
-            logger.critical("Problem validating %s" % err)
+            logger.critical("Problem validating filepath {} : {}".format(self.filefullpath, err))
         else:
             if _checkpath:
                 logger.critical("Problem with naming" % _checkpath)
