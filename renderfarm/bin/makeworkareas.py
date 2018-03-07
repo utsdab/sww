@@ -59,9 +59,6 @@ def makedirectorytree(rootpath,rootnames=[]):
                 os.mkdir(roottomake)
             else:
                 logger.info("All Good for  {}".format(roottomake))
-
-            # if os.environ["DABDEV"] == "development" and i>1:
-            #     sys.exit("development cap")
             setpermissionsontree(roottomake)
 
     except Exception, err:
