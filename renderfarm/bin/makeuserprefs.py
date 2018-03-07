@@ -36,9 +36,8 @@ class Base(object):
 class Prefs(Base):
     def __init__(self):
         super(Prefs, self).__init__()
+        print "xxxx"
         pass
-
-
 
 
 
@@ -48,19 +47,17 @@ def main():
     user_prefs area required if it does not exit.
     It will also move those it finds to a deprecated space.
     It is meant to run as a farm job owned by pixar
-
-    :return:
     """
     peoplelist=[]
     try:
         dabuserprefs = tj.config.getenvordefault("environment","DABUSERPREFS")
-
+        logger.info("Dab user prefs: {}".format(dabuserprefs))
     except Exception, err:
         logger.critical("Cant find DABUSERPREFS: {}".format(err))
         sys.exit(err)
-
     for person in people.people:
         peoplelist.append(person.get('login'))
+        # logger.info("Person: {}".format(person))
 
     makedirectorytree(dabuserprefs,peoplelist)
     deprecatedirectory(dabuserprefs,peoplelist)
@@ -68,24 +65,21 @@ def main():
 
 def makedirectorytree(rootpath,rootnames=[]):
     """Make the template directory tree"""
-    # print rootpath, rootnames
 
     for i, root in enumerate(rootnames):
         roottomake = os.path.join(rootpath, root)
-
-        # #### testing only
-        # if i > 2:
-        #     break
-
         if not os.path.exists(roottomake):
             try:
                 os.mkdir(roottomake)
             except Exception, err:
                 logger.warn("Error making directories {}".format(err))
             else:
-                logger.info("Someone missing: Making directory {}".format(roottomake))
+                logger.info("Someone is missing: Making directory {}".format(roottomake))
                 setupconfig(roottomake)
-
+        else:
+            # may be a new config that is being rolled out.
+            logger.info("Setting up config {}".format(roottomake))
+            setupconfig(roottomake)
 
         #TODO  copy the CONFIG structure into place and make the necessary links
         #TODO  set and check the permissions on the tree.
@@ -95,6 +89,8 @@ def setupconfig(path):
     # dabassets = people.site.environ["DABASSETS"]
     template = people.config.getdefault("config", "template")
     dest = os.path.join(path,os.path.basename(template))
+    # logger.info("{} {}".format(template,dest))
+
     if os.path.exists(path) and os.path.exists(template):
         try:
             shutil.copytree(template, dest, symlinks=True, ignore=None)
@@ -102,6 +98,7 @@ def setupconfig(path):
             logger.warn("Cant copy config {}".format(err))
         else:
             logger.info("Copying {} to {}".format(template,dest))
+
         try:
             # TODO fix this so it is a relative path ../config
             linksrc = dest
