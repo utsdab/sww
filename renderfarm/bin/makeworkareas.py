@@ -30,8 +30,6 @@ def main():
     user_work area required if it does not exit.
     It will also move those it finds to a deprecated space.
     It is meant to run as a farm job owned by pixar
-
-    :return:
     """
     # people=sgt.People()
     peoplelist=[]
@@ -72,9 +70,6 @@ def makedirectorytree(rootpath,rootnames=[]):
 def deprecatedirectory(rootpath,rootnames=[]):
     """
     Move unknown directories to a .zapped folder
-    :param rootpath:
-    :param rootnames:
-    :return: None
     """
     directoriestozap=diff(existingusers(rootpath),rootnames)
     logger.info("Found these spurious directories: {}".format(directoriestozap))
