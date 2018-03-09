@@ -237,7 +237,6 @@ class Render(object):
         self.renderdirectory = os.path.join(self.renderpath,"images")
         self.renderimagesalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/arnold/$SCENENAME/images"
         self.mayaversion = self.job.mayaversion,
-        # self.rendermanversion = self.job.rendermanversion,
         self.envkey_maya = "maya{}".format(self.mayaversion[0])
         self.startframe = int(self.job.jobstartframe)
         self.endframe = int(self.job.jobendframe)
@@ -495,7 +494,7 @@ class Render(object):
             _mov = "{}_{}.mov".format(self.scenebasename,utils.getnow())
             _outmov = os.path.join(self.mayaprojectpath, _mov)
             _inseq = "{}.####.exr".format(self.scenebasename)    #cameraShape1/StillLife.####.exr"
-            _directory = "{}/renderman/{}/images".format(self.mayaprojectpath, self.scenebasename)
+            _directory = "{}/arnold/{}/images".format(self.mayaprojectpath, self.scenebasename)
             _seq = os.path.join(_directory, _inseq)
 
 
