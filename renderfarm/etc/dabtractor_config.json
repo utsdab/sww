@@ -70,7 +70,7 @@
 
   "renderjob"      : {
     "tier"         : [ "batch", "low", "default", "preview", "rush", "admin" ],
-    "projectgroup" : [ "Year1", "Year2", "Year3", "Year4", "Masters", "Staff" ]
+    "projectgroup" : [ "Year1", "Year2", "Year3", "Year4", "Masters", "Staff", "Other" ]
   },
 
   "render": {
