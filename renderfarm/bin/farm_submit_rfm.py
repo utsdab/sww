@@ -24,7 +24,7 @@ def main():
         w=ui.Window()
     except Exception, err:
         logger.warn(err)
-        sys.exit("Sorry you dont appear to be a registered farm user {}, try running farm_adduser.py and then contact "
+        sys.exit("Sorry you dont appear to be a registered farm user {}, contact "
                  "matt - "
                  "matthew.gidney@uts.edu.au".format(os.environ["USER"]))
 
