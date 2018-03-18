@@ -44,8 +44,8 @@ class WindowBase(object):
             # self.shotgun = self.job.sgtperson
             self.shotgun = self.job.sgtperson
             # self.sgtproject = self.job.sgtproject
-            # self.job.shotgunOwner = self.shotgun.shotgunname
-            # self.job.shotgunOwnerId = self.shotgun.shotgun_id
+            self.job.shotgunOwner = self.shotgun.shotgunname
+            self.job.shotgunOwnerId = self.shotgun.shotgun_id
 
 class Window(WindowBase):
     """ Ui Class for render submit  """

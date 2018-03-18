@@ -441,8 +441,11 @@ class Render(object):
 # ##############################################################################
 
 if __name__ == "__main__":
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     logger.info("START TESTING")
+
+    job = Job()
+
 
 
 
