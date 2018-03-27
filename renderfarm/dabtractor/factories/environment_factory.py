@@ -95,11 +95,6 @@ class TractorJob(object):
         self.shotgunTask = None
         self.shotgunTaskId = None
         self.sendToShotgun = False
-<<<<<<< HEAD
-=======
-        self.shotgunOwner = None
-        self.shotgunOwnerId = None
->>>>>>> e82ae984acd746d218bdab1444ac2957b027db7a
 
         self.farmpriority = None
         self.farmcrew = None
