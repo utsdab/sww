@@ -37,8 +37,7 @@ class ShotgunBase(object):
         self.development = None
         if os.environ.get("DABDEV"):
             self.development = os.environ.get("DABDEV")
-            logger.warn("DEVMODE: You are in DEV mode")
-
+            logger.warn("DEVMODE: You are in DEV mode: {}".format(self.development))
         self.config=JsonConfig()
         self.serverpath = str(self.config.getdefault("shotgun", "serverpath"))
         self.scriptname = str(self.config.getdefault("shotgun", "scriptname"))
@@ -47,7 +46,7 @@ class ShotgunBase(object):
             self.sg = Shotgun(self.serverpath, self.scriptname, self.scriptkey)
         except RuntimeError, err:
             logger.warn("SHOTGUN: Cant talk to shotgun")
-            self.sg=None
+            self.sg = None
         else:
             logger.info("SHOTGUN: talking to shotgun ...... %s" % self.serverpath)
 
@@ -95,12 +94,14 @@ class Person(ShotgunBase):
         self.department = None
         self.user_prefs = None
         self.user_work = None
+        self.shotgunlogin = None
 
         if shotgunlogin:
             self.shotgunlogin = shotgunlogin
+            logger.debug("Shotgun Login Found: {}".format(self.shotgunlogin))
         else:
             self.shotgunlogin = os.environ["USER"]
-
+            logger.debug("Shotgun Login Not Found using $USER: {}".format(self.shotgunlogin))
         if not self.sg:
             self.getDevInfo()
         else:
@@ -138,7 +139,7 @@ class Person(ShotgunBase):
             if  not self.tractor:
                 logger.critical("Shotgun user {} is not Active. Sorry.".format(self.shotgunlogin))
                 sys.exit()
-            logger.debug("Shotgun Login {} : {}".format(self.shotgunlogin,__person))
+            logger.info("Shotgun Login {} : {}".format(self.shotgunlogin,__person))
 
     def getDevInfo(self):
         self.tractor = None
@@ -665,7 +666,7 @@ class Version(ShotgunBase):
 # ##############################################################################
 
 if __name__ == "__main__":
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     logger.debug(">>>> TESTING {} ------".format(__file__))
     # ----------------------------------------------
     # upload a movie example
@@ -699,7 +700,7 @@ if __name__ == "__main__":
 
 
     ########## PERSON TEST
-    p = Person()
+    p = Person("120988")
     print "Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department)
 
     print p.myProjects()
