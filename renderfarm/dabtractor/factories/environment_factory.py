@@ -33,21 +33,25 @@ logger.addHandler(sh)
 class TractorJob(object):
     """ A class with the basic farm job info """
     def __init__(self):
-        self.author=author
-        self.tq=tq
-        self.config=JsonConfig()
+        self.author = author
+        self.tq = tq
+        self.config = JsonConfig()
+        self.shotgunOwner = None
+        self.shotgunOwnerId = None
 
         try:
-            self.sgtperson=Person()
+            self.sgtperson = Person()
         except Exception, err:
             logger.warn("Cant get actual person from Shotgun {}, assuming dev".format(err))
-            self.sgtperson=None
+            self.sgtperson = None
             self.devmode()
         else:
-            self.username=self.sgtperson.dabname
-            self.usernumber=self.sgtperson.dabnumber
-            self.useremail=self.sgtperson.email
-            self.department= self.sgtperson.department
+            self.username = self.sgtperson.dabname
+            self.usernumber = self.sgtperson.dabnumber
+            self.useremail = self.sgtperson.email
+            self.department = self.sgtperson.department
+            self.shotgunOwner = self.sgtperson.shotgunlogin
+            self.shotgunOwnerId = self.sgtperson.shotgun_id
 
         try:
             self.sgtproject=Project()
@@ -55,10 +59,10 @@ class TractorJob(object):
             logger.warn("Cant get project from Shotgun %s" % err)
 
         self.hostname = str(self.config.getdefault("tractor","engine"))
-        self.port= int(self.config.getdefault("tractor","port"))
-        self.jobowner=str(self.config.getdefault("tractor","jobowner"))
-        self.engine=str(self.config.getdefault("tractor","engine"))
-        self.dabwork=self.config.getenvordefault("environment","DABWORK")
+        self.port = int(self.config.getdefault("tractor","port"))
+        self.jobowner = str(self.config.getdefault("tractor","jobowner"))
+        self.engine = str(self.config.getdefault("tractor","engine"))
+        self.dabwork = self.config.getenvordefault("environment","DABWORK")
 
         self.author.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
         self.tq.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
@@ -79,6 +83,8 @@ class TractorJob(object):
 
         self.mayaversion = None
         self.rendermanversion = None
+
+
         self.shotgunProject = None
         self.shotgunProjectId = None
         self.shotgunClass = None
@@ -89,7 +95,6 @@ class TractorJob(object):
         self.shotgunTask = None
         self.shotgunTaskId = None
         self.sendToShotgun = False
-        self.shotgunOwnerId = None
 
         self.farmpriority = None
         self.farmcrew = None
