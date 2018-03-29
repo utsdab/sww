@@ -35,6 +35,8 @@ class WindowBase(object):
             logger.warn("Couldnt get the job definition {}".format(err))
         else:
             self.shotgun = self.job.sgtperson
+            self.job.shotgunOwner = self.shotgun.shotgunname
+            self.job.shotgunOwnerId = self.shotgun.shotgun_id
 
 class Window(WindowBase):
     """ Ui Class for render submit  """
@@ -48,10 +50,10 @@ class Window(WindowBase):
         self.msg_workspacebad = 'WARNING - no workspace.mel in your project'
         self.msg_selectSgtProject = 'Select your shotgun PROJECT'
         self.msg_selectSgtSequence = 'Now Select your  SEQUENCE'
-        self.msg_selectSgtAssetType = 'Now Select your Asset TYPE'
+        self.msg_selectSgtAssetType = 'Now Select your ASSET TYPE'
         self.msg_selectSgtShot = 'Now Select your  SHOT'
         self.msg_selectSgtAsset = 'Now Select your  ASSET'
-        self.msg_selectSgtTask = 'Optionally Select  TASK'
+        self.msg_selectSgtTask = 'Optionally Select your TASK'
         self.msg_selectSgtClass = 'ASSETS or SHOTS ?'
         self.msg_null = ""
         self.filefullpath = ""
@@ -80,7 +82,7 @@ class Window(WindowBase):
         __row = 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor3, text="Maya ass generation then kick").grid(row=__row, column=0,
+        tk.Label(self.canvas, bg=self.bgcolor3, text="Maya ASS generation then kick").grid(row=__row, column=0,
                                                                                         columnspan=5, sticky=tk.W + tk.E)
         __row += 1
 
@@ -93,10 +95,15 @@ class Window(WindowBase):
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1,text="$TYPE").grid(row=__row, column=0, sticky=tk.E)
         self.envtype = tk.StringVar()
-        self.envtype.set("user_work")
-        self.job.envtype="user_work"
+        # _default=self.job.config.getdefault("class", "worktype")
+
+        self.envtype.set(self.job.config.getdefault("class", "worktype"))
+        self.job.envtype=self.job.config.getdefault("class", "worktype")
         self.envtypebox = ttk.Combobox(self.canvas, textvariable=self.envtype)
-        self.envtypebox.config(values=["user_work","project_work"], justify=tk.CENTER)
+        ###
+        # get from the json config
+        # self.job.config.getoptions("class", "worktype")
+        self.envtypebox.config(values=self.job.config.getoptions("class", "worktype"), justify=tk.CENTER)
         self.envtypebox.grid(row=__row, column=1, columnspan=4,sticky=tk.W + tk.E)
         self.envtypebox.bind("<<ComboboxSelected>>", self.settype)
         __row += 1
@@ -116,7 +123,7 @@ class Window(WindowBase):
         __row += 1
 
         # ###################################################################
-        self.workspacelab = tk.Label(self.canvas, bg=self.bgcolor1, text=self.msg_workspaceok, fg='black')
+        self.workspacelab = tk.Label(self.canvas, bg=self.bgcolor1, text=self.msg_workspacebad, fg='black')
         self.workspacelab.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
@@ -156,7 +163,7 @@ class Window(WindowBase):
         __row += 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="SHOTS or ASSETS").grid(row=__row, column=0, sticky=tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor1,text="CLASS").grid(row=__row, column=0, sticky=tk.E)
         self.sgtClass.set(self.msg_null)
         self.sgtClassBox = ttk.Combobox(self.canvas, textvariable=self.sgtClass)
         self.sgtClassBox.config(values=self.getSgtClassValues(), justify=tk.CENTER)
@@ -230,8 +237,8 @@ class Window(WindowBase):
         self.ef.set("4")
         self.bar4 = tk.Entry(self.canvas, bg=self.bgcolor1, textvariable=self.ef, width=8).grid(row=__row, column=2,sticky=tk.E)
         __row += 1
-
         # ###################################################################
+
         tk.Label(self.canvas, bg=self.bgcolor1, text="By").grid(row=__row, column=0, sticky=tk.E)
         self.bf = tk.StringVar()
         self.bf.set("1")
@@ -338,6 +345,7 @@ class Window(WindowBase):
         self.emailjobstart.set(1)
         self.emailjobstartbut=tk.Checkbutton(self.canvas, variable=self.emailjobstart, bg=self.bgcolor1, text="Job Start").grid(row=__row, column=1,sticky=tk.W)
 
+
         self.emailjobend = tk.IntVar()
         self.emailjobend.set(1)
         self.emailjobendbut=tk.Checkbutton(self.canvas, variable=self.emailjobend, bg=self.bgcolor1,text="Job End").grid(row=__row, column=2, sticky=tk.W)
@@ -367,6 +375,7 @@ class Window(WindowBase):
 
     # ############################################################
     def setSendToShotgun(self):
+        logger.debug("Run: {}".format("setSendToShotgun"))
         if  not self.sendToShotgun.get():
             self.sgtProjectBox.set(self.msg_null)
             self.sgtSeqAssType.set(self.msg_null)
@@ -386,6 +395,7 @@ class Window(WindowBase):
             self.sgtTask.set(self.msg_null)
             self.sgtProjectBox.config(values=self.getSgtProjectValues(), justify=tk.CENTER)
             self.job.sendToShotgun = True
+
 
     def getSgtProjectValues(self):
         logger.debug("Run: {}".format("getSgtProjectValues"))
@@ -443,11 +453,11 @@ class Window(WindowBase):
             pass
 
         if self.sgtClass.get() == "SHOTS":
-            _ret = self.sgtproject.seqFromProject(self.job.shotgunProjectId).keys()
+            _ret = self.job.sgtproject.seqFromProject(self.job.shotgunProjectId).keys()
 
         elif self.sgtClass.get() == "ASSETS":
             # just get ones for the asset type
-            _ret = self.sgtproject.assettypes(self.job.shotgunProjectId)
+            _ret = self.job.sgtproject.assettypes(self.job.shotgunProjectId)
 
         _ret.sort()
         self.sgtSeqAssTypeBox.configure(values=_ret, justify=tk.CENTER)
@@ -462,18 +472,18 @@ class Window(WindowBase):
 
         if self.job.shotgunClass == 'ASSETS':
             self.sgtShotAss.set(self.msg_selectSgtAsset)
-            self.job.shotgunSeqAss = self.sgtSeqAssType.get()
-            self.job.shotgunSeqAssId = None
+            self.job.shotgunSeqAssetType = self.sgtSeqAssType.get()
+            self.job.shotgunSeqAssetTypeId = None
 
         elif self.job.shotgunClass == 'SHOTS':
             self.sgtShotAss.set(self.msg_selectSgtShot)
-            self.job.shotgunSeqAss = self.sgtSeqAssType.get()
-            _seqs = self.sgtproject.seqFromProject(self.job.shotgunProjectId)
-            self.job.shotgunSeqAssId = _seqs.get(self.job.shotgunSeqAss)
+            self.job.shotgunSeqAssetType = self.sgtSeqAssType.get()
+            _seqs = self.job.sgtproject.seqFromProject(self.job.shotgunProjectId)
+            self.job.shotgunSeqAssetTypeId = _seqs.get(self.job.shotgunSeqAssetType)
         else:
             self.sgtShotAss.set(self.msg_null)
 
-        logger.info("Shotgun Seq/Ass is {} id {}".format(self.job.shotgunSeqAss, self.job.shotgunSeqAssId))
+        logger.info("Shotgun Seq/Ass is {} id {}".format(self.job.shotgunSeqAssetType, self.job.shotgunSeqAssetTypeId))
         self.getSgtShotAssValues()
 
 
@@ -482,12 +492,12 @@ class Window(WindowBase):
         _ret = []
         if self.job.shotgunClass == 'SHOTS':
             try:
-                _ret = self.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssetTypeId).keys()
+                _ret = self.job.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssetTypeId).keys()
             except RuntimeError:
                 print "boing"
         elif self.job.shotgunClass == 'ASSETS':
             try:
-                _ret = self.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAssetType).keys()
+                _ret = self.job.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAssetTypeId).keys()
             except RuntimeError:
                 print "bam"
         _ret.sort()
@@ -510,15 +520,12 @@ class Window(WindowBase):
         else:
             if self.job.shotgunClass == 'SHOTS':
                 self.job.shotgunShotAsset = self.sgtShotAss.get()
-                _shots = self.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssetTypeId)
-                # print "x",_shots
+                _shots = self.job.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssetTypeId)
                 self.job.shotgunShotAssetId = _shots.get(self.job.shotgunShotAsset)
             elif self.job.shotgunClass == 'ASSETS':
                 self.job.shotgunShotAsset = self.sgtShotAss.get()
-                _ass = self.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAssetType)
-                # print "z",_ass
+                _ass = self.job.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAssetTypeId)
                 self.job.shotgunShotAssetId = _ass.get(self.job.shotgunShotAsset)
-                # self.job.shotgunShotAssetType = _ass.get(self.job.shotgunShotAssetType)
         logger.info("Shotgun Shot/Asset is {} id {}".format(self.job.shotgunShotAsset, self.job.shotgunShotAssetId))
         self.getSgtTaskValues()
 
@@ -529,15 +536,13 @@ class Window(WindowBase):
             self.sgtTask.set(self.msg_null)
             self.sgtTaskBox.config(values=[],justify=tk.CENTER)
         elif self.job.shotgunClass == 'SHOTS':
-            _ret=self.sgtproject.taskFromShot(self.job.shotgunProjectId, self.job.shotgunShotAssetId).keys()
+            _ret=self.job.sgtproject.taskFromShot(self.job.shotgunProjectId, self.job.shotgunShotAssetId).keys()
             _ret.sort()
-            # print "n",_ret
             self.sgtTaskBox.configure(values=_ret, justify=tk.CENTER)
             # self.job.shotgunTaskId = _ret.get(self.job.shotgunTask)
         elif self.job.shotgunClass == 'ASSETS':
-            _ret=self.sgtproject.taskFromAsset(self.job.shotgunProjectId, self.job.shotgunShotAssetId).keys()
+            _ret=self.job.sgtproject.taskFromAsset(self.job.shotgunProjectId, self.job.shotgunShotAssetId).keys()
             _ret.sort()
-            # print "n",_ret
             self.sgtTaskBox.configure(values=_ret, justify=tk.CENTER)
             # self.job.shotgunTaskId = _ret.get(self.job.shotgunTask)
 
@@ -547,7 +552,7 @@ class Window(WindowBase):
             self.sgtTask.set(self.msg_selectSgtTask)
         else:
             self.job.shotgunTask = self.sgtTask.get()
-            _tasks = self.sgtproject.taskFromShot(self.job.shotgunProjectId, self.job.shotgunShotAssetId)
+            _tasks = self.job.sgtproject.taskFromShot(self.job.shotgunProjectId, self.job.shotgunShotAssetId)
             self.job.shotgunTaskId = _tasks.get(self.job.shotgunTask)
             logger.info("Shotgun Task is {} id {}".format( self.job.shotgunTask, self.job.shotgunTaskId))
 
@@ -575,6 +580,9 @@ class Window(WindowBase):
         elif self.job.envtype == "project_work":
             self.job.envshow=None
             self.envshowbut["text"]= self.msg_selectshow
+        elif self.job.envtype == "shotgun_work":
+            self.job.envshow=None
+            self.envshowbut["text"]= self.msg_selectshow
 
         self.envprojbut["text"]= self.msg_selectproject
         self.job.envproject=None
@@ -587,8 +595,21 @@ class Window(WindowBase):
             self.job.envshow=self.job.username
             self.envshowbut["text"]=self.job.envshow
         elif self.job.envtype == "project_work":
-            self.envshowfullpath = tkFileDialog.askdirectory(parent=self.master,\
-                    initialdir=os.path.join(self.job.dabwork,"project_work"),title=self.msg_selectshow)
+            self.envshowfullpath = tkFileDialog.askdirectory(parent=self.master, initialdir=os.path.join(self.job.dabwork,"project_work"),title=self.msg_selectshow)
+            _typefullpath = os.path.join(self.job.dabwork,self.job.envtype)
+            _showrelpath=os.path.relpath(self.envshowfullpath,_typefullpath)
+
+            if os.path.exists(self.envshowfullpath):
+                self.envshowbut["text"] = str(_showrelpath) if self.envshowfullpath else self.msg_selectshow
+                self.job.envshow=_showrelpath
+            else:
+                self.job.envtype=self.envtype.get()
+                self.job.envproject=None
+                self.job.envshow=None
+                self.job.envscene=None
+
+        elif self.job.envtype == "shotgun_work":
+            self.envshowfullpath = tkFileDialog.askdirectory(parent=self.master, initialdir=os.path.join(self.job.dabwork,"shotgun_work"),title=self.msg_selectshow)
             _typefullpath = os.path.join(self.job.dabwork,self.job.envtype)
             _showrelpath=os.path.relpath(self.envshowfullpath,_typefullpath)
 
@@ -626,11 +647,11 @@ class Window(WindowBase):
             self.job.envscene=None
 
     def consolidate(self):
-        print self.filefullpath
         try:
             _checkpath=utils.hasBadNaming(self.filefullpath)
+            print _checkpath
         except Exception, err:
-            logger.critical("Problem consolidating %s" % err)
+            logger.critical("Problem validating filepath {} : {}".format(self.filefullpath, err))
         else:
             if _checkpath:
                 logger.critical("Problem with naming" % _checkpath)
@@ -668,13 +689,12 @@ class Window(WindowBase):
             logger.info("Skip Existing Frames:" % self.skipframes)
             logger.info("Make Proxy:" % self.makeproxy)
             self.consolidate()
-
-        except Exception, validateError:
-            logger.warn("Problem validating %s" % validateError)
-        else:
             rj=rfac.Render(self.job)
             rj.build()
             rj.validate()
+
+        except Exception, validateError:
+            logger.warn("Problem validating %s" % validateError)
 
     def submit(self):
         try:

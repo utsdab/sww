@@ -110,7 +110,7 @@ Usage:  kick [options] ...
 where %d=integer, %f=float, %s=string
 Example:  kick -i teapot.ass -r 640 480 -as 4 -o teapot.tif
 
-
+-set options.skip_license_check off
 '''
 
 
@@ -427,7 +427,7 @@ class Render(object):
             kick -i /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Renderfarm/data/xxx.0001.ass -t 6 -dp -ds 8 -r 1280 720
             '''
 
-            commonargs = ["kick", "-i", _assfile, "-o", _outfile]
+            commonargs = ["kick", "-i", _assfile, "-set", "options.skip_license_check", "off", "-o", _outfile]
             rendererspecificargs = [ "-nstdin", "-nokeypress", "-dp", "-dw", "-ds", "6", "-sl" ]
 
             # ################ handle image resolution formats ###########

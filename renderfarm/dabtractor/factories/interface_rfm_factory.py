@@ -41,9 +41,7 @@ class WindowBase(object):
         except Exception, err:
             logger.warn("Couldnt get the job definition {}".format(err))
         else:
-            # self.shotgun = self.job.sgtperson
             self.shotgun = self.job.sgtperson
-            # self.sgtproject = self.job.sgtproject
             self.job.shotgunOwner = self.shotgun.shotgunname
             self.job.shotgunOwnerId = self.shotgun.shotgun_id
 
@@ -91,7 +89,8 @@ class Window(WindowBase):
         __row = 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor3, text="Maya RIB generation then Prman").grid(row=__row, column=0, columnspan=5, sticky=tk.W + tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor3, text="Maya RIB generation then prman").grid(row=__row, column=0,
+                                                                                            columnspan=5, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
