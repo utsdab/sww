@@ -5,7 +5,6 @@ command to be run as a farm job by pixar user
 
 # ##############################################################
 import logging
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
@@ -18,6 +17,7 @@ import os
 import sys
 import pwd
 import grp
+import shutil
 import renderfarm.dabtractor.factories.shotgun_factory as sgt
 import renderfarm.dabtractor.factories.environment_factory as envfac
 
@@ -80,17 +80,23 @@ def deprecatedirectory(rootpath,rootnames=[]):
             os.mkdir(zapdir)
         for i, each in enumerate(directoriestozap):
             logger.info("{} Moving {} to .zapped".format(i, each))
+            removed(os.path.join(zapdir, each))
             os.rename(os.path.join(userworkdir,each),
                       os.path.join(zapdir,each))
     except Exception, err:
-        logger.warn("Cant move bad alien directories")
+        logger.warn("Cant move alien directories, exiting")
         sys.exit(err)
 
+def removed(dir):
+    try:
+        shutil.rmtree(dir)   # ignore_errors=False)
+    except Exception, err:
+        logger.warn("Cant remove the directory in the .zapped directory, exiting")
+        sys.exit(err)
+    else:
+        logger.info("Removed existing directory that was zapped before")
+
 def existingusers(rootpath):
-    """
-    :param rootpath:
-    :return: cleaned list of existing users with directories.
-    """
     cleaned=listdir_nodotfiles(os.path.join(rootpath,"user_work"))
     return cleaned
 
@@ -105,11 +111,6 @@ def listdir_nodotfiles(dir):
     return cleaned
 
 def diff(first, second):
-    """
-    :param first:  list
-    :param second: list
-    :return: list
-    """
     second = set(second)
     differences = [item for item in first if item not in second]
     return differences
@@ -122,17 +123,18 @@ def setpermissionsontree(rootpath):
         chmod 770 test
         chmod g+s
     """
+    _uid=8888
+    _gid=8888
+
     try:
         pixar = people.config.getenvordefault("farm","user")
         _uid = pwd.getpwnam(pixar).pw_uid
-        _gid = grp.getgrnam(pixar).gr_gid
-        # _uid=8888
-        # _gid=8888
+        #_gid = grp.getgrnam(pixar).gr_gid    cant find module grp
         os.chown(rootpath,_uid,_gid)
         # os.chown(rootpath,'pixar', 0o2770)
         # os.chmod(rootpath, 5327)  #2755 decimal  www.rapidtables.com/convert/number/decimal-to-octal.htm
     except Exception, err:
-        logger.warn("Cant chown {} {} - {}".format(_uid,_gid,err))
+        logger.warn("Cant chown {} {} - {}".format(_uid,_gid, err))
 
     try:
         _mask = 0o2775
@@ -141,7 +143,7 @@ def setpermissionsontree(rootpath):
         # import os
         # os.chmod('test', 02770)
     except Exception, err:
-        logger.warn("Cant chmod () - {}".format(_mask,err))
+        logger.warn("Cant chmod () - {}".format(_mask, err))
 
 
 
