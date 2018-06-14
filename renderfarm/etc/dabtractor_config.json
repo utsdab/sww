@@ -51,7 +51,7 @@
   },
 
   "maya": {
-    "version"      : [ "2018","2017" ],
+    "version"      : [ "2018"],
     "mayarenderer" : [ "sw","arnold"]
   },
 
@@ -64,7 +64,7 @@
   },
 
   "renderman": {
-    "version"      : [ "21.6", "21.5","21.4"],
+    "version"      : [ "21.7", "22.0"],
     "integrator"   : [ "FROMFILE", "pxr", "vcm", "visualiser", "occlusion"]
   },
 
@@ -78,7 +78,7 @@
     "chunks"       : [ "1", "2", "4", "8", "16" ,"32","64"],
     "maxsamples"   : [ "64", "128","256", "512", "FROMFILE", "1024", "32", "16" ],
     "memory"       : [ "4000", "8000", "2000" ],
-    "resolution"   : [ "720p","108p" ,"540p", "1080p","FROMFILE" ],
+    "resolution"   : [ "720p","108p" ,"540p", "1080p","5kx5k","10kx10k", "FROMFILE" ],
     "outformat"    : [ "exr", "png", "jpg", "iff", "tif" , "tga"]
   }
 
