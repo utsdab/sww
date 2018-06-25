@@ -1,42 +1,42 @@
 {
-  "environment":{
-    "DABUSR":          "/Volumes/dabrender/usr",
-    "DABWORK":         "/Volumes/dabrender/work",
-    "DABASSETS" :      "/Volumes/dabrender/assets",
-    "DABPREFS" :       "/Volumes/dabrender/prefs",
-    "DABUSERPREFS" :   "/Volumes/dabrender/prefs/user_prefs",
-    "DABSWW":          "/Volumes/dabrender/sww",
-    "DABRENDER" :      "/Volumes/dabrender"
+  "environment"       : {
+    "DABUSR"          : "/Volumes/dabrender/usr",
+    "DABWORK"         : "/Volumes/dabrender/work",
+    "DABASSETS"       : "/Volumes/dabrender/assets",
+    "DABPREFS"        : "/Volumes/dabrender/prefs",
+    "DABUSERPREFS"    : "/Volumes/dabrender/prefs/user_prefs",
+    "DABSWW"          : "/Volumes/dabrender/sww",
+    "DABRENDER"       : "/Volumes/dabrender"
   },
 
-  "class" : {
+  "class"             : {
     "worktype"        : [ "user_work", "project_work", "shotgun_work" ]
   },
 
-  "config" : {
+  "config"            : {
     "version"         : "CONFIG_V5.0",
     "template"        : "etc/configtemplate/CONFIG_V5.0"
   },
 
-  "dabrender" : {
+  "dabrender"         : {
     "usermapfile"     : "etc/map/user_map.json",
     "mapfilepickle"   : "etc/map/user_map.pickle",
     "tractorcrewlist" : "etc/map/tractor_crew_list.txt",
     "backuppath"      : "etc/map/backup"
   },
 
-  "admin"   : {
+  "admin"             : {
     "login"           : "120988",
     "email"           : "120988@uts.edu.au"
   },
 
-  "shotgun" : {
+  "shotgun"           : {
     "serverpath"      : "https://utsanim.shotgunstudio.com",
     "scriptname"      : "shotgun_factory",
     "scriptkey"       : "694d48107fc5d7a05652afb060babff34bdfe99b4a2ea47d2adf718fc0a7745f"
   },
 
-  "farm": {
+  "farm"           : {
     "version"      : "2.0",
     "build"        : "201702",
     "user"         : "pixar",
@@ -44,26 +44,26 @@
     "gid"          : "8888"
   },
 
-  "tractor": {
+  "tractor"        : {
     "engine"       : "tractor-engine",
     "port"         : "5600",
     "jobowner"     : "pixar"
   },
 
-  "maya": {
+  "maya"           : {
     "version"      : [ "2018"],
     "mayarenderer" : [ "sw","arnold"]
   },
 
-  "nuke": {
+  "nuke"           : {
     "version"      : [ "11.1v1", "11.0v2", "10.5v5"]
   },
 
-  "houdini": {
+  "houdini"        : {
     "version"      : [ "15.5.480" ]
   },
 
-  "renderman": {
+  "renderman"      : {
     "version"      : [ "21.7", "22.0"],
     "integrator"   : [ "FROMFILE", "pxr", "vcm", "visualiser", "occlusion"]
   },
@@ -73,7 +73,7 @@
     "projectgroup" : [ "Year1", "Year2", "Year3", "Year4", "Masters", "Staff", "Other" ]
   },
 
-  "render": {
+  "render"         : {
     "threads"      : [ "2", "4", "8", "16", "32","64", "1" ],
     "chunks"       : [ "1", "2", "4", "8", "16" ,"32","64"],
     "maxsamples"   : [ "64", "128","256", "512", "FROMFILE", "1024", "32", "16" ],
@@ -82,15 +82,15 @@
     "outformat"    : [ "exr", "png", "jpg", "iff", "tif" , "tga"]
   },
 
-  "resolution":{
-    "HD540p"       : [ "960","540","1.0", "HD 720p 1.778" ],
-    "HD720p"       : [ "1280","720","1.0", "HD 720p 1.778" ],
-    "HD1080p"      : [ "1920","1080","1.0", "HD 720p 1,778" ],
-    "DCPflat"      : [ "1998","1080","1.0", "DCP flat 2k 1,85" ],
-    "DCPscope"     : [ "2048","858","1.0", "DCP scope 2k 2.39" ],
-    "Omni10k"      : [ "10000","10000","1.0", "Omnidirectional Stereo Top-Bottom 10k 1.0" ],
+  "resolutions"      : {
+    "1. HD540p 960x540 1.778"      : [ "960","540","1.0", "HD 720p 960x540 1.778" ],
+    "2. HD720p 1280x720 1.778"     : [ "1280","720","1.0", "HD 720p 1280x720 1.778" ],
+    "3. HD1080p 1920x1080 1,778"   : [ "1920","1080","1.0", "HD 720p 1920x1080 1,778" ],
+    "4. DCPflat 1998x1080 1,85"    : [ "1998","1080","1.0", "DCP flat 2k 1998x1080 1,85" ],
+    "5. DCPscope 2048xx858 2.39"   : [ "2048","858","1.0", "DCP scope 2k 2048xx858 2.39" ],
+    "6. OMNI_4k 4096x4096  1.0"    : [ "4096","4096","1.0", "Omnidirectional Stereo Top-Bottom 4k 4096x4096  1.0" ],
+    "7. OMNI_10k 10000x10000 1.0"  : [ "10000","10000","1.0", "Omnidirectional Stereo Top-Bottom 10k 10000x10000 1.0" ]
   }
-
 
 }
 

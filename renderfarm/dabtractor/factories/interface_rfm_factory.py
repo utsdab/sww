@@ -45,6 +45,7 @@ class WindowBase(object):
             self.job.shotgunOwner = self.shotgun.shotgunname
             self.job.shotgunOwnerId = self.shotgun.shotgun_id
 
+
 class Window(WindowBase):
     """ Ui Class for render submit  """
     def __init__(self):
@@ -253,9 +254,13 @@ class Window(WindowBase):
 
         tk.Label(self.canvas, bg=self.bgcolor1,text="Resolution").grid(row=__row, column=0, sticky=tk.E)
         self.resolution = tk.StringVar()
-        self.resolution.set(self.job.config.getdefault("render", "resolution"))
+
+        rs = self.job.config.getattributes("resolutions")
+        rs.sort()
+
+        self.resolution.set(rs[0])
         self.resolutionbox = ttk.Combobox(self.canvas, textvariable=self.resolution)
-        self.resolutionbox.config(values=self.job.config.getoptions("render", "resolution"), justify=tk.CENTER)
+        self.resolutionbox.config(values=rs, justify=tk.CENTER)
         self.resolutionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
@@ -669,7 +674,9 @@ class Window(WindowBase):
             self.job.mayascenefullpath=self.filefullpath
             self.job.optionskipframe=self.skipframes.get()  # gets from the tk object
             self.job.optionmakeproxy=self.makeproxy.get()
-            self.job.optionresolution=self.resolution.get()
+            # self.job.optionresolution=self.resolution.get()
+            self.job.xres=self.job.config.getoptions("resolutions",self.resolution.get())[0]
+            self.job.yres=self.job.config.getoptions("resolutions",self.resolution.get())[1]
             self.job.optionsendjobstartemail=self.emailjobstart.get()
             self.job.optionsendjobendemail=self.emailjobend.get()
             self.job.optionsendtaskendemail=self.emailtaskend.get()
@@ -726,6 +733,8 @@ if __name__ == "__main__":
     w=Window()
     # for key in w.job.__dict__.keys():
     #     print "{:20} = {}".format(key,w.job.__dict__.get(key))
+
+    # wb=WindowBase()
 
 
 

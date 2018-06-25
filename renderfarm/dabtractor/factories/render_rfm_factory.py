@@ -62,7 +62,9 @@ class Render(object):
         self.chunks = int(self.job.jobchunks)  # pixar jobs are one at a time
         self.projectgroup = self.job.department
         self.options = ""
-        self.resolution = self.job.optionresolution
+        # self.resolution = self.job.optionresolution
+        self.xres=self.job.xres
+        self.yres=self.job.yres
         self.outformat = "exr"
         self.makeproxy = self.job.optionmakeproxy
         self.optionsendjobstartemail = self.job.optionsendjobstartemail
@@ -149,8 +151,6 @@ class Render(object):
         #TODO use command wrapper
         # dab_pre_render layerid start end phase
         __command = "dab_rfm_pre_render"
-        # __command = "renderManBatchGenRibForLayer"
-
         command_ribgen = self.job.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,"-command",
                                               "{command} {layerid} {start} {end} {phase}".format(
                                                   command=__command,
@@ -238,22 +238,7 @@ class Render(object):
             rendererspecificargs = []
 
             # ################ handle image resolution formats ###########
-            if self.resolution == "720p":
-                self.xres, self.yres = 1280, 720
-                rendererspecificargs.extend(["-res", "%s" % self.xres, "%s" % self.yres])
-            elif self.resolution == "1080p":
-                self.xres, self.yres = 1920, 1080
-                rendererspecificargs.extend(["-res", "%s" % self.xres, "%s" % self.yres])
-            elif self.resolution == "540p":
-                self.xres, self.yres = 960, 540
-                rendererspecificargs.extend(["-res", "%s" % self.xres, "%s" % self.yres])
-            elif self.resolution == "108p":
-                self.xres, self.yres = 192, 108
-                rendererspecificargs.extend(["-res", "%s" % self.xres, "%s" % self.yres])
-
-            if self.rendermaxsamples != "FROMFILE":
-                rendererspecificargs.extend([ "-maxsamples", "{}".format(self.rendermaxsamples) ])
-
+            rendererspecificargs.extend(["-res", "%s" % self.xres, "%s" % self.yres])
             # if self.threadmemory != "FROMFILE":
             #     rendererspecificargs.extend([ "-memorylimit", "{}".format(self.threadmemory) ])
 

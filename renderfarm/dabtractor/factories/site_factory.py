@@ -209,11 +209,11 @@ if __name__ == '__main__':
 
     siteconfig=JsonConfig()
     # logger.debug( _E2.requiredenvars)
-    # pprint(siteconfig.getalldefaults())
-    # pprint(siteconfig.getenvordefault("environment","DABSWW"))
-    # pprint(siteconfig.getenvordefault("class","worktype"))
-    # pprint(siteconfig.getattributes("class"))
-    # pprint(siteconfig.getoptions("class","worktype"))
+    pprint(siteconfig.getalldefaults())
+    pprint(siteconfig.getenvordefault("environment","DABSWW"))
+    pprint(siteconfig.getenvordefault("class","worktype"))
+    pprint(siteconfig.getattributes("class"))
+    pprint(siteconfig.getoptions("class","worktype"))
     #
     # mayaversion= siteconfig.getdefault("maya","version")
     # rendermanversion= siteconfig.getdefault("renderman","version")
