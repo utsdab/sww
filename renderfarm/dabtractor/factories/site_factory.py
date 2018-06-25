@@ -182,6 +182,23 @@ class JsonConfig(object):
                     _haspath.append(group)
         return _haspath
 
+class Output(object):
+    def __init__(self):
+        #  various output templates held in an output object
+        self.resolution=(1280,720,1.0) # width height apxel aspect
+        # "HD720p","HD540p", "HD1080p","DCPflat","DCPscope","Omni10k","Omni5k", "FROMFILE"
+        self.resolutions={
+                          "HD540p" :(960,540,1.0),     # 1.778
+                          "HD720p" :(1280,720,1.0),    # 1.778
+                          "HD1080p":(1920,1080,1.0),   # 1.778
+                          "DCPscope":(2048,858,1.0),   # 2.39  DCP
+                          "DCPflat" :(1998,1080,1.0),  # 1.85  DCP
+                          "Omni4k" :(4096,4096,1.0),   # 1.0   Data Arena Omnidirectional stereo top bottom
+                          "Omni10k":(10000,10000,1.0)  # 1.0   Data Arena Omnidirectional stereo top bottom
+                          }
+
+
+
 
 
 if __name__ == '__main__':
@@ -193,16 +210,24 @@ if __name__ == '__main__':
     siteconfig=JsonConfig()
     # logger.debug( _E2.requiredenvars)
     # pprint(siteconfig.getalldefaults())
-    pprint(siteconfig.getenvordefault("environment","DABSWW"))
-    pprint(siteconfig.getenvordefault("class","worktype"))
-    pprint(siteconfig.getattributes("class"))
-    pprint(siteconfig.getoptions("class","worktype"))
+    # pprint(siteconfig.getenvordefault("environment","DABSWW"))
+    # pprint(siteconfig.getenvordefault("class","worktype"))
+    # pprint(siteconfig.getattributes("class"))
+    # pprint(siteconfig.getoptions("class","worktype"))
+    #
+    # mayaversion= siteconfig.getdefault("maya","version")
+    # rendermanversion= siteconfig.getdefault("renderman","version")
+    # rmanver="renderman-{}".format(rendermanversion,mayaversion)
+    # rfmver="renderman-{}-maya-{}".format(rendermanversion,mayaversion)
+    # print rmanver
+    # print rfmver
 
-    mayaversion= siteconfig.getdefault("maya","version")
-    rendermanversion= siteconfig.getdefault("renderman","version")
-    rmanver="renderman-{}".format(rendermanversion,mayaversion)
-    rfmver="renderman-{}-maya-{}".format(rendermanversion,mayaversion)
+    out=Output()
+    o = out.resolutions.keys()
+    for each in o:
+        try:
+            print each,out.resolutions.get(each)[0],out.resolutions.get(each)[1],out.resolutions.get(each)[2]
+        except:
+            print
 
-    print rmanver
-    print rfmver
 

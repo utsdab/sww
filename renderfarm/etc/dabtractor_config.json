@@ -78,8 +78,17 @@
     "chunks"       : [ "1", "2", "4", "8", "16" ,"32","64"],
     "maxsamples"   : [ "64", "128","256", "512", "FROMFILE", "1024", "32", "16" ],
     "memory"       : [ "4000", "8000", "2000" ],
-    "resolution"   : [ "720p","108p" ,"540p", "1080p","5kx5k","10kx10k", "FROMFILE" ],
+    "resolution"   : [ "HD720p","HD540p", "HD1080p","DCPflat","DCPscope","Omni10k","Omni4k", "FROMFILE" ],
     "outformat"    : [ "exr", "png", "jpg", "iff", "tif" , "tga"]
+  },
+
+  "resolution":{
+    "HD540p"       : [ "960","540","1.0", "HD 720p 1.778" ],
+    "HD720p"       : [ "1280","720","1.0", "HD 720p 1.778" ],
+    "HD1080p"      : [ "1920","1080","1.0", "HD 720p 1,778" ],
+    "DCPflat"      : [ "1998","1080","1.0", "DCP flat 2k 1,85" ],
+    "DCPscope"     : [ "2048","858","1.0", "DCP scope 2k 2.39" ],
+    "Omni10k"      : [ "10000","10000","1.0", "Omnidirectional Stereo Top-Bottom 10k 1.0" ],
   }
 
 
