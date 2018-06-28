@@ -22,9 +22,7 @@ import ttk
 import tkFileDialog
 import Tkconstants
 import os
-import sys
-import sww.renderfarm.dabtractor as dabtractor
-import environment_factory as envfac
+import renderfarm.dabtractor as dabtractor
 import render_nuke_factory as rfac
 
 
@@ -64,7 +62,7 @@ class Window(WindowBase):
         self.canvas = tk.Canvas(self.master, height=200, width=300)
         self.canvas.pack(expand=True, fill=tk.BOTH)
 
-        imagepath = os.path.join(os.path.dirname(dabtractor.__file__),"icons","Nuke_logo.gif")
+        imagepath = os.path.join(os.path.dirname(dabtractor.__file__),"icons","Nuke_logo_small.gif")
         imagetk = tk.PhotoImage(file=imagepath)
         # keep a link to the image to stop the image being garbage collected
         self.canvas.img = imagetk
@@ -173,27 +171,27 @@ class Window(WindowBase):
         # ###################################################################
         # tk.Label(self.canvas, bg=self.bgcolor1,text="Renderman Version").grid(row=__row, column=0, sticky=tk.E)
         # self.rendermanversion = tk.StringVar()
-        # self.rendermanversion.set(self.job.config.getdefault("renderman","version"))
+        # self.rendermanversion.set(self.job.site.getdefault("renderman","version"))
         # self.rendermanversionbox = ttk.Combobox(self.canvas, textvariable=self.rendermanversion)
-        # self.rendermanversionbox.config(values=self.job.config.getoptions("renderman","version"), justify=tk.CENTER)
+        # self.rendermanversionbox.site(values=self.job.site.getoptions("renderman","version"), justify=tk.CENTER)
         # self.rendermanversionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         # __row += 1
 
         # ###################################################################
         # tk.Label(self.canvas, bg=self.bgcolor1,text="Intergrator").grid(row=__row, column=0, sticky=tk.E)
         # self.integrator = tk.StringVar()
-        # self.integrator.set(self.job.config.getdefault("renderman","integrator"))
+        # self.integrator.set(self.job.site.getdefault("renderman","integrator"))
         # self.integratorbox = ttk.Combobox(self.canvas, textvariable=self.integrator)
-        # self.integratorbox.config(values=self.job.config.getoptions("renderman","integrator"), justify=tk.CENTER)
+        # self.integratorbox.site(values=self.job.site.getoptions("renderman","integrator"), justify=tk.CENTER)
         # self.integratorbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         # __row += 1
 
         # ###################################################################
         # tk.Label(self.canvas, bg=self.bgcolor1,text="Max Samples").grid(row=__row, column=0, sticky=tk.E)
         # self.maxsamples = tk.StringVar()
-        # self.maxsamples.set(self.job.config.getdefault("render","maxsamples"))
+        # self.maxsamples.set(self.job.site.getdefault("render","maxsamples"))
         # self.maxsamplesbox = ttk.Combobox(self.canvas, textvariable=self.maxsamples)
-        # self.maxsamplesbox.config(values=self.job.config.getoptions("render","maxsamples"), justify=tk.CENTER)
+        # self.maxsamplesbox.site(values=self.job.site.getoptions("render","maxsamples"), justify=tk.CENTER)
         # self.maxsamplesbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         # __row += 1
 

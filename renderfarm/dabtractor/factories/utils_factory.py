@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 '''
-    Useful user functions
+Useful user functions
 '''
 
 import datetime
@@ -11,7 +11,7 @@ import subprocess
 ###############################################################
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 sh = logging.StreamHandler()
 sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
@@ -34,6 +34,7 @@ def ensure_dir(f):
     if not os.path.exists(d):
         logger.warn("Not found, Making {}".format(f))
         os.makedirs(os.path.expandvars(d))
+        # raise Exception ("Cant make directory")
     else:
         logger.debug("Found dir {}".format(f))
 
@@ -42,7 +43,7 @@ def ensure_link(f):
     logger.debug("Checking link {}".format(f))
     if not os.path.islink(f):
         logger.warn("Link Not found {}".format(f))
-        raise
+        # raise Exception ("Cant find file")
     else:
         logger.debug("Found link {}".format(f))
 
@@ -186,8 +187,10 @@ def getfloat(inputstring):
     cleanstring = inputstring.strip(string.punctuation)
     return cleanstring
 
+
 def getnow():
     return datetime.datetime.now().strftime("%Y-%m-%d__%H-%M")
+
 
 def makedirectoriesinpath(path):
     #looks at a path and makes the directories that may be missing
@@ -199,16 +202,40 @@ def makedirectoriesinpath(path):
         # sys.exit("Cant make directory")
         raise
 
-def dictfromlistofdicts(dlist=[{}],dkey="code",dvalue="id"):
-        #  used for shotgun find returns,  cherry pick dictionary values to be the key and value in a simple new
-        # dictionary
-        logger.debug("...{} Key={} Value={}".format(dlist[0].keys(),dkey,dvalue))
+
+def dictfromlistofdicts(dlist=[{}], dkey="code", dvalue="id"):
+        # used for shotgun find returns,  cherry pick dictionary values to
+        # be the key and value in a simple new dictionary
         _result={}
-        for i,d in enumerate(dlist):
-            _uniqdkey="{} ({})".format(d.get(dkey),d.get(dvalue))
-            _result[_uniqdkey]=d.get(dvalue)
-        logger.debug("{}".format( _result ))
-        return _result
+        try:
+            num=len(dlist)
+        except Exception, err:
+            logger.warn(err)
+        else:
+            logger.debug("...{} Key={} Value={}".format(dlist[0].keys(), dkey, dvalue))
+            for i, d in enumerate(dlist):
+                _uniqdkey = "{} ({})".format(d.get(dkey), d.get(dvalue))
+                _result[_uniqdkey] = d.get(dvalue)
+            logger.debug("{}".format( _result ))
+        finally:
+            return _result
+
+def dictfromlistofdictionaries(dlist=[{}], dkey="code", dvalue="id"):
+        # used for shotgun find returns,  cherry pick dictionary values to
+        # be the key and value in a simple new dictionary
+        _result={}
+        try:
+            num=len(dlist)
+        except Exception, err:
+            logger.warn(err)
+        else:
+            logger.debug("...{} Key={} Value={}".format(dlist[0].keys(), dkey, dvalue))
+            for i, d in enumerate(dlist):
+                # _uniqdkey = "{}".format(d.get(dkey), d.get(dvalue))
+                _result[d.get(dkey)] = d.get(dvalue)
+            logger.debug("{}".format( _result ))
+        finally:
+            return _result
 
 def truncatepath(inputpath,truncatebit):
     if os.path.isdir(inputpath):
@@ -227,6 +254,13 @@ def truncatepath(inputpath,truncatebit):
     else:
         logger.warn("Not a path when truncating")
 
+
+def cleanname(email):
+        _nicename = email.split("@")[0]
+        _compactnicename = _nicename.lower().translate(None, string.whitespace)
+        _cleancompactnicename = _compactnicename.translate(None, string.punctuation)
+        logger.debug("Cleaned name is : %s" % _cleancompactnicename)
+        return _cleancompactnicename
 
 
 class RenderOutput(object):

@@ -225,7 +225,7 @@ class Shotgun(object):
                  session_token=None,
                  auth_token=None):
 
-        # emulate the config object in the Shotgun API.
+        # emulate the site object in the Shotgun API.
         # these settings won't make sense for mockgun, but
         # having them present means code and get and set them
         # they way they would expect to in the real API.
@@ -239,7 +239,7 @@ class Shotgun(object):
                                "Before creating a Mockgun instance, please call Mockgun.set_schema_paths() "
                                "in order to specify which Shotgun schema Mockgun should operate against.")
 <<<<<<< HEAD:shotgun_api3/lib/mockgun/mockgun.py
-        
+
         self._schema, self._schema_entity = SchemaFactory.get_schemas(schema_path, schema_entity_path)
 =======
 

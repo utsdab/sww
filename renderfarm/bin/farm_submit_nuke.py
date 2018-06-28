@@ -1,9 +1,10 @@
 #!/usr/bin/env rmanpy
+'''
+Main submission of a nuke job to tractor.
+'''
 
-"""
-To do:
+# TODO
 
-"""
 ###############################################################
 import logging
 logger = logging.getLogger(__name__)
@@ -19,7 +20,7 @@ import os
 import sys
 
 def main():
-    from sww.renderfarm.dabtractor.factories import interface_nuke_factory as ui
+    from renderfarm.dabtractor.factories import interface_nuke_factory as ui
     try:
         w=ui.Window()
     except Exception, err:

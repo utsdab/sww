@@ -1,4 +1,7 @@
 #!/usr/bin/python
+
+# TODO
+
 """
     All these Classes are to do with the defining of the USER
 
@@ -13,8 +16,6 @@ import sys
 import string
 import time
 import subprocess
-# import environment_factory as envfac
-# import tractor.api.author as author
 import shotgun_factory as sgt
 
 # ##############################################################
@@ -45,7 +46,7 @@ class UtsldapUser(object):
         self.number = os.getenv("USER")
         # self.job=None
         # self.farmjob=envfac.TractorJob()
-        # self.config=envfac.Environment()
+        # self.site=envfac.Environment()
         self.year=time.strftime("%Y")
         logger.info("Current Year is %s" % self.year)
         logger.info("Talking to UTS LDAP server")
@@ -68,23 +69,6 @@ class UtsldapUser(object):
         except Exception, error7:
             logger.warn("    Cant get ldapsearch to work: %s" % error7)
             sys.exit("UTS doesnt seem to know you")
-
-
-# class FarmUser(object):
-#     def __init__(self):
-#         """ The user details as defined in the map, each user has data held in a
-#         dictionary """
-#         self.config = envfac.Environment()
-#         self.user = self.config.environ["USER"]
-#
-#         try:
-#             __sgt = sgt.Person()
-#         except Exception,err:
-#             logger.critical("Problem creating User: {}".format(err))
-#             sys.exit(err)
-#         else:
-#             self.name=__sgt.dabname
-#             self.number=__sgt.dabnumber
 
 
 if __name__ == '__main__':

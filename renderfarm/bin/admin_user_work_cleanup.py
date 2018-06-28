@@ -1,7 +1,12 @@
 #!/usr/bin/env python
-from sww.renderfarm.dabtractor.factories import command_factory as comfac
+'''
 
-# ##############################################################
+'''
+
+#TODO
+
+from renderfarm.dabtractor.factories.command_factory import Bash
+
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -10,15 +15,14 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(filename)s as %(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-# ##############################################################
 
 logger.info(">>>>>>> The farm will run a job to cleanup the user_work area <<<<<<<<")
 
-USERPREFS=comfac.Bash(projectgroup="admin",command="makeuserprefs.py")
+USERPREFS=Bash(projectgroup="admin",command="makeuserprefs.py")
 USERPREFS.build()
 USERPREFS.validate()
 
-USERWORK=comfac.Bash(projectgroup="admin",command="makeworkareas.py")
+USERWORK=Bash(projectgroup="admin",command="makeworkareas.py")
 USERWORK.build()
 USERWORK.validate()
 

@@ -22,7 +22,7 @@ import time
 import sys
 import user_factory as ufac
 import utils_factory as utils
-import sww.renderfarm.dabtractor.factories.environment_factory as envfac
+import renderfarm.dabtractor.factories.environment_factory as envfac
 
 
 class Job(object):
@@ -85,7 +85,7 @@ class Render(object):
         self.job.envprojectalias = "$PROJECT"
         self.nukescriptfilefullpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/$SCENE"
         self.nukescriptfullpath = os.path.join( self.job.dabwork, self.job.envtype, self.job.envshow,self.job.envproject,self.job.envscene)
-        logger.critical( "here" ) ################# <<<<<<<<<<<<<<<<<<<< #################
+        # logger.critical( "here" ) ################# <<<<<<<<<<<<<<<<<<<< #################
         self.scriptname = os.path.basename(self.job.envscene)
         self.scriptbasename = os.path.splitext(self.scriptname)[0]
         self.sceneext = os.path.splitext(self.scriptname)[1]
@@ -132,6 +132,15 @@ class Render(object):
                               service="")
 
         # ############## 1 NUKE RENDER ###############
+        #TODO test to see if any output is a movie then fail or change to one chunk only
+        '''
+        example
+        Nuke11.1v1 
+        -F 20-550x1 
+        -m 8 -V 1 
+        -x /Volumes/dabrender/work/project_work/mattg/UTS_RESEARCH_Retinal_Rivalry_2018/work_UTS_Retinal_Rivalry_2018/nuke/rivalryComp.v007.nk
+        '''
+
         parent = self.job.env.author.Task(title="Nuke Rendering",service="NukeRender")
         parent.serialsubtasks = 0
 
@@ -149,7 +158,7 @@ class Render(object):
         for i, chunk in enumerate(range(1,_chunks+1)):
             _offset=i*_framesperchunk
             _chunkstart=(self.startframe+_offset)
-            _chunkend=(_offset+_framesperchunk)
+            _chunkend=(_chunkstart+_framesperchunk-1)
             # _chunkby=self.byframe
             logger.info("Chunk {} is frames {}-{}".format(chunk,_chunkstart,_chunkend))
             if chunk ==_chunks:
@@ -157,8 +166,11 @@ class Render(object):
             t1 = "{}  {}-{}".format("Nuke Batch Render", _chunkstart, _chunkend)
             thischunk = self.job.env.author.Task(title=t1, service="NukeRender")
             commonargs = [self.nuke_executable]
-            filespecificargs = ["-F", "{}-{}x{}".format(_chunkstart,_chunkend,_chunkby),"-x", self.nukescriptfullpath,
-                                "-m","{}".format(_threads), "-V 1"]
+            filespecificargs = ["-F", "{}-{}x{}".format(_chunkstart,_chunkend,_chunkby),
+                                "-m","{}".format(_threads),
+                                "-V 1",
+                                "-x", self.nukescriptfullpath
+                                ]
             if self.job.options:
                 userspecificargs = [utils.expandargumentstring(self.job.options),]
                 finalargs = commonargs + userspecificargs + filespecificargs

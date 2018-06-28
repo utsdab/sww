@@ -223,7 +223,7 @@ class Shotgun(object):
                  session_token=None,
                  auth_token=None):
 
-        # emulate the config object in the Shotgun API.
+        # emulate the site object in the Shotgun API.
         # these settings won't make sense for mockgun, but
         # having them present means code and get and set them
         # they way they would expect to in the real API.

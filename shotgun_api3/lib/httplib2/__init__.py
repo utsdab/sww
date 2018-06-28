@@ -789,7 +789,7 @@ class ProxyInfo(object):
         return not self.bypass_host(hostname)
 
     def bypass_host(self, hostname):
-        """Has this host been excluded from the proxy config"""
+        """Has this host been excluded from the proxy site"""
         if self.bypass_hosts is AllHosts:
             return True
 
@@ -1169,7 +1169,7 @@ class Http(object):
           - a callable that takes the http scheme ('http' or 'https') and
             returns a ProxyInfo instance per request. By default, uses
             proxy_nfo_from_environment.
-          - a ProxyInfo instance (static proxy config).
+          - a ProxyInfo instance (static proxy site).
           - None (proxy disabled).
 
         ca_certs is the path of a file containing root CA certificates for SSL

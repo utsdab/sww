@@ -1,8 +1,10 @@
 #!/usr/bin/python
+'''
+command to be run as a farm job by pixar user
+'''
 
 # ##############################################################
 import logging
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
@@ -13,9 +15,14 @@ logger.addHandler(sh)
 # ##############################################################
 import os
 import sys
-import sww.renderfarm.dabtractor.factories.shotgun_factory as sgt
-import sww.renderfarm.dabtractor.factories.environment_factory as envfac
+import pwd
+import grp
+import shutil
+import renderfarm.dabtractor.factories.shotgun_factory as sgt
+import renderfarm.dabtractor.factories.environment_factory as envfac
+
 tj=envfac.TractorJob()
+people=sgt.People()
 
 def main():
     """
@@ -23,13 +30,11 @@ def main():
     user_work area required if it does not exit.
     It will also move those it finds to a deprecated space.
     It is meant to run as a farm job owned by pixar
-
-    :return:
     """
-    people=sgt.People()
+    # people=sgt.People()
     peoplelist=[]
     try:
-        dabwork = people.config.getenvordefault("DABWORK","env")
+        dabwork = people.config.getenvordefault("environment","DABWORK")
     except Exception, err:
         logger.critical("Cant find DABWORK: {}".format(err))
         sys.exit(1)
@@ -39,21 +44,6 @@ def main():
 
     makedirectorytree(dabwork,peoplelist)
     deprecatedirectory(dabwork,peoplelist)
-
-    # peoplelist=[]
-    # try:
-    #     dabuserprefs = tj.config.getenvordefault("DABUSERPREFS","env")
-    #
-    # except Exception, err:
-    #     logger.critical("Cant find DABUSERPREFS or DABASSETS: {}".format(err))
-    #     sys.exit(1)
-    #
-    # for person in people.people:
-    #     peoplelist.append(person.get('login'))
-    #
-    # makedirectorytree(dabuserprefs,peoplelist)
-    # deprecatedirectory(dabuserprefs,peoplelist)
-
 
 
 
@@ -67,14 +57,11 @@ def makedirectorytree(rootpath,rootnames=[]):
                 os.mkdir(roottomake)
             else:
                 logger.info("All Good for  {}".format(roottomake))
-
-            # if os.environ["DABDEV"] == "development" and i>1000:
-            #     sys.exit("development cap")
+            setpermissionsontree(roottomake)
 
     except Exception, err:
         logger.warn("Error making directories {}".format(err))
     else:
-        #TODO  copy the CONFIG structure into place and make the necessary links
         pass
     finally:
         #TODO  set and check the permissions on the tree.
@@ -83,9 +70,6 @@ def makedirectorytree(rootpath,rootnames=[]):
 def deprecatedirectory(rootpath,rootnames=[]):
     """
     Move unknown directories to a .zapped folder
-    :param rootpath:
-    :param rootnames:
-    :return: None
     """
     directoriestozap=diff(existingusers(rootpath),rootnames)
     logger.info("Found these spurious directories: {}".format(directoriestozap))
@@ -96,17 +80,23 @@ def deprecatedirectory(rootpath,rootnames=[]):
             os.mkdir(zapdir)
         for i, each in enumerate(directoriestozap):
             logger.info("{} Moving {} to .zapped".format(i, each))
+            removed(os.path.join(zapdir, each))
             os.rename(os.path.join(userworkdir,each),
                       os.path.join(zapdir,each))
     except Exception, err:
-        logger.warn("Cant move bad alien directories")
-        sys.exit(1)
+        logger.warn("Cant move alien directories, exiting")
+        sys.exit(err)
+
+def removed(dir):
+    try:
+        shutil.rmtree(dir)   # ignore_errors=False)
+    except Exception, err:
+        logger.warn("Cant remove the directory in the .zapped directory, exiting")
+        sys.exit(err)
+    else:
+        logger.info("Removed existing directory that was zapped before")
 
 def existingusers(rootpath):
-    """
-    :param rootpath:
-    :return: cleaned list of existing users with directories.
-    """
     cleaned=listdir_nodotfiles(os.path.join(rootpath,"user_work"))
     return cleaned
 
@@ -121,13 +111,8 @@ def listdir_nodotfiles(dir):
     return cleaned
 
 def diff(first, second):
-    """
-    :param first:  list
-    :param second: list
-    :return: list
-    """
     second = set(second)
-    differences= [item for item in first if item not in second]
+    differences = [item for item in first if item not in second]
     return differences
 
 def setpermissionsontree(rootpath):
@@ -138,11 +123,28 @@ def setpermissionsontree(rootpath):
         chmod 770 test
         chmod g+s
     """
-    os.chmod('pixar', 0o2770)
-    os.chmod('pixar', 5327)  #2755 decimal  www.rapidtables.com/convert/number/decimal-to-octal.htm
+    _uid=8888
+    _gid=8888
 
-    # import os
-    # os.chmod('test', 02770)
+    try:
+        pixar = people.config.getenvordefault("farm","user")
+        _uid = pwd.getpwnam(pixar).pw_uid
+        #_gid = grp.getgrnam(pixar).gr_gid    cant find module grp
+        os.chown(rootpath,_uid,_gid)
+        # os.chown(rootpath,'pixar', 0o2770)
+        # os.chmod(rootpath, 5327)  #2755 decimal  www.rapidtables.com/convert/number/decimal-to-octal.htm
+    except Exception, err:
+        logger.warn("Cant chown {} {} - {}".format(_uid,_gid, err))
+
+    try:
+        _mask = 0o2775
+        os.chmod(rootpath, _mask)  #2755 decimal  www.rapidtables.com/convert/number/decimal-to-octal.htm
+        #os.chown(path,uid,gid)
+        # import os
+        # os.chmod('test', 02770)
+    except Exception, err:
+        logger.warn("Cant chmod () - {}".format(_mask, err))
+
 
 
 # #################################################################################################
