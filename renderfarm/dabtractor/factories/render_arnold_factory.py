@@ -425,9 +425,10 @@ class Render(object):
 
             '''
             kick -i /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Renderfarm/data/xxx.0001.ass -t 6 -dp -ds 8 -r 1280 720
+            -set options.procedural_search_path $ARNOLD_PROCEDURAL_PATH   for xgen and kick
             '''
 
-            commonargs = ["kick", "-i", _assfile, "-set", "options.skip_license_check", "off", "-o", _outfile]
+            commonargs = ["kick", "-i", _assfile, "-set", "options.procedural_search_path", "$ARNOLD_PROCEDURAL_PATH", "-set", "options.skip_license_check", "off", "-o", _outfile]
             rendererspecificargs = [ "-nstdin", "-nokeypress", "-dp", "-dw", "-ds", "6", "-sl" ]
 
             # ################ handle image resolution formats ###########
