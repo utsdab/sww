@@ -428,8 +428,12 @@ class Render(object):
             -set options.procedural_search_path $ARNOLD_PROCEDURAL_PATH   for xgen and kick
             '''
 
-            commonargs = ["kick", "-i", _assfile, "-set", "options.procedural_search_path", "$ARNOLD_PROCEDURAL_PATH", "-set", "options.skip_license_check", "off", "-o", _outfile]
-            rendererspecificargs = [ "-nstdin", "-nokeypress", "-dp", "-dw", "-ds", "6", "-sl" ]
+            commonargs = ["kick", "-i", _assfile,
+                          "-l", "$ARNOLD_PROCEDURAL_PATH",
+                          # "-set", "options.skip_license_check", "off",
+                          # "-set", "options.skip_license_check", "off",
+                          "-o", _outfile]
+            rendererspecificargs = [ "-nstdin", "-nokeypress", "-dp", "-dw" ]
 
             # ################ handle image resolution formats ###########
             if self.resolution == "720p":
@@ -493,7 +497,7 @@ class Render(object):
             # (self.job.seqbasename,self.job.seqtemplatename)=utils.getSeqTemplate(self.job.selectedframename)
 
             _mov = "{}_{}.mov".format(self.scenebasename,utils.getnow())
-            _outmov = os.path.join(self.mayaprojectpath, _mov)
+            _outmov = os.path.join(self.mayaprojectpath,"movies",_mov)
             _inseq = "{}.####.exr".format(self.scenebasename)    #cameraShape1/StillLife.####.exr"
             _directory = "{}/arnold/{}/images".format(self.mayaprojectpath, self.scenebasename)
             _seq = os.path.join(_directory, _inseq)
@@ -610,6 +614,90 @@ class Render(object):
 if __name__ == "__main__":
     logger.setLevel(logging.INFO)
     logger.info("START TESTING")
+
+    """
+    Usage:  kick [options] ...
+  -i %s               Input .ass file
+  -o %s               Output filename
+  -of %s              Output format: exr jpg png tif 
+  -ocs %s             Output color space for render window
+  -r %d %d            Image resolution
+  -sr %f              Scale resolution %f times in each dimension
+  -rg %d %d %d %d     Render region (minx miny maxx maxy)
+  -as %d              Anti-aliasing samples
+  -asmax %d           Anti-aliasing samples maximum (for adaptive sampling)
+  -af %s %f           Anti-aliasing filter and width (box triangle gaussian ...)
+  -asc %f             Anti-aliasing sample clamp
+  -c %s               Active camera
+  -sh %f %f           Motion blur shutter (start end)
+  -fov %f             Camera FOV
+  -e %f               Camera exposure
+  -ar %f              Pixel aspect ratio
+  -t %d               Threads
+  -gpu %s             Enabled gpu devices
+  -bs %d              Bucket size
+  -bc %s              Bucket scanning (top left random spiral hilbert)
+  -td %d              Total ray depth
+  -dif %d             Diffuse depth
+  -spc %d             Specular depth
+  -trm %d             Transmission depth
+  -ds %d              Diffuse samples
+  -ss %d              Specular samples
+  -ts %d              Transmission samples
+  -d %s               Disable (ignore) a specific node or node.parameter
+  -it                 Ignore texture maps
+  -is                 Ignore shaders
+  -cm %s              Set the value of ai_default_reflection_shader.color_mode (use with -is)
+  -sm %s              Set the value of ai_default_reflection_shader.shade_mode (use with -is)
+  -om %s              Set the value of ai_default_reflection_shader.overlay_mode (use with -is)
+  -ib                 Ignore background shaders
+  -ia                 Ignore atmosphere shaders
+  -il                 Ignore lights
+  -id                 Ignore shadows
+  -isd                Ignore mesh subdivision
+  -idisp              Ignore displacement
+  -ibump              Ignore bump-mapping
+  -imb                Ignore motion blur
+  -idof               Ignore depth of field
+  -isss               Ignore sub-surface scattering
+  -flat               Flat shading
+  -sd %d              Max subdivisions
+  -set %s.%s %s       Set the value of a node parameter (-set name.parameter value)
+  -dw                 Disable render window (recommended for batch rendering)
+  -dp                 Disable progressive rendering (recommended for batch rendering)
+  -ipr [m|q]          Interactive rendering mode, using Maya (default) or Quake/WASD controls
+  -turn %d            Render n frames rotating the camera around the lookat point
+  -turn_smooth        Use a smooth start/end when rendering turn tables with -turn
+  -lookat %f %f %f    Override camera look_at point (useful if the camera is specified by a matrix)
+  -position %f %f %f  Override camera position
+  -up %f %f %f        Override camera up vector
+  -v %d               Verbose level (0..6)
+  -nw %d              Maximum number of warnings
+  -logfile %s         Write log file to the specified file path
+  -ostatsfile %s      Write stats to the specified .json file, overwriting it if it exists
+  -statsfile %s       Append stats to the specified .json file
+  -profile %s         Write profile events to the specified .json file
+  -l %s               Add search path for plugin libraries
+  -nodes [n|t]        List all installed nodes, sorted by Name (default) or Type
+  -info [n|u] %s      Print detailed information for a given node, sorted by Name or Unsorted (default)
+  -tree %s            Print the shading tree for a given node
+  -repeat %d          Repeat the render n times (useful for debugging)
+  -resave %s          Re-save .ass scene to filename
+  -db                 Disable binary encoding when re-saving .ass files (useful for debugging)
+  -forceexpand        Force expansion of procedural geometry before re-saving
+  -laovs              List available AOVs in loaded .ass files
+  -lcs                List available color spaces in loaded .ass files
+  -nostdin            Ignore input from stdin
+  -nokeypress         Disable wait for ESC keypress after rendering to display window
+  -sl                 Skip license check (assume license is not available)
+  -op %s              Operator node name to evaluate from
+  -iops               Ignore operators
+  -licensecheck       Check the connection with the license servers and list installed licenses
+  -utest              Run unit tests for the Arnold API
+  -av, --version      Print Arnold version number
+  -notices            Print copyright notices
+  -h, --help          Show this help message
+    """
 
 
 
