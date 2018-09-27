@@ -311,7 +311,7 @@ class Render(object):
             # (self.job.seqbasename,self.job.seqtemplatename)=utils.getSeqTemplate(self.job.selectedframename)
 
             _mov = "{}_{}.mov".format(self.scenebasename,utils.getnow())
-            _outmov = os.path.join(self.mayaprojectpath, _mov)
+            _outmov = os.path.join(self.mayaprojectpath,"movies", _mov)
             _inseq = "{}.####.exr".format(self.scenebasename)    #cameraShape1/StillLife.####.exr"
             _directory = "{}/renderman/{}/images".format(self.mayaprojectpath, self.scenebasename)
             _seq = os.path.join(_directory, _inseq)
