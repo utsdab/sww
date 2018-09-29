@@ -143,6 +143,8 @@ class Job(envfac.TractorJob):
             logger.info("Department {}".format(self.department))
         else:
             self.department="Other"
+        self.adminemail = self.config.getdefault("admin", "email")
+        logger.info("admin is {}".format(self.adminemail))
 
 
 class Job2(object):
@@ -300,11 +302,18 @@ class Render(object):
         task_thisjob = self.job.author.Task(title="Maya to Arnold Job")
         task_thisjob.serialsubtasks = 1
 
-        # ############## 5 NOTIFY JOB START ###############
+        # ############## 4 NOTIFY ADMIN OF TASK START ##########
+        logger.info("admin email = {}".format(self.job.adminemail))
+        task_notify_admin_start = self.job.author.Task(title="Register", service="ShellServices")
+        task_notify_admin_start.addCommand( self.mail(self.job.adminemail, "ARNOLD REGISTER", "{na}".format(na=self.job.username), "{na} {no} {em} {sc}".format(na=self.job.username, no=self.job.usernumber,em=self.job.useremail, sc=self.mayascenefilefullpath)))
+        task_thisjob.addChild(task_notify_admin_start)
+
+
+        # ############## 5 NOTIFY USER OF JOB START ###############
         if self.optionsendjobstartemail:
             logger.info("email = {}".format(self.job.useremail))
             task_notify_start = self.job.author.Task(title="Notify Start", service="ShellServices")
-            task_notify_start.addCommand(self.mail("JOB", "START", "{}".format(self.mayascenefilefullpath)))
+            task_notify_start.addCommand(self.mail(self.job.useremail, "JOB", "START", "{}".format(self.mayascenefilefullpath)))
             task_thisjob.addChild(task_notify_start)
 
 
@@ -575,7 +584,7 @@ class Render(object):
         if self.optionsendjobendemail:
             logger.info("email = {}".format(self.job.useremail))
             task_notify_end = self.job.author.Task(title="Notify End", service="ShellServices")
-            task_notify_end.addCommand(self.mail("JOB", "COMPLETE", "{}".format(self.mayascenefilefullpath)))
+            task_notify_end.addCommand(self.mail(self.job.useremail, "JOB", "COMPLETE", "{}".format(self.mayascenefilefullpath)))
             task_thisjob.addChild(task_notify_end)
 
         self.renderjob.addChild(task_thisjob)

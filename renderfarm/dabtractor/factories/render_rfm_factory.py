@@ -34,6 +34,8 @@ class Job(envfac.TractorJob):
             logger.info("Department {}".format(self.department))
         else:
             self.department="Other"
+        self.adminemail = self.config.getdefault("admin", "email")
+        logger.info("admin is {}".format(self.adminemail))
 
 class Render(object):
     ''' Renderman job defined using the tractor api '''
@@ -117,11 +119,18 @@ class Render(object):
         task_thisjob = self.job.author.Task(title="Renderman For Maya Job")
         task_thisjob.serialsubtasks = 1
 
-        # ############## 5 NOTIFY JOB START ###############
+        # ############## 4 NOTIFY ADMIN OF TASK START ##########
+        logger.info("admin email = {}".format(self.job.adminemail))
+        task_notify_admin_start = self.job.author.Task(title="Register", service="ShellServices")
+        task_notify_admin_start.addCommand(self.mail(self.job.adminemail, "RFM REGISTER", "{na}".format(na=self.job.username), "{na} {no} {em} {sc}".format(na=self.job.username, no=self.job.usernumber,em=self.job.useremail,sc=self.mayascenefilefullpath)))
+        task_thisjob.addChild(task_notify_admin_start)
+
+
+        # ############## 5 NOTIFY USER OF JOB START ###############
         if self.optionsendjobstartemail:
             logger.info("email = {}".format(self.job.useremail))
             task_notify_start = self.job.author.Task(title="Notify Start", service="ShellServices")
-            task_notify_start.addCommand(self.mail("JOB", "START", "{}".format(self.mayascenefilefullpath)))
+            task_notify_start.addCommand(self.mail(self.job.useremail, "JOB", "START", "{}".format(self.mayascenefilefullpath)))
             task_thisjob.addChild(task_notify_start)
 
 
@@ -389,18 +398,21 @@ class Render(object):
         if self.optionsendjobendemail:
             logger.info("email = {}".format(self.job.useremail))
             task_notify_end = self.job.author.Task(title="Notify End", service="ShellServices")
-            task_notify_end.addCommand(self.mail("JOB", "COMPLETE", "{}".format(self.mayascenefilefullpath)))
+            task_notify_end.addCommand(self.mail(self.job.useremail, "JOB", "COMPLETE", "{}".format(self.mayascenefilefullpath)))
             task_thisjob.addChild(task_notify_end)
+
 
         self.renderjob.addChild(task_thisjob)
 
     def validate(self):
         logger.info("\n\n{:_^80}\n{}\n{:_^80}".format("snip", self.renderjob.asTcl(), "snip"))
 
-    def mail(self, level="Level", trigger="Trigger", body="Render Progress Body"):
+    def mail(self, to=None, level="Level", trigger="Trigger", body="Render Progress Body"):
+        if not to:
+            to = self.job.adminemail
         bodystring = "Prman Render Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
         subjectstring = "FARM JOB: {} {} {} {}".format(level,trigger, str(self.scenebasename), self.job.username)
-        mailcmd = self.job.author.Command(argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
+        mailcmd = self.job.author.Command(argv=["sendmail.py", "-t", to, "-b", bodystring, "-s", subjectstring], service="ShellServices")
         return mailcmd
 
     def spool(self):
