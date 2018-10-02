@@ -257,7 +257,7 @@ class Render(object):
                 "-t:{}".format(self.threads),
                 "-Progress",
                 "-recover", "%r",
-                "-checkpoint", "5m",
+                "-checkpoint", "10m",
                 "-statslevel", "2",
                 #"-maxsamples", "{}".format(self.rendermaxsamples)  # override RIB ray trace hider maxsamples
                 # "-pixelvariance","3"      # override RIB PixelVariance
