@@ -225,7 +225,6 @@ class Render(object):
         # ############### 4 RENDER ##############
         task_render_frames = self.job.author.Task(title="RENDER Frames {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
         task_render_frames.serialsubtasks = 0
-
         for frame in range( int(self.job.jobstartframe), int(self.job.jobendframe) + 1, int(self.job.jobbyframe) ):
 
             # ################# Job Metadata as JSON
