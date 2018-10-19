@@ -305,7 +305,10 @@ class Render(object):
         # ############## 4 NOTIFY ADMIN OF TASK START ##########
         logger.info("admin email = {}".format(self.job.adminemail))
         task_notify_admin_start = self.job.author.Task(title="Register", service="ShellServices")
-        task_notify_admin_start.addCommand( self.mail(self.job.adminemail, "ARNOLD REGISTER", "{na}".format(na=self.job.username), "{na} {no} {em} {sc}".format(na=self.job.username, no=self.job.usernumber,em=self.job.useremail, sc=self.mayascenefilefullpath)))
+        task_notify_admin_start.addCommand( self.mail(self.job.adminemail,
+                                                      "ARNOLD REGISTER",
+                                                      "{na}".format(na=self.job.username),
+                                                      "{na} {no} {em} {sc}".format(na=self.job.username, no=self.job.usernumber,em=self.job.useremail, sc=self.mayascenefilefullpath)))
         task_thisjob.addChild(task_notify_admin_start)
 
 
@@ -592,7 +595,9 @@ class Render(object):
     def validate(self):
         logger.info("\n\n{:_^80}\n{}\n{:_^80}".format("snip", self.renderjob.asTcl(), "snip"))
 
-    def mail(self, level="Level", trigger="Trigger", body="Render Progress Body"):
+    def mail(self, to=None, level="Level", trigger="Trigger", body="Render Progress Body"):
+        if not to:
+            to = self.job.adminemail
         bodystring = "Arnold Render Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
         subjectstring = "FARM JOB: {} {} {} {}".format(level,trigger, str(self.scenebasename), self.job.username)
         mailcmd = self.job.author.Command(argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")

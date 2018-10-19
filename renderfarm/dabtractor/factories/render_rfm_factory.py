@@ -122,7 +122,10 @@ class Render(object):
         # ############## 4 NOTIFY ADMIN OF TASK START ##########
         logger.info("admin email = {}".format(self.job.adminemail))
         task_notify_admin_start = self.job.author.Task(title="Register", service="ShellServices")
-        task_notify_admin_start.addCommand(self.mail(self.job.adminemail, "RFM REGISTER", "{na}".format(na=self.job.username), "{na} {no} {em} {sc}".format(na=self.job.username, no=self.job.usernumber,em=self.job.useremail,sc=self.mayascenefilefullpath)))
+        task_notify_admin_start.addCommand(self.mail(self.job.adminemail,
+                                                     "RFM REGISTER",
+                                                     "{na}".format(na=self.job.username),
+                                                     "{na} {no} {em} {sc}".format(na=self.job.username, no=self.job.usernumber,em=self.job.useremail,sc=self.mayascenefilefullpath)))
         task_thisjob.addChild(task_notify_admin_start)
 
 
