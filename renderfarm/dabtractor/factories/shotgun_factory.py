@@ -598,6 +598,29 @@ class People(ShotgunBase):
         finally:
             logger.info("Wrote tractor crew file: {}".format(self.crewfilefullpath))
 
+class Schema(ShotgunBase):
+    # just to see the schema
+
+    def __init__(self):
+        super(Schema, self).__init__()
+
+    def task(self):
+        pprint(self.sg.schema_field_read("Task"))
+
+    def shot(self):
+        pprint(self.sg.schema_field_read("Shot"))
+
+    def asset(self):
+        pprint(self.sg.schema_field_read("Asset"))
+
+    def humanuser(self):
+        pprint(self.sg.schema_field_read("HumanUser"))
+
+    def episode(self):
+        pprint(self.sg.schema_field_read("Episode"))
+
+    def sequence(self):
+        pprint(self.sg.schema_field_read("Sequence"))
 
 
 class Version(ShotgunBase):
@@ -700,13 +723,22 @@ if __name__ == "__main__":
 
 
     ########## PERSON TEST
-    p = Person("120988")
-    print "Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department)
+    # p = Person("120988")
+    # print "Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department)
+    #
+    # print p.myProjects()
+    # print p.myGroups()
+    # print p.me()
+    # raise SystemExit(".......done and exiting")
 
-    print p.myProjects()
-    print p.myGroups()
-    print p.me()
-    raise SystemExit(".......done and exiting")
+    logger.debug(">>>> SCHEMA {} ------".format(__file__))
+    schema=Schema()
+    # schema.task()
+    # schema.asset()
+    # schema.shot()
+    # schema.humanuser()
+    # schema.episode()
+    # schema.sequence()
 
 
     # ############# PROJECT TEST
