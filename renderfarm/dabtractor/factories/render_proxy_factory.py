@@ -1,4 +1,4 @@
-#!/usr/bin/env rmanpy
+#!/usr/bin/env python2
 # TODO  add in frame fange override
 # TODO  add in date suffic and versioning  rather than overwriting.
 

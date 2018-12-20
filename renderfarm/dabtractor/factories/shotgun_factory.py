@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 '''
 This code supports all access to shotgun which is used as an authentication model for users, and
 as the main production tracking database.

@@ -1,4 +1,4 @@
-#!/usr/bin/env rmanpy
+#!/usr/bin/env python2
 
 # TODO move this into a tabbed single interface
 # TODO handle layers

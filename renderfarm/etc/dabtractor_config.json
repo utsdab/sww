@@ -56,7 +56,7 @@
   },
 
   "nuke"           : {
-    "version"      : [ "11.1v4"]
+    "version"      : [ "11.2v4"]
   },
 
   "houdini"        : {
@@ -64,7 +64,7 @@
   },
 
   "renderman"      : {
-    "version"      : [ "21.7"],
+    "version"      : [ "22.3", "21.7"],
     "integrator"   : [ "FROMFILE", "pxr", "vcm", "visualiser", "occlusion"]
   },
 
@@ -89,7 +89,8 @@
     "4. DCPflat 1998x1080 1,85"    : [ "1998","1080","1.0", "DCP flat 2k 1998x1080 1,85" ],
     "5. DCPscope 2048xx858 2.39"   : [ "2048","858","1.0", "DCP scope 2k 2048xx858 2.39" ],
     "6. OMNI_4k 4096x4096  1.0"    : [ "4096","4096","1.0", "Omnidirectional Stereo Top-Bottom 4k 4096x4096  1.0" ],
-    "7. OMNI_10k 10000x10000 1.0"  : [ "10000","10000","1.0", "Omnidirectional Stereo Top-Bottom 10k 10000x10000 1.0" ]
+    "7. OMNI_10k 10000x10000 1.0"  : [ "10000","10000","1.0", "Omnidirectional Stereo Top-Bottom 10k 10000x10000 1.0" ],
+    "8. FROMFILE"                  : [ "", "", "", "Use whats in the file" ]
   }
 
 }

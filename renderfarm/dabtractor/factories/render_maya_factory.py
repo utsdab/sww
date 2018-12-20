@@ -1,4 +1,4 @@
-#!/usr/bin/env rmanpy
+#!/usr/bin/env python2
 """
 To do:
     find commonality in render jobs and put it in base class

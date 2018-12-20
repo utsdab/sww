@@ -1,4 +1,4 @@
-#!/usr/bin/env rmanpy
+#!/usr/bin/env python2
 '''
 Build Interface for Renderman Render submission
 '''
@@ -7,7 +7,7 @@ Build Interface for Renderman Render submission
 # TODO handle layers
 # TODO handle integrators - ok can do this
 # TODO handle ribgen only -
-# TODO  how do i get the window to scroll - fail
+# TODO how do i get the window to scroll - fail
 # TODO check in assets too  in progress
 
 import Tkinter as tk

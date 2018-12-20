@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 '''
     This code handles the creation of a user area.
     At UTS the $USER is a number and there is no nice name exposed at all.
