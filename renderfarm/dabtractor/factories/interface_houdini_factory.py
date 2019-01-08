@@ -116,7 +116,7 @@ class Window(WindowBase):
         __row += 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1, text="$PROJECT MayaProj").grid(row=__row, column=0, sticky=tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor1, text="$PROJECT HoudiniProj").grid(row=__row, column=0, sticky=tk.E)
         self.envproj = tk.StringVar()
         self.envprojbut = tk.Button(self.canvas, text=self.msg_selectproject, bg=self.bgcolor1, fg='black', command=self.setproject)
         self.envprojbut.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
@@ -128,7 +128,7 @@ class Window(WindowBase):
         __row += 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="$SCENE (Maya Scene)").grid(row=__row, column=0, sticky=tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor1,text="$SCENE (Houdini Scene)").grid(row=__row, column=0, sticky=tk.E)
         self.envscenebut = tk.Button(self.canvas, text=self.msg_selectscene, fg='black', command=self.setscene)
         self.envscenebut.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
@@ -199,16 +199,16 @@ class Window(WindowBase):
         __row += 1
 
         # ########################## M A Y A ##########################
-        tk.Label(self.canvas, bg=self.bgcolor3,text="Maya Generic Details").grid(row=__row, column=0, columnspan=4, rowspan=1, sticky=tk.W + tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor3,text="Houdini Generic Details").grid(row=__row, column=0, columnspan=4, rowspan=1, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="Maya Version").grid(row=__row, column=0, sticky=tk.E)
-        self.mayaversion = tk.StringVar()
-        self.mayaversion.set(self.job.config.getdefault("maya","version"))
-        self.mayaversionbox = ttk.Combobox(self.canvas, textvariable=self.mayaversion)
-        self.mayaversionbox.config(values=self.job.config.getoptions("maya","version"), justify=tk.CENTER)
-        self.mayaversionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor1,text="Houdini Version").grid(row=__row, column=0, sticky=tk.E)
+        self.houdiniversion = tk.StringVar()
+        self.houdiniversion.set(self.job.config.getdefault("houdini","version"))
+        self.houdiniversionbox = ttk.Combobox(self.canvas, textvariable=self.houdiniversion)
+        self.houdiniversionbox.config(values=self.job.config.getoptions("houdini","version"), justify=tk.CENTER)
+        self.houdiniversionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
@@ -560,7 +560,7 @@ class Window(WindowBase):
     def setscene(self):
         self.filefullpath = tkFileDialog.askopenfilename(\
             parent=self.master,initialdir=self.projfullpath,title=self.msg_selectscene,
-            filetypes=[('maya ascii', '.ma'),('maya binary', '.mb')]) # filename not filehandle
+            filetypes=[('houdini ascii', '.ma'),('houdini binary', '.mb')]) # filename not filehandle
 
         _projfullpath=os.path.join(self.job.dabwork,self.job.envtype,self.job.envshow,self.job.envproject)
         _scenerelpath=os.path.relpath(self.filefullpath,_projfullpath)
@@ -657,8 +657,8 @@ class Window(WindowBase):
                 logger.critical("Problem with naming" % _checkpath)
 
         try:
-            self.job.mayaprojectfullpath=self.projfullpath
-            self.job.mayascenefullpath=self.filefullpath
+            self.job.houdiniprojectfullpath=self.projfullpath
+            self.job.houdiniscenefullpath=self.filefullpath
             self.job.optionskipframe=self.skipframes.get()  # gets from the tk object
             self.job.optionmakeproxy=self.makeproxy.get()
             self.job.optionresolution=self.resolution.get()
@@ -673,7 +673,7 @@ class Window(WindowBase):
             self.job.jobbyframe=self.bf.get()
             self.job.jobthreadmemory=self.memory.get()
             self.job.jobchunks=self.chunks.get()
-            self.job.mayaversion=self.mayaversion.get()
+            self.job.houdiniversion=self.houdiniversion.get()
             # self.job.renderversion=self.renderversion.get()
         except Exception,err:
             logger.warn(err)
