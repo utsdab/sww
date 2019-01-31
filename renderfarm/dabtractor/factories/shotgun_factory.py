@@ -126,7 +126,8 @@ class Person(ShotgunBase):
             if __person.has_key('email'):
                 self.email =__person.get('email')
                 self.dabname = cleanname(self.email)
-                self.user_work = os.path.join(os.environ["DABWORK"], "user_work", self.dabname)
+            if os.environ.has_key("DABWORK"):
+                self.user_work = os.path.join( os.environ["DABWORK"], "user_work", self.dabname )
             if __person.has_key('department'):
                 self.department = __person.get('department').get('name')
             if __person.has_key('id'):
@@ -134,6 +135,7 @@ class Person(ShotgunBase):
             if __person.has_key('login'):
                 self.login = __person.get('login')
                 self.dabnumber = self.login
+            if os.environ.has_key("DABUSERPREFS"):
                 self.user_prefs = os.path.join(os.environ["DABUSERPREFS"], self.dabnumber)
         finally:
             if  not self.tractor:
@@ -732,7 +734,7 @@ if __name__ == "__main__":
     # raise SystemExit(".......done and exiting")
 
     logger.debug(">>>> SCHEMA {} ------".format(__file__))
-    schema=Schema()
+    # schema=Schema()
     # schema.task()
     # schema.asset()
     # schema.shot()
@@ -830,12 +832,13 @@ if __name__ == "__main__":
     ####  make playlist
     ####  add version to playlist
 
-    # mg=Person("120988")
+    mg=Person("120988")
     # print(mg.myProjects())
     # print mg.seqFromProject(171)
     # print mg.shotFromSeq(171,281)
     # print mg.taskFromShot(171,3143)
-    # sys.exit()
+    print dir(mg)
+    sys.exit()
 
     # Find Sequences..........................
     # project_id = _myprojects.get('YR3_2017--171') # 171 # Demo Project

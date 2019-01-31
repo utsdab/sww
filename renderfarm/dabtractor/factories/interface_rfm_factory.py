@@ -731,10 +731,10 @@ class Window(WindowBase):
 
 if __name__ == "__main__":
     w=Window()
-    # for key in w.job.__dict__.keys():
-    #     print "{:20} = {}".format(key,w.job.__dict__.get(key))
+    for key in w.job.__dict__.keys():
+        print "{:20} = {}".format(key,w.job.__dict__.get(key))
 
-    # wb=WindowBase()
+    wb=WindowBase()
 
 
 
