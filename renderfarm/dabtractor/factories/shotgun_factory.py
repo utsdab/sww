@@ -83,6 +83,7 @@ class Person(ShotgunBase):
         """
         super(Person, self).__init__()
         logger.debug("Initiated Class {}".format(self.__class__.__name__))
+        self.status = None
         self.tractor = None
         self.shotgunname = None
         self.shotgun_id = None
@@ -109,8 +110,8 @@ class Person(ShotgunBase):
 
     def getInfo(self):
         __fields = ['login', 'name', 'firstname', 'lastname', 'department',
-                    'email', 'sg_tractor', 'id']
-        __filters = [['login', 'is', self.shotgunlogin]]
+                    'email', 'sg_tractor', 'id', 'sg_status_list']
+        __filters = [['login', 'is', self.shotgunlogin],['sg_status_list','is','act']]
         __person = None
 
         try:
@@ -119,6 +120,8 @@ class Person(ShotgunBase):
             logger.warn("%s"%err)
             raise
         else:
+            if __person.has_key('sg_status_list'):
+                self.status = __person.get('sg_status_list')
             if __person.has_key('sg_tractor'):
                 self.tractor = __person.get('sg_tractor')
             if __person.has_key('name'):
@@ -543,8 +546,9 @@ class People(ShotgunBase):
         super(People, self).__init__()
         logger.debug("Initiated Class {}".format(self.__class__.__name__))
         __fields = ['login', 'name', 'firstname', 'lastname',
-                    'department', 'email', 'sg_tractor']
-        __filters = [['sg_tractor','is', True]]
+                    'department', 'email', 'sg_tractor', 'sg_status_list']
+        __filters = [['sg_tractor','is', True],['sg_status_list','is','act']]
+        #TODO need to check active also
         __people = None
         self.people = None
         try:
@@ -733,7 +737,7 @@ if __name__ == "__main__":
     # print p.me()
     # raise SystemExit(".......done and exiting")
 
-    logger.debug(">>>> SCHEMA {} ------".format(__file__))
+    # logger.debug(">>>> SCHEMA {} ------".format(__file__))
     # schema=Schema()
     # schema.task()
     # schema.asset()
@@ -759,11 +763,12 @@ if __name__ == "__main__":
     # pr.taskFromAsset(175,1241)
 
 
-    # ############# PEOPLE TEST
-    # pe=People()
-    # print pe.people
+    ############# PEOPLE TEST
+    pe=People()
+    print pe.people
+    print len(pe.people)
     # pe.writetractorcrewfile("/Users/120988/Desktop/crew.list.txt")
-    #
+
     # ----------------------------------------------
     # Find Character Assets in Sequence WRF_03 in projectX
     # fields = ['id', 'code', 'sg_asset_type']
@@ -832,13 +837,13 @@ if __name__ == "__main__":
     ####  make playlist
     ####  add version to playlist
 
-    mg=Person("120988")
+    # mg=Person("120988")
     # print(mg.myProjects())
     # print mg.seqFromProject(171)
     # print mg.shotFromSeq(171,281)
     # print mg.taskFromShot(171,3143)
-    print dir(mg)
-    sys.exit()
+    # print dir(mg)
+    # sys.exit()
 
     # Find Sequences..........................
     # project_id = _myprojects.get('YR3_2017--171') # 171 # Demo Project
