@@ -83,6 +83,7 @@ class TractorJob(object):
 
         self.mayaversion = None
         self.rendermanversion = None
+        self.houdiniversion = None
 
 
         self.shotgunProject = None

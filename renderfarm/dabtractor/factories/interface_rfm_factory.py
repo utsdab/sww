@@ -254,10 +254,8 @@ class Window(WindowBase):
 
         tk.Label(self.canvas, bg=self.bgcolor1,text="Resolution").grid(row=__row, column=0, sticky=tk.E)
         self.resolution = tk.StringVar()
-
         rs = self.job.config.getattributes("resolutions")
         rs.sort()
-
         self.resolution.set(rs[0])
         self.resolutionbox = ttk.Combobox(self.canvas, textvariable=self.resolution)
         self.resolutionbox.config(values=rs, justify=tk.CENTER)
@@ -701,8 +699,8 @@ class Window(WindowBase):
             logger.info("Start: %s" % self.sf.get())
             logger.info("End: %s" % self.ef.get())
             logger.info("By: %s" % self.bf.get())
-            logger.info("Skip Existing Frames:" % self.skipframes)
-            logger.info("Make Proxy:" % self.makeproxy)
+            logger.info("Skip Existing Frames: %s" % self.skipframes)
+            logger.info("Make Proxy: %s" % self.makeproxy)
             self.consolidate()
             rj=rfac.Render(self.job)
             rj.build()

@@ -697,6 +697,7 @@ class Version(ShotgunBase):
 if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
     logger.debug(">>>> TESTING {} ------".format(__file__))
+    #    T E S T I N G
     # ----------------------------------------------
     # upload a movie example
     # a = ShotgunBase()
@@ -764,9 +765,9 @@ if __name__ == "__main__":
 
 
     ############# PEOPLE TEST
-    pe=People()
-    print pe.people
-    print len(pe.people)
+    # pe=People()
+    # print pe.people
+    # print len(pe.people)
     # pe.writetractorcrewfile("/Users/120988/Desktop/crew.list.txt")
 
     # ----------------------------------------------

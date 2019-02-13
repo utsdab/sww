@@ -1,7 +1,67 @@
 #!/usr/bin/env python2
+
 '''
 Build Interface for Houdini submission
+
+
+Set up a render node to output IFD instead of an image
+    Turn on the Disk File checkbox on the Driver tab of the render
+    node and click the  file chooser icon to set a file path.
+    Click the Render button to generate the IFD file.
+
+Render an IFD file from the command line
+    mantra -f <<filename>>.ifd <<output_filename>>.pic
+    (If you dont specify the -f option, mantra will read the IFD from stdin.)
+
+Save an IFD file from a .hip file on the command line
+    Use the hbatch command line program to load the .hip file and trigger the render node.
+    Set up a render node to output IFD, as above.
+
+Load the .hip file into hbatch.
+    hbatch myjob.hip
+    On the hbatch command line, use the render command to trigger the render node.
+    / -> render my_render_node
+    / -> quit
+
+Render a .hip file directly from the command line
+    Use the provided hrender script in $HFS/bin. This script is written in csh.
+    To use this script on Windows, you will need to use a UNIX-like environment such as Cygwin.
+    This script uses hbatch and so uses a Houdini license, unlike rendering an
+    IFD with mantra which only uses a rendering license.
+
+----------------------------------------------------------
+Usage: hbatch [-R][-e name=value][-c <command>][-j nproc][-h][-i][-q][-v][file.hip ...]
+
+hbatch shell.  This is the non-graphical interface to a hip
+file.  Type "help" for a list of commands.
+
+Any number of .hip, .cmd, or .otl files may be specified on the
+command line.  Multiple .hip files are merged together.
+
+The -e option sets the named enviroment variable to the given
+	value.  There should be no spaces around the '=' separator between
+	the name and value (i.e. -e foo=bar)
+
+The -c option will run the option argument as an hscript command, after
+	the specified files have been loaded.
+
+The -f option forces the use of asset definitions found in OTL
+	files specified on the command line.
+
+The -j option sets the HOUDINI_MAXTHREADS to the given value.
+The -h option shows this message
+The -q option prevents the version information from being printed
+The -w option suppresses load warnings and errors from being printed
+The -v option specifies verbose handling of renders
+The -i option uses a simpler interface for reading input
+	when running hbatch from other applications (like Pixar's
+	Alfred), it may be necessary to use this option.  Use of this
+	option will disable several commands (openport and atjob)
+The -R option will request a non-graphics token instead
+	of a graphical one.
+
 '''
+
 
 import Tkinter as tk
 import ttk
@@ -9,7 +69,7 @@ import tkFileDialog
 import Tkconstants
 import os
 import renderfarm.dabtractor as dabtractor
-import renderfarm.dabtractor.factories.render_arnold_factory as rfac
+import renderfarm.dabtractor.factories.render_houdini_factory as rfac
 import renderfarm.dabtractor.factories.utils_factory as utils
 import logging
 
@@ -46,8 +106,6 @@ class Window(WindowBase):
         self.msg_selectproject = 'Select your houdini project'
         self.msg_selectscene = 'Select your houdini file'
         self.msg_selectshow = 'Select your SHOW'
-        self.msg_workspaceok = 'workspace.mel FOUND'
-        self.msg_workspacebad = 'WARNING - no workspace.mel in your project'
         self.msg_selectSgtProject = 'Select your shotgun PROJECT'
         self.msg_selectSgtSequence = 'Now Select your  SEQUENCE'
         self.msg_selectSgtAssetType = 'Now Select your ASSET TYPE'
@@ -65,7 +123,7 @@ class Window(WindowBase):
         self.bgcolor3 = "pale green"
         self.master.configure(background=self.bgcolor1)
         self.user = os.getenv("USER")
-        self.master.title("Arnold Tractor Submit: {u}".format(u=self.user))
+        self.master.title("Houdini Tractor Submit: {u}".format(u=self.user))
 
         # ################ Options for buttons and canvas ####################
         self.button_opt = {'fill': Tkconstants.BOTH, 'padx': 5, 'pady': 5}
@@ -82,8 +140,7 @@ class Window(WindowBase):
         __row = 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor3, text="Houdini ASS generation then kick").grid(row=__row, column=0,
-                                                                                        columnspan=5, sticky=tk.W + tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor3, text="Houdini generation then render").grid(row=__row, column=0,columnspan=5, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
@@ -122,13 +179,13 @@ class Window(WindowBase):
         self.envprojbut.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
-        # ###################################################################
-        self.workspacelab = tk.Label(self.canvas, bg=self.bgcolor1, text=self.msg_workspacebad, fg='black')
-        self.workspacelab.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        __row += 1
+        # # ###################################################################
+        # self.workspacelab = tk.Label(self.canvas, bg=self.bgcolor1, text=self.msg_workspacebad, fg='black')
+        # self.workspacelab.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        # __row += 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="$SCENE (Houdini Scene)").grid(row=__row, column=0, sticky=tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor1,text="$SCENE (Houdini File)").grid(row=__row, column=0, sticky=tk.E)
         self.envscenebut = tk.Button(self.canvas, text=self.msg_selectscene, fg='black', command=self.setscene)
         self.envscenebut.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
@@ -198,7 +255,7 @@ class Window(WindowBase):
         self.sgtTaskBox.bind("<<ComboboxSelected>>", self.setSgtTask)
         __row += 1
 
-        # ########################## M A Y A ##########################
+        # ########################## H O U D I N I ##########################
         tk.Label(self.canvas, bg=self.bgcolor3,text="Houdini Generic Details").grid(row=__row, column=0, columnspan=4, rowspan=1, sticky=tk.W + tk.E)
         __row += 1
 
@@ -246,9 +303,11 @@ class Window(WindowBase):
 
         tk.Label(self.canvas, bg=self.bgcolor1,text="Resolution").grid(row=__row, column=0, sticky=tk.E)
         self.resolution = tk.StringVar()
-        self.resolution.set(self.job.config.getdefault("render", "resolution"))
+        rs = self.job.config.getattributes("resolutions")
+        rs.sort()
+        self.resolution.set(rs[0])
         self.resolutionbox = ttk.Combobox(self.canvas, textvariable=self.resolution)
-        self.resolutionbox.config(values=self.job.config.getoptions("render", "resolution"), justify=tk.CENTER)
+        self.resolutionbox.config(values=rs, justify=tk.CENTER)
         self.resolutionbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
@@ -560,7 +619,7 @@ class Window(WindowBase):
     def setscene(self):
         self.filefullpath = tkFileDialog.askopenfilename(\
             parent=self.master,initialdir=self.projfullpath,title=self.msg_selectscene,
-            filetypes=[('houdini ascii', '.ma'),('houdini binary', '.mb')]) # filename not filehandle
+            filetypes=[('houdini', '.hip'),('houdiniNC', '.hipnc')]) # filename not filehandle
 
         _projfullpath=os.path.join(self.job.dabwork,self.job.envtype,self.job.envshow,self.job.envproject)
         _scenerelpath=os.path.relpath(self.filefullpath,_projfullpath)
@@ -571,8 +630,6 @@ class Window(WindowBase):
     def settype(self,event):
         # Just bind the virtual event <<ComboboxSelected>> to the Combobox widget
         self.job.envtype=self.envtype.get()
-        self.workspacelab["text"] = self.msg_workspacebad
-        self.workspacelab["bg"] = self.bgcolor1
 
         if self.job.envtype == "user_work":
             self.job.envshow=self.job.username
@@ -628,28 +685,14 @@ class Window(WindowBase):
         _typefullpath = os.path.join(self.job.dabwork,self.job.envtype,self.job.envshow)
         _projectrelpath=os.path.relpath(self.projfullpath,_typefullpath)
 
-        _possible = "%s/workspace.mel" % self.projfullpath
-        # print _possible
-        if os.path.exists(_possible):
-            # print "ok"
-            self.envprojbut["text"] = str(_projectrelpath)  #if self.projfullpath else self.msg_selectproject
-            self.workspacelab["text"] = self.msg_workspaceok
-            self.workspacelab["bg"] = self.bgcolor3
-            self.job.envproject=_projectrelpath
-        else:
-            # print "not ok"
-            self.workspacelab["text"] = self.msg_workspacebad
-            self.workspacelab["bg"] = self.bgcolor1
-            self.envprojbut["text"] = self.msg_selectproject
-            self.envscenebut["text"] = self.msg_selectscene
-
-            self.job.envproject=None
-            self.job.envscene=None
+        self.envprojbut["text"] = str(_projectrelpath)  #if self.projfullpath else self.msg_selectproject
+        self.job.envproject=_projectrelpath
 
     def consolidate(self):
+        logger.debug("Run consolidate")
         try:
             _checkpath=utils.hasBadNaming(self.filefullpath)
-            print _checkpath
+            # print _checkpath
         except Exception, err:
             logger.critical("Problem validating filepath {} : {}".format(self.filefullpath, err))
         else:
@@ -657,11 +700,13 @@ class Window(WindowBase):
                 logger.critical("Problem with naming" % _checkpath)
 
         try:
-            self.job.houdiniprojectfullpath=self.projfullpath
-            self.job.houdiniscenefullpath=self.filefullpath
+            self.job.projectfullpath=self.projfullpath
+            self.job.scenefullpath=self.filefullpath
             self.job.optionskipframe=self.skipframes.get()  # gets from the tk object
             self.job.optionmakeproxy=self.makeproxy.get()
-            self.job.optionresolution=self.resolution.get()
+            # self.job.optionresolution=self.resolution.get()
+            self.job.xres=self.job.config.getoptions("resolutions",self.resolution.get())[0]
+            self.job.yres=self.job.config.getoptions("resolutions",self.resolution.get())[1]
             self.job.optionsendjobstartemail=self.emailjobstart.get()
             self.job.optionsendjobendemail=self.emailjobend.get()
             self.job.optionsendtaskendemail=self.emailtaskend.get()
@@ -674,7 +719,6 @@ class Window(WindowBase):
             self.job.jobthreadmemory=self.memory.get()
             self.job.jobchunks=self.chunks.get()
             self.job.houdiniversion=self.houdiniversion.get()
-            # self.job.renderversion=self.renderversion.get()
         except Exception,err:
             logger.warn(err)
 
@@ -686,8 +730,8 @@ class Window(WindowBase):
             logger.info("Start: %s" % self.sf.get())
             logger.info("End: %s" % self.ef.get())
             logger.info("By: %s" % self.bf.get())
-            logger.info("Skip Existing Frames:" % self.skipframes)
-            logger.info("Make Proxy:" % self.makeproxy)
+            logger.info("Skip Existing Frames: %s" % self.skipframes.get())
+            logger.info("Make Proxy: %s" % self.makeproxy.get())
             self.consolidate()
             rj=rfac.Render(self.job)
             rj.build()

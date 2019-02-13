@@ -60,11 +60,11 @@
   },
 
   "houdini"        : {
-    "version"      : [ "15.5.480" ]
+    "version"      : [ "17.0.416" ]
   },
 
   "renderman"      : {
-    "version"      : [ "22.3", "21.7"],
+    "version"      : [ "22.3", "21.8"],
     "integrator"   : [ "FROMFILE", "pxr", "vcm", "visualiser", "occlusion"]
   },
 

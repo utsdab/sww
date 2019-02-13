@@ -1,9 +1,5 @@
 #!/usr/bin/env rmanpy
 # TODO
-# TODO
-# TODO
-# TODO
-# TODO
 # ##############################################################
 import logging
 
