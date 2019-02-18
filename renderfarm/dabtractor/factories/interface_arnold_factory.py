@@ -82,8 +82,7 @@ class Window(WindowBase):
         __row = 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor3, text="Maya ASS generation then kick").grid(row=__row, column=0,
-                                                                                        columnspan=5, sticky=tk.W + tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor3, text="Maya ASS generation then kick").grid(row=__row, column=0, columnspan=5, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################

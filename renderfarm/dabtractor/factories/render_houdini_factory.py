@@ -184,7 +184,6 @@ class Render(object):
             _taskMetaData["shotgunupload"] = _shotgunupload
             _jsontaskMetaData = json.dumps(_taskMetaData)
             _title = "RENDER Frame {}".format(frame)
-            # _preview = "sho {""}".format(_imgfile)
             task_render_ifd = self.job.author.Task(title=_title, metadata=_jsontaskMetaData)
 
             _commonargs = [ "mantra", "-f", _ifdfile, _outfile ]
@@ -215,35 +214,20 @@ class Render(object):
         task_render_allframes.addChild(task_render_frames)
         task_thisjob.addChild(task_render_allframes)
 
-
         # ############## 5 PROXY ###############
         if self.job.optionmakeproxy:
-            '''
-            rvio cameraShape1/StillLife.####.exr  -v -fps 25
-            -rthreads 4
-            -outres 1280 720 -out8
-            -leader simpleslate "UTS" "Artist=Anthony" "Show=Still_Life" "Shot=Testing"
-            -overlay frameburn .4 1.0 30.0  -overlay matte 2.35 0.3 -overlay watermark "UTS 3D LAB" .2
-            -outgamma 2.2
-            -o cameraShape1_StillLife.mov
-            '''
-
             #### making proxys with rvio
             # TODO we need to find the actual output frames - right now we huess
             # (self.job.seqbasename,self.job.seqtemplatename)=utils.getSeqTemplate(self.job.selectedframename)
-
             _mov = "{}_{}.mov".format(self.scenebasename,utils.getnow())
             _outmov = os.path.join(self.projectpath,"movies",_mov)
             _inseq = "{}.####.exr".format(self.scenebasename)    #cameraShape1/StillLife.####.exr"
             _directory = "{}/render/{}/images".format(self.projectpath, self.scenebasename)
             _seq = os.path.join(_directory, _inseq)
-
-
             try:
                 utils.makedirectoriesinpath(os.path.dirname(_outmov))
             except Exception, err:
                 logger.warn(err)
-
             try:
                 _option1 = "-v -fps 25 -rthreads {threads} -outres {xres} {yres} -t {start}-{end}".format(
                            threads="4",
@@ -262,17 +246,14 @@ class Render(object):
                               self.job.username,
                               self.job.department,
                               self.thedate)
-
                 _output = "-o %s" % _outmov
                 _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (_seq, _option1, _option2, _option3, _output)) ]
                 task_proxy = self.job.author.Task(title="Proxy Generation")
                 proxycommand = self.job.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"], envkey=["rvio"])
                 task_proxy.addCommand(proxycommand)
                 task_thisjob.addChild(task_proxy)
-
             except Exception, proxyerror:
                 logger.warn("Cant make a proxy {}".format(proxyerror))
-
         else:
             logger.info("make proxy = {}".format(self.job.optionmakeproxy))
 
@@ -305,15 +286,12 @@ class Render(object):
             task_upload.addCommand(uploadcommand)
             task_thisjob.addChild(task_upload)
 
-
-
         # ############## 5 NOTIFY JOB END ###############
         if self.job.optionsendjobendemail:
             logger.info("email = {}".format(self.job.useremail))
             task_notify_end = self.job.author.Task(title="Notify End", service="ShellServices")
             task_notify_end.addCommand(self.mail(self.job.useremail, "JOB", "COMPLETE", "{}".format(self.scenefilefullpath)))
             task_thisjob.addChild(task_notify_end)
-
         self.renderjob.addChild(task_thisjob)
 
     def validate(self):
@@ -343,12 +321,9 @@ class Render(object):
             logger.critical(message)
             logger.critical(os.path.normpath(self.scenefilefullpath))
             logger.critical(os.path.expandvars(self.scenefilefullpath))
-
             sys.exit(message)
 
-
 ###############################################################################
-
 if __name__ == "__main__":
     logger.setLevel(logging.INFO)
     # logger.info("START TESTING")
@@ -548,4 +523,12 @@ this produces ifd files if mantra is setup and there is a camera
 
 hscript  -R -i -c "render /out/mantra1" -c "quit"  /Volumes/dabrender/work/project_work/mattg/TESTING_Renderfarm/HoudiniProjects/houdini17_test_01/primitives_test.hipnc
 
-'''
+
+            rvio cameraShape1/StillLife.####.exr  -v -fps 25
+            -rthreads 4
+            -outres 1280 720 -out8
+            -leader simpleslate "UTS" "Artist=Anthony" "Show=Still_Life" "Shot=Testing"
+            -overlay frameburn .4 1.0 30.0  -overlay matte 2.35 0.3 -overlay watermark "UTS 3D LAB" .2
+            -outgamma 2.2
+            -o cameraShape1_StillLife.mov
+            '''
