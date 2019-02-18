@@ -4,6 +4,8 @@ DABMLB0606627MG:testProject01 120988$
 hrender /Users/Shared/UTS_Jobs/TESTING_HOUDINI/HoudiniProjects/testProject01/scripts/torus1.hipnc
  -d mantra1 -v -f 1 240 -i 1
 
+hrender -e -f 1 100 -v  -d mantra2 primitives_test.hipnc
+
 Usage:
 
 Single frame:   hrender    [options] driver|cop file.hip [imagefile]
@@ -35,8 +37,107 @@ Error: Cannot specify frame range without -e.
 
 
 mantra -f frame0001.ifd rendered_frame0001.pic
+mantra -V 3 -f ifds/mantra1.1.ifd
+
+cd /Applications/Houdini/Houdini17.0.416
+./Frameworks/Houdini.framework/Versions/Current/Resources/houdini_setup
+./Frameworks/Houdini.framework/Versions/Current/Resources/houdini_setup_bash
 
 
+------  HFS
+
+export HFS=/Applications/Houdini/Current/Frameworks/Houdini.framework/Versions/Current/Resources
+
+------
+if [ ! -d houdini  -o  !  -d bin ]; then
+    echo "You must cd to the Houdini installation directory before"
+    echo "sourcing this script. This allows the script to determine"
+    echo "the installed location."
+else
+    export HFS="$PWD"
+
+    #
+    #  The following are some handy shortcuts:
+    #
+    export H="${HFS}"
+    export HB="${H}/bin"
+    export HDSO="${H}/../Libraries"
+    export HD="${H}/demo"
+    export HH="${H}/houdini"
+    export HHC="${HH}/config"
+    export HT="${H}/toolkit"
+    export HSB="${HH}/sbin"
+
+    #
+    #  The following is used as the generic /tmp path.  This is also
+    # set on Windows to the temporary directory, so can be used for
+    # system independent .hip files.
+    #
+    export TEMP=/tmp
+
+    #
+    # Look for java.
+    #
+    export JAVA_HOME=/Library/Java/Home
+
+    PATH="${HB}:${HSB}:$PATH"
+    export PATH
+
+    export HOUDINI_MAJOR_RELEASE=17
+    export HOUDINI_MINOR_RELEASE=0
+    export HOUDINI_BUILD_VERSION=416
+    export HOUDINI_VERSION="${HOUDINI_MAJOR_RELEASE}.${HOUDINI_MINOR_RELEASE}.${HOUDINI_BUILD_VERSION}"
+
+    # Build machine related stuff
+    export HOUDINI_BUILD_KERNEL="17.7.0"
+    export HOUDINI_BUILD_PLATFORM="`sw_vers -productName sw_vers -productVersion`"
+    export HOUDINI_BUILD_COMPILER="9.0.0.9000037"
+
+    if [ $?prompt ]; then
+	if [ "$1" != "-q" ]; then
+	    echo "The Houdini ${HOUDINI_VERSION} environment has been initialized."
+	fi
+    fi
+fi
+--------------
+
+
+DABMLB0606627aMG:~ 120988$ hscript -h
+
+Usage: hbatch [-R][-e name=value][-c <command>][-j nproc][-h][-i][-q][-v][file.hip ...]
+
+hbatch shell.  This is the non-graphical interface to a hip
+file.  Type "help" for a list of commands.
+
+Any number of .hip, .cmd, or .otl files may be specified on the
+command line.  Multiple .hip files are merged together.
+
+The -e option sets the named enviroment variable to the given
+	value.  There should be no spaces around the '=' separator between
+	the name and value (i.e. -e foo=bar)
+
+The -c option will run the option argument as an hscript command, after
+	the specified files have been loaded.
+
+The -f option forces the use of asset definitions found in OTL
+	files specified on the command line.
+
+The -j option sets the HOUDINI_MAXTHREADS to the given value.
+The -h option shows this message
+The -q option prevents the version information from being printed
+The -w option suppresses load warnings and errors from being printed
+The -v option specifies verbose handling of renders
+The -i option uses a simpler interface for reading input
+	when running hbatch from other applications (like Pixar's
+	Alfred), it may be necessary to use this option.  Use of this
+	option will disable several commands (openport and atjob)
+The -R option will request a non-graphics token instead
+	of a graphical one.
+	----------
+
+this produces ifd files if mantra is setup and there is a camera
+
+hscript  -R -i -c "render /out/mantra1" -c "quit"  /Volumes/dabrender/work/project_work/mattg/TESTING_Renderfarm/HoudiniProjects/houdini17_test_01/primitives_test.hipnc
 
 '''
 
@@ -78,7 +179,7 @@ class Job(envfac.TractorJob):
 class Job2(object):
     def __init__(self):
         """
-        The payload of gui-data needed to describe a arnold render job
+        The payload of gui-data needed to describe a render job
         """
         self.usernumber=None
         self.username=None
@@ -91,13 +192,11 @@ class Job2(object):
             self.useremail = self.env.useremail
             self.department = self.env.department
             self.dabwork = self.env.dabwork
-
         except Exception, err:
             logger.warn("Cant get user Job  credentials: {}".format(err))
 
         self.projectfullpath=None
         self.scenefilefullpath=None
-
         self.farmtier=None
 
         # This gets department from shotgun and checks it is a valid one in the json file
@@ -108,7 +207,6 @@ class Job2(object):
 
         self.farmpriority=None
         self.farmcrew=None
-
         self.jobtitle=None
         self.jobenvkey=None
         self.jobfile=None
@@ -117,13 +215,11 @@ class Job2(object):
         self.jobchunks=None
         self.jobthreads=None
         self.jobthreadmemory=None
-
         self.optionskipframe=None
         self.optionmakeproxy=None
         # self.optionsendemail=None
         self.optionresolution=None
         self.optionmaxsamples=None
-
         self.envtype=None
         self.envshow=None
         self.envproject=None
@@ -246,22 +342,22 @@ class Render(object):
             task_thisjob.addChild(task_notify_start)
 
 
-        # ####### make a render directory - mayaproj/arnold/scene/[ass,images]
+        # ####### make a render directory as needed
         _proj = self.projectpath
-        _arnolddir = os.path.join(self.projectpath,"houdini")
-        _arnoldWorkDir = os.path.join(_arnolddir, self.scenebasename)
-        _assDir = os.path.join(_arnoldWorkDir,"ifd")
-        _imgDir = os.path.join(_arnoldWorkDir,"images")
+        _houdinidir = os.path.join(self.projectpath,"houdini")
+        _houdiniWorkDir = os.path.join(_houdinidir, self.scenebasename)
+        _assDir = os.path.join(_houdiniWorkDir,"ifd")
+        _imgDir = os.path.join(_houdiniWorkDir,"render")
         _assFileBase = "{}.ass".format(self.scenebasename)
 
 
         task_prefilight = self.job.author.Task(title="Make render directory")
-        command_mkdirs1 = self.job.author.Command(argv=[ "mkdir","-p", _arnolddir ],
+        command_mkdirs1 = self.job.author.Command(argv=[ "mkdir","-p", _houdinidir ],
                     tags=["houdini", "theWholeFarm"],
                     atleast=1,
                     atmost=1,
                     service="Houdini")
-        command_mkdirs2 = self.job.author.Command(argv=[ "mkdir","-p", _arnoldWorkDir ],
+        command_mkdirs2 = self.job.author.Command(argv=[ "mkdir","-p", _houdiniWorkDir ],
                     tags=["houdini", "theWholeFarm"],
                     atleast=1,
                     atmost=1,
@@ -282,7 +378,7 @@ class Render(object):
         task_prefilight.addCommand(command_mkdirs4)
         task_thisjob.addChild(task_prefilight)
 
-        # ############## 3 ASSGEN ##############
+        # ############## 3 GENERATE INTERMEDIATE FILES ##############
         task_render_allframes = self.job.author.Task(title="ALL FRAMES {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
         task_render_allframes.serialsubtasks = 1
         task_assgen_allframes = self.job.author.Task(title="ASS GEN {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
@@ -297,8 +393,7 @@ class Render(object):
             _chunks=1
 
         #TODO not needed now - can use quotes
-        __command = "arnoldExportAss"
-
+        # __command = "arnoldExportAss"
 
         # loop thru chunks
         for i, chunk in enumerate(range( 1, _chunks + 1 )):
@@ -308,10 +403,8 @@ class Render(object):
 
             if chunk >= _chunks:
                 _chunkend = int(self.job.jobendframe)
-
             task_generate_ifd = self.job.author.Task(title="IFD GEN chunk {} frames {}-{}".format(
                     chunk, _chunkstart, _chunkend ))
-
             #TODO is this hrender
             command_generate_ifd = self.job.author.Command(argv=[
                     "hbatch", "-proj", self.projectpath, "-command",
@@ -327,73 +420,61 @@ class Render(object):
 
         task_render_allframes.addChild(task_assgen_allframes)
 
-
         # ############### 4 RENDER ##############
-        task_render_frames = self.job.author.Task(title="RENDER Frames {}-{}".format(self.job.jobstartframe,
-                                                                                         self.job.jobendframe))
+        task_render_frames = self.job.author.Task(title="RENDER Frames {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
         task_render_frames.serialsubtasks = 0
-
         for frame in range( int(self.job.jobstartframe), int(self.job.jobendframe) + 1, int(self.job.jobbyframe) ):
-
             # ################# Job Metadata as JSON
-            _imgfile = "{proj}/{scenebase}.{frame:04d}.{ext}".format(
+            _imgfile = "{proj}/render/{scenebase}/{scenebase}.{frame:04d}.{ext}".format(
                 proj=self.renderdirectory, scenebase=self.scenebasename, frame=frame, ext=self.outformat)
-            # _statsfile = "{proj}/rib/{frame:04d}/{frame:04d}.xml".format(
-            #     proj=self.renderpath, frame=frame)
             _ifdfile = "{base}.{frame:04d}.ifd".format(base=os.path.join(_assDir,self.scenebasename), frame=frame)
-
             _outfile = "{base}.{frame:04d}.exr".format(base=os.path.join(_imgDir,self.scenebasename), frame=frame)
             _shotgunupload = "PR:{} SQ:{} SH:{} TA:{}".format(self.job.shotgunProject,
                                                   self.job.shotgunSeqAssetType,
                                                   self.job.shotgunShotAsset,
                                                   self.job.shotgunTask)
-
             _taskMetaData={}
             _taskMetaData["imgfile"] = _outfile
-            # _taskMetaData["statsfile"] = _statsfile
             _taskMetaData["ifdfile"] = _ifdfile
             _taskMetaData["shotgunupload"] = _shotgunupload
             _jsontaskMetaData = json.dumps(_taskMetaData)
             _title = "RENDER Frame {}".format(frame)
             # _preview = "sho {""}".format(_imgfile)
-
             task_render_ifd = self.job.author.Task(title=_title, metadata=_jsontaskMetaData)
 
             '''
              mantra -f frame.0001.ifd rendered_frame0001.pic
+             mantra -V 3 -f ifds/mantra1.1.ifd
             '''
 
-            commonargs = ["mantra", "-f", _ifdfile, _outfile]
-            rendererspecificargs = [ "-nstdin", "-nokeypress", "-dp", "-dw" ]
+            _commonargs = [ "mantra", "-V", "3", "-f", _ifdfile, _outfile ]
+            _rendererspecificargs = [ "-nstdin", "-nokeypress", "-dp", "-dw" ]
 
             # ################ handle image resolution formats ###########
             if self.resolution == "720p":
                 self.xres, self.yres = 1280, 720
-                rendererspecificargs.extend(["-r", "%s" % self.xres, "%s" % self.yres])
+                _rendererspecificargs.extend(["-r", "%s" % self.xres, "%s" % self.yres])
             elif self.resolution == "1080p":
                 self.xres, self.yres = 1920, 1080
-                rendererspecificargs.extend(["-r", "%s" % self.xres, "%s" % self.yres])
+                _rendererspecificargs.extend(["-r", "%s" % self.xres, "%s" % self.yres])
             elif self.resolution == "540p":
                 self.xres, self.yres = 960, 540
-                rendererspecificargs.extend(["-r", "%s" % self.xres, "%s" % self.yres])
+                _rendererspecificargs.extend(["-r", "%s" % self.xres, "%s" % self.yres])
             elif self.resolution == "108p":
                 self.xres, self.yres = 192, 108
-                rendererspecificargs.extend(["-r", "%s" % self.xres, "%s" % self.yres])
+                _rendererspecificargs.extend(["-r", "%s" % self.xres, "%s" % self.yres])
 
             # if self.rendermaxsamples != "FROMFILE":
-                # rendererspecificargs.extend([ "-maxsamples", "{}".format(self.rendermaxsamples) ])
-
+            # rendererspecificargs.extend([ "-maxsamples", "{}".format(self.rendermaxsamples) ])
             # if self.threadmemory != "FROMFILE":
             #     rendererspecificargs.extend([ "-memorylimit", "{}".format(self.threadmemory) ])
 
-            rendererspecificargs.extend([
+            _rendererspecificargs.extend([
                 "-t", "{}".format(self.threads),
-
             ])
-            userspecificargs = [ utils.expandargumentstring(self.options)]
-
-            finalargs = commonargs + rendererspecificargs
-            command_render = self.job.author.Command(argv=finalargs,
+            _userspecificargs = [ utils.expandargumentstring(self.options)]
+            _finalargs = _commonargs + _rendererspecificargs
+            command_render = self.job.author.Command(argv=_finalargs,
                                             tags=["mantra", "theWholeFarm"],
                                             atleast=int(self.threads),
                                             atmost=int(self.threads),
@@ -404,9 +485,7 @@ class Render(object):
             if self.optionsendtaskendemail:
                 task_render_ifd.addCommand(self.mail("TASK FRAME {}".format(frame), "END", "{}".format(
                     self.scenefilefullpath)))
-
             task_render_frames.addChild(task_render_ifd)
-
         task_render_allframes.addChild(task_render_frames)
         task_thisjob.addChild(task_render_allframes)
 
@@ -430,7 +509,7 @@ class Render(object):
             _mov = "{}_{}.mov".format(self.scenebasename,utils.getnow())
             _outmov = os.path.join(self.projectpath,"movies",_mov)
             _inseq = "{}.####.exr".format(self.scenebasename)    #cameraShape1/StillLife.####.exr"
-            _directory = "{}/arnold/{}/images".format(self.projectpath, self.scenebasename)
+            _directory = "{}/render/{}/images".format(self.projectpath, self.scenebasename)
             _seq = os.path.join(_directory, _inseq)
 
 
