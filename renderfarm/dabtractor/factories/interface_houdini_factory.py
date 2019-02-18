@@ -1,68 +1,5 @@
 #!/usr/bin/env python2
 
-'''
-Build Interface for Houdini submission
-
-
-Set up a render node to output IFD instead of an image
-    Turn on the Disk File checkbox on the Driver tab of the render
-    node and click the  file chooser icon to set a file path.
-    Click the Render button to generate the IFD file.
-
-Render an IFD file from the command line
-    mantra -f <<filename>>.ifd <<output_filename>>.pic
-    (If you dont specify the -f option, mantra will read the IFD from stdin.)
-
-Save an IFD file from a .hip file on the command line
-    Use the hbatch command line program to load the .hip file and trigger the render node.
-    Set up a render node to output IFD, as above.
-
-Load the .hip file into hbatch.
-    hbatch myjob.hip
-    On the hbatch command line, use the render command to trigger the render node.
-    / -> render my_render_node
-    / -> quit
-
-Render a .hip file directly from the command line
-    Use the provided hrender script in $HFS/bin. This script is written in csh.
-    To use this script on Windows, you will need to use a UNIX-like environment such as Cygwin.
-    This script uses hbatch and so uses a Houdini license, unlike rendering an
-    IFD with mantra which only uses a rendering license.
-
-----------------------------------------------------------
-Usage: hbatch [-R][-e name=value][-c <command>][-j nproc][-h][-i][-q][-v][file.hip ...]
-
-hbatch shell.  This is the non-graphical interface to a hip
-file.  Type "help" for a list of commands.
-
-Any number of .hip, .cmd, or .otl files may be specified on the
-command line.  Multiple .hip files are merged together.
-
-The -e option sets the named enviroment variable to the given
-	value.  There should be no spaces around the '=' separator between
-	the name and value (i.e. -e foo=bar)
-
-The -c option will run the option argument as an hscript command, after
-	the specified files have been loaded.
-
-The -f option forces the use of asset definitions found in OTL
-	files specified on the command line.
-
-The -j option sets the HOUDINI_MAXTHREADS to the given value.
-The -h option shows this message
-The -q option prevents the version information from being printed
-The -w option suppresses load warnings and errors from being printed
-The -v option specifies verbose handling of renders
-The -i option uses a simpler interface for reading input
-	when running hbatch from other applications (like Pixar's
-	Alfred), it may be necessary to use this option.  Use of this
-	option will disable several commands (openport and atjob)
-The -R option will request a non-graphics token instead
-	of a graphical one.
-
-'''
-
-
 import Tkinter as tk
 import ttk
 import tkFileDialog
@@ -128,7 +65,6 @@ class Window(WindowBase):
         # ################ Options for buttons and canvas ####################
         self.button_opt = {'fill': Tkconstants.BOTH, 'padx': 5, 'pady': 5}
         self.label_opt = {'fill': Tkconstants.BOTH, 'padx': 5, 'pady': 5}
-
         self.canvas = tk.Canvas(self.master, height=200, width=300)
         self.canvas.pack(expand=False, fill=tk.BOTH)
 
@@ -153,7 +89,6 @@ class Window(WindowBase):
         tk.Label(self.canvas, bg=self.bgcolor1,text="$TYPE").grid(row=__row, column=0, sticky=tk.E)
         self.envtype = tk.StringVar()
         # _default=self.job.config.getdefault("class", "worktype")
-
         self.envtype.set(self.job.config.getdefault("class", "worktype"))
         self.job.envtype=self.job.config.getdefault("class", "worktype")
         self.envtypebox = ttk.Combobox(self.canvas, textvariable=self.envtype)
@@ -483,7 +418,6 @@ class Window(WindowBase):
         logger.info("Shotgun Class is {}".format(self.job.shotgunClass))
         self.getSgtSeqAssTypeValues()
 
-
     def getSgtSeqAssTypeValues(self):
         logger.debug("Run: {}".format("getSgtSeqAssTypeValues"))
         _ret = []
@@ -744,6 +678,68 @@ if __name__ == "__main__":
     w=Window()
     # for key in w.job.__dict__.keys():
     #     print "{:20} = {}".format(key,w.job.__dict__.get(key))
+
+    '''
+Build Interface for Houdini submission
+
+
+Set up a render node to output IFD instead of an image
+    Turn on the Disk File checkbox on the Driver tab of the render
+    node and click the  file chooser icon to set a file path.
+    Click the Render button to generate the IFD file.
+
+Render an IFD file from the command line
+    mantra -f <<filename>>.ifd <<output_filename>>.pic
+    (If you dont specify the -f option, mantra will read the IFD from stdin.)
+
+Save an IFD file from a .hip file on the command line
+    Use the hbatch command line program to load the .hip file and trigger the render node.
+    Set up a render node to output IFD, as above.
+
+Load the .hip file into hbatch.
+    hbatch myjob.hip
+    On the hbatch command line, use the render command to trigger the render node.
+    / -> render my_render_node
+    / -> quit
+
+Render a .hip file directly from the command line
+    Use the provided hrender script in $HFS/bin. This script is written in csh.
+    To use this script on Windows, you will need to use a UNIX-like environment such as Cygwin.
+    This script uses hbatch and so uses a Houdini license, unlike rendering an
+    IFD with mantra which only uses a rendering license.
+
+----------------------------------------------------------
+Usage: hbatch [-R][-e name=value][-c <command>][-j nproc][-h][-i][-q][-v][file.hip ...]
+
+hbatch shell.  This is the non-graphical interface to a hip
+file.  Type "help" for a list of commands.
+
+Any number of .hip, .cmd, or .otl files may be specified on the
+command line.  Multiple .hip files are merged together.
+
+The -e option sets the named enviroment variable to the given
+	value.  There should be no spaces around the '=' separator between
+	the name and value (i.e. -e foo=bar)
+
+The -c option will run the option argument as an hscript command, after
+	the specified files have been loaded.
+
+The -f option forces the use of asset definitions found in OTL
+	files specified on the command line.
+
+The -j option sets the HOUDINI_MAXTHREADS to the given value.
+The -h option shows this message
+The -q option prevents the version information from being printed
+The -w option suppresses load warnings and errors from being printed
+The -v option specifies verbose handling of renders
+The -i option uses a simpler interface for reading input
+	when running hbatch from other applications (like Pixar's
+	Alfred), it may be necessary to use this option.  Use of this
+	option will disable several commands (openport and atjob)
+The -R option will request a non-graphics token instead
+	of a graphical one.
+
+'''
 
 
 

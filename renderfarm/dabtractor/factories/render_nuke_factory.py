@@ -1,6 +1,15 @@
-#!/usr/bin/env rmanpy
-# TODO
-# ##############################################################
+#!/usr/bin/env python2
+'''
+Nuke Render Job
+'''
+
+import tractor.api.query as tq
+import os
+import time
+import sys
+import user_factory as ufac
+import utils_factory as utils
+import environment_factory as envfac
 import logging
 
 logger = logging.getLogger(__name__)
@@ -10,23 +19,13 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-# ##############################################################
-
-import tractor.api.query as tq
-import os
-import time
-import sys
-import user_factory as ufac
-import utils_factory as utils
-import renderfarm.dabtractor.factories.environment_factory as envfac
 
 
 class Job(object):
     """ job parameters - variants should be derived by calling factories as needed
     """
     def __init__(self):
-        """ The payload of gui-data needed to describe a farm render job
-        """
+        ''' The payload of gui-data needed to describe a farm render job '''
         self.usernumber=None
         self.username=None
         self.useremail=None
@@ -209,7 +208,7 @@ if __name__ == "__main__":
     logger.info("NO TESTING")
 
 
-    """
+    '''
         ###################################################################################################
         This is a nuke batch job
         nuke -F 1-100 -x myscript.nk
@@ -327,7 +326,7 @@ if __name__ == "__main__":
         --   End switches, allowing script to start with a dash or be just - to read from stdin
 
 
-    """
+    '''
 
 
 

@@ -1,118 +1,7 @@
 #!/usr/bin/env python2
 '''
-Renderman for maya job
-
+Arnold for maya job
 '''
-
-
-
-'''
-generating ass files
-
-Exporting an .ass File and Batch Rendering Through MEL
-It is possible to export an .ass file and perform a batch render for a single frame using the following commands:
-arnoldExportAss -f <filename>
-arnoldRender -b;
-In both cases you will need to prepend with the following:
-currentTime <frameNum>;
-For example:
-currentTime 1; arnoldExportAss -f "/tmp/scene.001.ass";
-The arnoldRender command allows you to render either individual frames or frame ranges. You can specify multiple different frames or frame ranges. These have to be separated with either ; or a whitespace character. Mixing the two separators will not work. When defining frame ranges, you must separate the start and end frame by using .. string. By adding a : to the frame range and adding an extra number after that, you can define the step for the frame. The following examples can also use ; instead of the whitespace:
--seq "1 2 3" - rendering frame 1, 2 and 3.
--seq "1 3..6" - rendering frame 1, and frames between 3 and 6 using a step of 1.
--seq "2 4..7 15..27:4" - rendering frame 2, frames between 4 and 7, and frames between 15 and 27 using a step of 4.
-
-arnoldExportAss  -f "arnold/out.ass" -startFrame 1 -endFrame 3 -frameStep 1 -mask 255 -lightLinks 1 -shadowLinks 2 ;
-
-maya -batch -proj /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Renderfarm  -command "arnoldExportAss -f xxx.ass -startFrame 1 -endFrame 10" -file /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Renderfarm/scenes/test_spiral_ARNOLD2.0001.ma
-
-
-kick -i /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Renderfarm/data/xxx.0001.ass -t 6 -dp -ds 8 -r 1280 720
-
--o outputfile eh out.exr
-
-
-https://github.com/kiryha/AnimationDNA/wiki/06-Tutorials
- 
- 
-Usage:  kick [options] ...
-  -i %s               Input .ass file
-  -o %s               Output filename
-  -of %s              Output format: exr jpg png tif 
-  -ocs %s             Output color space
-  -r %d %d            Image resolution
-  -sr %f              Scale resolution %f times in each dimension
-  -rg %d %d %d %d     Render region (minx miny maxx maxy)
-  -as %d              Anti-aliasing samples
-  -af %s %f           Anti-aliasing filter and width (box triangle gaussian ...)
-  -asc %f             Anti-aliasing sample clamp
-  -c %s               Active camera
-  -sh %f %f           Motion blur shutter (start end)
-  -fov %f             Camera FOV
-  -e %f               Camera exposure
-  -ar %f              Aspect ratio
-  -t %d               Threads
-  -bs %d              Bucket size
-  -bc %s              Bucket scanning (top left random spiral hilbert)
-  -td %d              Total ray depth
-  -dif %d             Diffuse depth
-  -spc %d             Specular depth
-  -trm %d             Transmission depth
-  -ds %d              Diffuse samples
-  -ss %d              Specular samples
-  -ts %d              Transmission samples
-  -d %s               Disable (ignore) a specific node or node.parameter
-  -it                 Ignore texture maps
-  -is                 Ignore shaders
-  -cm %s              Set the value of ai_default_reflection_shader.color_mode (use with -is)
-  -sm %s              Set the value of ai_default_reflection_shader.shade_mode (use with -is)
-  -om %s              Set the value of ai_default_reflection_shader.overlay_mode (use with -is)
-  -ib                 Ignore background shaders
-  -ia                 Ignore atmosphere shaders
-  -il                 Ignore lights
-  -id                 Ignore shadows
-  -isd                Ignore mesh subdivision
-  -idisp              Ignore displacement
-  -ibump              Ignore bump-mapping
-  -imb                Ignore motion blur
-  -idof               Ignore depth of field
-  -isss               Ignore sub-surface scattering
-  -flat               Flat shading
-  -sd %d              Max subdivisions
-  -set %s.%s %s       Set the value of a node parameter (-set name.parameter value)
-  -dw                 Disable render window (recommended for batch rendering)
-  -dp                 Disable progressive rendering (recommended for batch rendering)
-  -ipr [m|q]          Interactive rendering mode, using Maya (default) or Quake/WASD controls
-  -turn %d            Render n frames rotating the camera around the lookat point
-  -lookat %f %f %f    Override camera look_at point (useful if the camera is specified by a matrix)
-  -position %f %f %f  Override camera position
-  -up %f %f %f        Override camera up vector
-  -v %d               Verbose level (0..6)
-  -nw %d              Maximum number of warnings
-  -logfile %s         Write log file to the specified file path
-  -l %s               Add search path for plugin libraries
-  -nodes [n|t]        List all installed nodes, sorted by Name (default) or Type
-  -info [n|u] %s      Print detailed information for a given node, sorted by Name or Unsorted (default)
-  -tree %s            Print the shading tree for a given node
-  -repeat %d          Repeat the render n times (useful for debugging)
-  -resave %s          Re-save .ass scene to filename
-  -db                 Disable binary encoding when re-saving .ass files (useful for debugging)
-  -forceexpand        Force expansion of procedural geometry before re-saving
-  -lcs                List available color spaces in loaded .ass files
-  -nostdin            Ignore input from stdin
-  -nokeypress         Disable wait for ESC keypress after rendering to display window
-  -sl                 Skip license check (assume license is not available)
-  -licensecheck       Check the connection with the license servers and list installed licenses
-  -utest              Run unit tests for the Arnold API
-  -av, --version      Print Arnold version number
-  -notices            Print copyright notices
-  -h, --help          Show this help message
-where %d=integer, %f=float, %s=string
-Example:  kick -i teapot.ass -r 640 480 -as 4 -o teapot.tif
-
--set options.skip_license_check off
-'''
-
 
 import json
 import os
@@ -155,7 +44,6 @@ class Job2(object):
         self.usernumber=None
         self.username=None
         self.useremail=None
-
         try:
             self.env = envfac.TractorJob()
             self.usernumber = self.env.usernumber
@@ -163,13 +51,11 @@ class Job2(object):
             self.useremail = self.env.useremail
             self.department = self.env.department
             self.dabwork = self.env.dabwork
-
         except Exception, err:
             logger.warn("Cant get user Job  credentials: {}".format(err))
 
         self.mayaprojectfullpath=None
         self.mayascenefullpath=None
-
         self.farmtier=None
 
         # This gets department from shotgun and checks it is a valid one in the json file
@@ -177,10 +63,8 @@ class Job2(object):
             logger.info("Department {}".format(self.env.department))
         else:
             self.department="Other"
-
         self.farmpriority=None
         self.farmcrew=None
-
         self.jobtitle=None
         self.jobenvkey=None
         self.jobfile=None
@@ -189,18 +73,15 @@ class Job2(object):
         self.jobchunks=None
         self.jobthreads=None
         self.jobthreadmemory=None
-
         self.optionskipframe=None
         self.optionmakeproxy=None
         # self.optionsendemail=None
         self.optionresolution=None
         self.optionmaxsamples=None
-
         self.envtype=None
         self.envshow=None
         self.envproject=None
         self.envscene=None
-
         self.mayaversion=None
         # self.rendermanversion=None
         self.shotgunProject=None
@@ -213,6 +94,8 @@ class Job2(object):
         self.shotgunTask=None
         self.shotgunTaskId=None
         self.sendToShotgun=False
+        self.xres=self.job.xres
+        self.yres=self.job.yres
 
 
 class Render(object):
@@ -247,6 +130,8 @@ class Render(object):
         self.projectgroup = self.job.department
         self.options = ""
         self.resolution = self.job.optionresolution
+        self.xres=self.job.xres
+        self.yres=self.job.yres
         self.outformat = "exr"
         self.makeproxy = self.job.optionmakeproxy
         self.optionsendjobstartemail = self.job.optionsendjobstartemail
@@ -263,10 +148,8 @@ class Render(object):
 
 
     def build(self):
-        '''
-        Main method to build the job
-        :return:
-        '''
+        ''' Main method to build the job '''
+
         # ################# Job Metadata as JSON
         _jobMetaData={}
         _jobMetaData["email"] = self.job.useremail
@@ -629,26 +512,53 @@ if __name__ == "__main__":
     logger.setLevel(logging.INFO)
     logger.info("START TESTING")
 
-    """
-    Usage:  kick [options] ...
+
+'''
+generating ass files
+
+Exporting an .ass File and Batch Rendering Through MEL
+It is possible to export an .ass file and perform a batch render for a single frame using the following commands:
+arnoldExportAss -f <filename>
+arnoldRender -b;
+In both cases you will need to prepend with the following:
+currentTime <frameNum>;
+For example:
+currentTime 1; arnoldExportAss -f "/tmp/scene.001.ass";
+The arnoldRender command allows you to render either individual frames or frame ranges. You can specify multiple different frames or frame ranges. These have to be separated with either ; or a whitespace character. Mixing the two separators will not work. When defining frame ranges, you must separate the start and end frame by using .. string. By adding a : to the frame range and adding an extra number after that, you can define the step for the frame. The following examples can also use ; instead of the whitespace:
+-seq "1 2 3" - rendering frame 1, 2 and 3.
+-seq "1 3..6" - rendering frame 1, and frames between 3 and 6 using a step of 1.
+-seq "2 4..7 15..27:4" - rendering frame 2, frames between 4 and 7, and frames between 15 and 27 using a step of 4.
+
+arnoldExportAss  -f "arnold/out.ass" -startFrame 1 -endFrame 3 -frameStep 1 -mask 255 -lightLinks 1 -shadowLinks 2 ;
+
+maya -batch -proj /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Renderfarm  -command "arnoldExportAss -f xxx.ass -startFrame 1 -endFrame 10" -file /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Renderfarm/scenes/test_spiral_ARNOLD2.0001.ma
+
+
+kick -i /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Renderfarm/data/xxx.0001.ass -t 6 -dp -ds 8 -r 1280 720
+
+-o outputfile eh out.exr
+
+
+https://github.com/kiryha/AnimationDNA/wiki/06-Tutorials
+ 
+ 
+Usage:  kick [options] ...
   -i %s               Input .ass file
   -o %s               Output filename
   -of %s              Output format: exr jpg png tif 
-  -ocs %s             Output color space for render window
+  -ocs %s             Output color space
   -r %d %d            Image resolution
   -sr %f              Scale resolution %f times in each dimension
   -rg %d %d %d %d     Render region (minx miny maxx maxy)
   -as %d              Anti-aliasing samples
-  -asmax %d           Anti-aliasing samples maximum (for adaptive sampling)
   -af %s %f           Anti-aliasing filter and width (box triangle gaussian ...)
   -asc %f             Anti-aliasing sample clamp
   -c %s               Active camera
   -sh %f %f           Motion blur shutter (start end)
   -fov %f             Camera FOV
   -e %f               Camera exposure
-  -ar %f              Pixel aspect ratio
+  -ar %f              Aspect ratio
   -t %d               Threads
-  -gpu %s             Enabled gpu devices
   -bs %d              Bucket size
   -bc %s              Bucket scanning (top left random spiral hilbert)
   -td %d              Total ray depth
@@ -681,16 +591,12 @@ if __name__ == "__main__":
   -dp                 Disable progressive rendering (recommended for batch rendering)
   -ipr [m|q]          Interactive rendering mode, using Maya (default) or Quake/WASD controls
   -turn %d            Render n frames rotating the camera around the lookat point
-  -turn_smooth        Use a smooth start/end when rendering turn tables with -turn
   -lookat %f %f %f    Override camera look_at point (useful if the camera is specified by a matrix)
   -position %f %f %f  Override camera position
   -up %f %f %f        Override camera up vector
   -v %d               Verbose level (0..6)
   -nw %d              Maximum number of warnings
   -logfile %s         Write log file to the specified file path
-  -ostatsfile %s      Write stats to the specified .json file, overwriting it if it exists
-  -statsfile %s       Append stats to the specified .json file
-  -profile %s         Write profile events to the specified .json file
   -l %s               Add search path for plugin libraries
   -nodes [n|t]        List all installed nodes, sorted by Name (default) or Type
   -info [n|u] %s      Print detailed information for a given node, sorted by Name or Unsorted (default)
@@ -699,20 +605,22 @@ if __name__ == "__main__":
   -resave %s          Re-save .ass scene to filename
   -db                 Disable binary encoding when re-saving .ass files (useful for debugging)
   -forceexpand        Force expansion of procedural geometry before re-saving
-  -laovs              List available AOVs in loaded .ass files
   -lcs                List available color spaces in loaded .ass files
   -nostdin            Ignore input from stdin
   -nokeypress         Disable wait for ESC keypress after rendering to display window
   -sl                 Skip license check (assume license is not available)
-  -op %s              Operator node name to evaluate from
-  -iops               Ignore operators
   -licensecheck       Check the connection with the license servers and list installed licenses
   -utest              Run unit tests for the Arnold API
   -av, --version      Print Arnold version number
   -notices            Print copyright notices
   -h, --help          Show this help message
-    """
+where %d=integer, %f=float, %s=string
+Example:  kick -i teapot.ass -r 640 480 -as 4 -o teapot.tif
 
+-set options.skip_license_check off
+
+
+'''
 
 
 
