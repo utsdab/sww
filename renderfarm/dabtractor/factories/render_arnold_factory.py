@@ -182,7 +182,6 @@ class Render(object):
             task_assgen_allframes.addChild(task_generate_ass)
 
         task_render_allframes.addChild(task_assgen_allframes)
-
         # ############### 4 RENDER ##############
         task_render_frames = self.job.author.Task(title="RENDER Frames {}-{}".format(self.job.jobstartframe, self.job.jobendframe))
         task_render_frames.serialsubtasks = 0
@@ -217,7 +216,7 @@ class Render(object):
             rendererspecificargs.extend([
                 "-t", "{}".format(self.job.jobthreads),
             ])
-            userspecificargs = [ utils.expandargumentstring(self.options)]
+            # userspecificargs = [ utils.expandargumentstring(self.options)]
             finalargs = commonargs + rendererspecificargs
             command_render = self.job.author.Command(argv=finalargs, tags=["kick", "theWholeFarm"], atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads), service="Maya")
             task_render_ass.addCommand(command_render)
