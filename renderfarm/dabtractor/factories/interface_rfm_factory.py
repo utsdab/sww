@@ -706,6 +706,8 @@ class Window(WindowBase):
             rj.build()
             rj.validate()
 
+            #TODO  add in a method to see if this job already exists on the farm
+
         except Exception, validateError:
             logger.warn("Problem validating %s" % validateError)
 

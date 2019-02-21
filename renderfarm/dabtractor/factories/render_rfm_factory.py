@@ -344,6 +344,9 @@ class Render(object):
         self.renderjob.addChild(task_thisjob)
 
     def validate(self):
+
+        #TODO  check to see if there is already this job on the farm
+
         logger.info("\n\n{:_^80}\n{}\n{:_^80}".format("snip", self.renderjob.asTcl(), "snip"))
 
     def mail(self, to=None, level="Level", trigger="Trigger", body="Render Progress Body"):
