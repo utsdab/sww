@@ -52,7 +52,7 @@ class Render(object):
         self.renderpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/arnold/$SCENENAME"
         self.renderdirectory = os.path.join(self.renderpath,"images")
         self.renderimagesalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/arnold/$SCENENAME/images"
-        self.envkey_maya = "maya{}".format(self.job.mayaversion[0])
+        self.envkey_maya = "maya{}".format(self.job.mayaversion)
         self.options = ""
         self.outformat = "exr"
         # self.asspath = "{}/ass".format(self.renderpath)
@@ -121,25 +121,25 @@ class Render(object):
 
         task_prefilight = self.job.author.Task(title="Make render directory")
         command_mkdirs1 = self.job.author.Command(argv=[ "mkdir","-p", _arnolddir ],
-                    tags=["maya", "theWholeFarm"],
+                    tags=["ShellServices", "theWholeFarm"],
                     atleast=1,
                     atmost=1,
-                    service="Maya")
+                    service="ShellServices")
         command_mkdirs2 = self.job.author.Command(argv=[ "mkdir","-p", _arnoldWorkDir ],
-                    tags=["maya", "theWholeFarm"],
+                    tags=["ShellServices", "theWholeFarm"],
                     atleast=1,
                     atmost=1,
-                    service="Maya")
+                    service="ShellServices")
         command_mkdirs3 = self.job.author.Command(argv=[ "mkdir","-p", _assDir ],
-                    tags=["maya", "theWholeFarm"],
+                    tags=["ShellServices", "theWholeFarm"],
                     atleast=1,
                     atmost=1,
-                    service="Maya")
+                    service="ShellServices")
         command_mkdirs4 = self.job.author.Command(argv=[ "mkdir", "-p",_imgDir ],
-                    tags=["maya", "theWholeFarm"],
+                    tags=["ShellServices", "theWholeFarm"],
                     atleast=1,
                     atmost=1,
-                    service="Maya")
+                    service="ShellServices")
         task_prefilight.addCommand(command_mkdirs1)
         task_prefilight.addCommand(command_mkdirs2)
         task_prefilight.addCommand(command_mkdirs3)
@@ -164,13 +164,10 @@ class Render(object):
             _offset = i * _framesperchunk
             _chunkstart = int(self.job.jobstartframe) + _offset
             _chunkend = _chunkstart + _framesperchunk - 1
-
             if chunk >= _chunks:
                 _chunkend = int(self.job.jobendframe)
-
             task_generate_ass = self.job.author.Task(title="ASS GEN chunk {} frames {}-{}".format(
                     chunk, _chunkstart, _chunkend ))
-
             command_generate_ass = self.job.author.Command(argv=[
                     "maya", "-batch", "-proj", self.mayaprojectpath, "-command",
                     "{command} -f \"{file}\" -startFrame {start} -endFrame {end}".format(command=__command, file=os.path.join(_assDir,self.scenebasename), start=_chunkstart, end=_chunkend, step=1), "-file", self.mayascenefilefullpath],
@@ -180,8 +177,8 @@ class Render(object):
                     service="Maya")
             task_generate_ass.addCommand(command_generate_ass)
             task_assgen_allframes.addChild(task_generate_ass)
-
         task_render_allframes.addChild(task_assgen_allframes)
+
         # ############### 4 RENDER ##############
         task_render_frames = self.job.author.Task(title="RENDER Frames {}-{}".format(self.job.jobstartframe, self.job.jobendframe))
         task_render_frames.serialsubtasks = 0
@@ -209,7 +206,6 @@ class Render(object):
             rendererspecificargs = [ "-nstdin", "-nokeypress", "-dp", "-dw" ]
             # if self.job.optionmaxsamples != "FROMFILE":
                 # rendererspecificargs.extend([ "-maxsamples", "{}".format(self.job.optionmaxsamples) ])
-
             # if self.job.jobthreadmemory != "FROMFILE":
             #     rendererspecificargs.extend([ "-memorylimit", "{}".format(self.job.jobthreadmemory) ])
 
@@ -243,7 +239,7 @@ class Render(object):
             except Exception, err:
                 logger.warn(err)
             try:
-                _option1 = "-v -fps 25 -rthreads {threads} -outres {xres} {yres} -t {start}-{end}".format( threads="4", xres="1280", yres = "720",  start=self.job.jobstartframe, end=self.job.jobendframe)
+                _option1 = "-v -fps 25 -rthreads {threads} -outres {xres} {yres} -t {start}-{end}".format( threads="4", xres="1280", yres = "720",  start=int(self.job.jobstartframe), end=int(self.job.jobendframe))
                 _option2 = "-out8 -outgamma 2.2"
                 _option3 = "-overlay frameburn 0.5 1.0 30 -leader simpleslate UTS_BDES_ANIMATION Type={} Show={} Project={} File={} Student={}-{} Group={} Date={}".format( self.job.envtype, self.job.envshow, self.job.envproject,
                               # self.scenebasename,
@@ -260,31 +256,33 @@ class Render(object):
             logger.info("make proxy = {}".format(self.job.optionmakeproxy))
 
         # ############## 6 SEND TO SHOTGUN ###############
+        # TODO issue with int vs str values here for job upload
+
         if self.job.sendToShotgun:
             logger.info("Sending to Shotgun = {} {} {} {}".format(self.job.shotgunProjectId,self.job.shotgunSeqAssetTypeId,self.job.shotgunShotAssetId,self.job.shotgunTaskId))
             _description = "Auto Uploaded from {} {} {} {}".format(self.job.envtype,self.job.envproject, self.job.envshow,self.job.envscene)
             _uploadcmd = ""
             if self.job.shotgunTaskId:
                 _uploadcmd = ["shotgunupload.py",
-                              "-o", self.job.shotgunOwnerId,
-                              "-p", self.job.shotgunProjectId,
-                              "-s", self.job.shotgunShotAssetId,
-                              "-a", self.job.shotgunShotAssetId,
-                              "-t", self.job.shotgunTaskId,
+                              "-o", int(self.job.shotgunOwnerId),
+                              "-p", int(self.job.shotgunProjectId),
+                              "-s", int(self.job.shotgunShotAssetId),
+                              "-a", int(self.job.shotgunShotAssetId),
+                              "-t", int(self.job.shotgunTaskId),
                               "-n", _mov,
                               "-d", _description,
                               "-m", _outmov ]
             elif not self.job.shotgunTaskId:
                 _uploadcmd = ["shotgunupload.py",
-                              "-o", self.job.shotgunOwnerId,
-                              "-p", self.job.shotgunProjectId,
-                              "-s", self.job.shotgunShotAssetId,
-                              "-a", self.job.shotgunShotAssetId,
+                              "-o", int(self.job.shotgunOwnerId),
+                              "-p", int(self.job.shotgunProjectId),
+                              "-s", int(self.job.shotgunShotAssetId),
+                              "-a", int(self.job.shotgunShotAssetId),
                               "-n", _mov,
                               "-d", _description,
                               "-m", _outmov ]
             task_upload = self.job.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSeqAssetType,self.job.shotgunShotAsset, self.job.shotgunTask))
-            uploadcommand = self.job.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"], envkey=["PixarRender"])
+            uploadcommand = self.job.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"], envkey=["ShellServices"])
             task_upload.addCommand(uploadcommand)
             task_thisjob.addChild(task_upload)
 

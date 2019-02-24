@@ -1,12 +1,11 @@
 #!/usr/bin/env python2
 """
-To do:
-    find commonality in render jobs and put it in base class
-
+The maya renderers other than arnold
 """
+# TODO either deprecate this properly of make it work.....
+
 # ##############################################################
 import logging
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()

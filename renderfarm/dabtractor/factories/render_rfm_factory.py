@@ -53,8 +53,9 @@ class Render(object):
         self.rendermanpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/renderman/$SCENENAME"
         self.renderdirectory = os.path.join(self.rendermanpath,"images")
         self.renderimagesalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/renderman/$SCENENAME/images"
-        self.envkey_rfm = "rfm-{}-maya-{}".format(self.job.rendermanversion[0], self.job.mayaversion[0])
-        self.chunks = int(self.job.jobchunks)  # pixar jobs are one at a time
+        self.envkey_rfm = "rfm-{}".format(self.job.rendermanversion)
+        self.envkey_maya = "maya{}".format(self.job.mayaversion)
+        # self.job.jobchunks = int(self.job.jobchunks)  # pixar jobs are one at a time
         self.options = ""
         self.outformat = "exr"
         self.ribpath = "{}/rib".format(self.rendermanpath)
@@ -80,7 +81,7 @@ class Render(object):
         self.renderjob = self.job.author.Job(title="RFM: {} {} {}-{}".format(
               self.job.username, self.scenename, self.job.jobstartframe, self.job.jobendframe),
               priority=10,
-              envkey=[self.envkey_rfm,"ProjectX",
+              envkey=[self.envkey_rfm,self.envkey_maya,"ProjectX",
                     "TYPE={}".format(self.job.envtype),
                     "SHOW={}".format(self.job.envshow),
                     "PROJECT={}".format(self.job.envproject),
@@ -137,7 +138,7 @@ class Render(object):
         #TODO use command wrapper
         # dab_pre_render layerid start end phase
         __command = "dab_rfm_pre_render"
-        command_ribgen = self.job.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,"-command", "{command} {layerid} {start} {end} {phase}".format( command=__command, layerid=0, start=self.job.jobstartframe, end=self.job.jobendframe, phase=1), "-file", self.mayascenefilefullpath], tags=["maya", "theWholeFarm"], atleast=int(self.job.jobthreads),  atmost=int(self.job.jobthreads), service="RfMRibGen")
+        command_ribgen = self.job.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,"-command", "{command} {layerid} {start} {end} {phase}".format( command=__command, layerid=0, start=int(self.job.jobstartframe), end=int(self.job.jobendframe), phase=1), "-file", self.mayascenefilefullpath], tags=["maya", "theWholeFarm"], atleast=int(self.job.jobthreads),  atmost=int(self.job.jobthreads), service="RfMRibGen")
 
         #task_permissions_preflight.addCommand(command_permissions1)
         #task_permissions_preflight.addCommand(command_permissions2)
@@ -158,7 +159,7 @@ class Render(object):
 
         # divide the frame range up into chunks
         _totalframes = int(self.job.jobendframe) - int(self.job.jobstartframe) + 1
-        _chunks = int(self.chunks)
+        _chunks = int(self.job.jobchunks)
         _framesperchunk = _totalframes
         if _chunks < _totalframes:
             _framesperchunk = int( _totalframes / _chunks )
@@ -281,8 +282,8 @@ class Render(object):
                            threads="4",
                            xres="1280",
                            yres="720",
-                           start=self.job.jobstartframe,
-                           end=self.job.jobendframe)
+                           start=int(self.job.jobstartframe),
+                           end=int(self.job.jobendframe))
                 _option2 = "-out8 -outgamma 2.2"
                 _option3 = "-overlay frameburn 0.5 1.0 30 -leader simpleslate UTS_BDES_ANIMATION Type={} Show={} Project={} File={} Student={}-{} Group={} Date={}".format(
                               self.job.envtype,
@@ -337,17 +338,22 @@ class Render(object):
 
         # ############## 5 NOTIFY JOB END ###############
         if self.job.optionsendjobendemail:
+            logger.info("xx")
             logger.info("email = {}".format(self.job.useremail))
             task_notify_end = self.job.author.Task(title="Notify End", service="ShellServices")
             task_notify_end.addCommand(self.mail(self.job.useremail, "JOB", "COMPLETE", "{}".format(self.mayascenefilefullpath)))
             task_thisjob.addChild(task_notify_end)
+            logger.info("xxx")
         self.renderjob.addChild(task_thisjob)
+        logger.info("xxxx")
+
 
     def validate(self):
-
         #TODO  check to see if there is already this job on the farm
-
-        logger.info("\n\n{:_^80}\n{}\n{:_^80}".format("snip", self.renderjob.asTcl(), "snip"))
+        logger.info("\n\n{:_^80}\n{}\n{:_^80}".format("snip",
+                                                      self.renderjob.asTcl(),
+                                                      # "xxxxx",
+                                                      "snip"))
 
     def mail(self, to=None, level="Level", trigger="Trigger", body="Render Progress Body"):
         if not to:

@@ -2,8 +2,8 @@
 '''
 Houdini Render Job
 '''
-
 #TODO make this work
+
 import json
 import os
 import time
@@ -54,8 +54,8 @@ class Render(object):
         self.renderpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/$SCENENAME"
         self.renderdirectory = os.path.join(self.renderpath,"images")
         self.renderimagesalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/$SCENENAME/images"
-        self.houdiniversion = self.job.houdiniversion,
-        self.envkey_houdini = "houdini{}".format(self.houdiniversion[0])
+        # self.job.houdiniversion = self.job.houdiniversion,
+        self.envkey_houdini = "houdini{}".format(self.job.houdiniversion)
         self.options = ""
         self.outformat = "exr"
         self.finaloutputimagebase = "{}/{}".format(self.renderpath,self.scenebasename)
