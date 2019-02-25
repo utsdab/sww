@@ -173,7 +173,15 @@ class Render(object):
                 _chunkend = int(self.job.jobendframe)
             logger.info("Chunk {} is frames {}-{}".format(chunk, _chunkstart, _chunkend))
             task_generate_rib = self.job.author.Task(title="RIB GEN chunk {} frames {}-{}".format( chunk, _chunkstart, _chunkend ))
-            command_generate_rib = self.job.author.Command(argv=[ "maya", "-batch", "-proj", self.mayaprojectpath, "-command","{command} {layerid} {start} {end} {phase}".format(command = __command, layerid=0, start=_chunkstart, end=_chunkend, phase=2), "-file", self.mayascenefilefullpath],tags=["maya", "theWholeFarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),service="RfMRibGen")
+            #command_generate_rib = self.job.author.Command(argv=[ "maya", "-batch", "-proj", self.mayaprojectpath, "-command","{command} {layerid} {start} {end} {phase}".format(command = __command, layerid=0, start=_chunkstart, end=_chunkend, phase=2), "-file", self.mayascenefilefullpath],tags=["maya", "theWholeFarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),service="RfMRibGen")
+            command_generate_rib = self.job.author.Command(argv=[
+                "Render", "-r","renderman", "-rib",
+                "-proj", self.mayaprojectpath,
+                "-s",_chunkstart,
+                "-e",_chunkend,
+
+                self.mayascenefilefullpath],tags=["maya", "theWholeFarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),service="RfMRibGen")
+
             task_generate_rib.addCommand(command_generate_rib)
             task_ribgen_allframes.addChild(task_generate_rib)
         task_render_allframes.addChild(task_ribgen_allframes)
@@ -386,6 +394,116 @@ if __name__ == "__main__":
     logger.info("START TESTING")
 
     job = Job()
+
+    '''
+    Render -r renderman -h
+    /Applications/Autodesk/maya2018/Maya.app/Contents/MacOS ~
+    
+    Usage: ./Render [options] filename
+           where "filename" is a Maya ASCII or a Maya binary file.
+    
+    Common options:
+      -help              Print help
+      -test              Print Mel commands but do not execute them
+      -verb              Print Mel commands before they are executed
+      -keepMel           Keep the temporary Mel file
+      -listRenderers     List all available renderers
+      -renderer string   Use this specific renderer
+      -r string          Same as -renderer
+      -proj string       Use this Maya project to load the file
+      -log string        Save output into the given file
+      -rendersetuptemplate string Apply a render setup template to your scene before command line rendering.  Only templates exported via File > Export All in the Render Setup editor are supported.  Render setting presets and AOVs are imported from the template.  Render settings and AOVs are reloaded after the template if the -rsp and -rsa flags are used in conjunction with this flag.
+      -rst string        Same as -rendersetuptemplate
+      -rendersettingspreset string Apply the scene Render Settings from this template file before command line rendering.  This is equivalent to performing File > Import Scene Render Settings in the Render Setup editor, then batch rendering.
+      -rsp string        Same as -rendersettingspreset
+      -rendersettingsaov string Import the AOVs from this json file before command line rendering.
+      -rsa string        Same as -rendersettingsaov
+    
+    Specific options for renderer "renderman": RenderMan renderer
+    
+      -rib                          Output RIB instead of rendering images.
+      -ribFile string               Enables rib output and specifies the output RIB file.
+      -imageFile string             The output image file.
+      -cam string                   The camera.
+      -res int int                  The resoution.
+      -crop float float float float Set the crop window of the final image
+      -bake                         Do a bake pass rather than rendering images.  This causes         PxrBakeTexture nodes to write their output files.
+      -checkpoint string            Checkpoint interval and optional exit time.
+      -rd string                    Directory in which to store image files
+      -of string                    Output image file format.  See the Render Settings window to find available formats
+      -t int                        The number of threads to use for rendering.
+      -jobid string                 The unique jobid (time stamp) to avoid overwriting older/concurent renders.
+    Frame numbering options
+      -s float                      Starting frame for an animation sequence
+      -e float                      End frame for an animation sequence
+      -b float                      By frame (or step) for an animation sequence
+    Render Layers:
+      -rl boolean|name(s)           Render each render layer separately
+    Mel callbacks
+      -preRender string             Mel code executed before rendering
+      -postRender string            Mel code executed after rendering
+      -preLayer string              Mel code executed before each render layer
+      -postLayer string             Mel code executed after each render layer
+      -preFrame string              Mel code executed before each frame
+      -postFrame string             Mel code executed after each frame
+      
+      
+    
+    Maya Batch Rendering from the Command Line
+    You may also use additional flags: -rl (render layer), -crop, -preRender, -postRender, -preLayer, -postLayer, -preFrame, -postFrame, -jobid
+    
+    From a command line use the following:
+    
+    Render -r renderman sceneFile
+    It is also possible to only generate RIB without subsequently rendering.
+    
+    Render -r rib sceneFile
+    A complete list of the options can also be seen by running:
+    
+    Render -r renderman -h
+    If you get a warning like the following, you need to put rmanRenderer.xml and ribRenderer.xml from the RenderMan for Maya installation in a place where Maya can find it.
+    
+    Cannot open renderer description file "rendermanRenderer.xml"
+    You can copy the files from the RenderMan for Maya installation,
+    
+    eg. C:/Program Files/Pixar/RenderManForMaya-22.0/etc/rendermanRenderer.xml
+    Into the directory where Maya looks for these under the Maya installation,
+    
+    eg. C:/Program Files/Autodesk/Maya2018/bin/rendererDesc/
+    Or you can set up the Maya environment variable called MAYA_RENDER_DESC_PATH so that rmanRenderer.xml and ribRenderer.xml will be found.
+    
+    Prman Rendering from the Command Line (Advanced)
+    When doing a maya batch render, RenderMan for Maya generates RIB files and then prman (executable) is launched for those rib files.  However, you may already have RIB files on disk and just want to run prman on them.
+    
+    Job Structure
+    The RIB files generated by RenderMan for Maya live within the maya project.   For example:
+    
+    <maya_project>/renderman/myscene/rib/
+    RIB files are organized into subdirectories for each frame, like 0001, 0002, 0003.  There is also one subdirectory called "job" which is for caches of static objects, and processing commands that do not need to happen every frame, such as converting textures and cleanup.
+    
+    Here is an example of the commands that would typically happen for a three frame job.  Note the use of the -cwd arg to specify the maya project as the current working directory that prman should run out of.  The project relative path to the rib file is supplied as the last argument of the command.  Rib files contain project relative paths by default.
+    
+    prman -t:0 -cwd C:/Users/user/Documents/maya/projects/default/ renderman/test_0725120019/rib/job/job.rib
+    prman -t:0 -cwd C:/Users/user/Documents/maya/projects/default/ renderman/test_0725120019/rib/0001/0001.rib
+    prman -t:0 -cwd C:/Users/user/Documents/maya/projects/default/ renderman/test_0725120019/rib/0002/0002.rib
+    prman -t:0 -cwd C:/Users/user/Documents/maya/projects/default/ renderman/test_0725120019/rib/0003/0003.rib
+    prman -t:0 -cwd C:/Users/user/Documents/maya/projects/default/ renderman/test_0725120019/rib/job/post.rib
+    Each frame rib file, like 0001.rib references other rib files located in the same directory, for each camera or render layer that is active for the frame.  Here is an example of typical contents of a frame directory:
+    
+    renderman/test_0725120019/rib/0001:
+    0001.rib
+    perspShape_Final.0001.rib
+    perspShape_Final.0001.rlf
+    perspShape_Final.0001.xml
+    The file called 0001.rib is the "driver" RIB file for the frame.  It will reference RIB files for each pass (for different cameras or render layers) that occur in the frame.
+    
+    There are some files in the directory that aren't RIB files.  What are those?
+    
+    The user made RLF files (assigned for GPU archives) contain material and binding information.  Materials are injected into the RIB file by a RIF at render time.
+    
+    The XML file is generated during rendering.  It contains diagnostic information about the render.
+
+  '''
 
 
 
