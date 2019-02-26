@@ -137,20 +137,20 @@ class Render(object):
 
         #TODO use command wrapper
         # dab_pre_render layerid start end phase
-        __command = "dab_rfm_pre_render"
-        command_ribgen = self.job.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,"-command", "{command} {layerid} {start} {end} {phase}".format( command=__command, layerid=0, start=int(self.job.jobstartframe), end=int(self.job.jobendframe), phase=1), "-file", self.mayascenefilefullpath], tags=["maya", "theWholeFarm"], atleast=int(self.job.jobthreads),  atmost=int(self.job.jobthreads), service="RfMRibGen")
+        # __command = "dab_rfm_pre_render"
+        # command_ribgen = self.job.author.Command(argv=["maya","-batch","-proj", self.mayaprojectpath,"-command", "{command} {layerid} {start} {end} {phase}".format( command=__command, layerid=0, start=int(self.job.jobstartframe), end=int(self.job.jobendframe), phase=1), "-file", self.mayascenefilefullpath], tags=["maya", "theWholeFarm"], atleast=int(self.job.jobthreads),  atmost=int(self.job.jobthreads), service="RfMRibGen")
 
         #task_permissions_preflight.addCommand(command_permissions1)
         #task_permissions_preflight.addCommand(command_permissions2)
-        task_generate_rib_preflight.addCommand(command_ribgen)
-        task_preflight.addChild(task_permissions_preflight)
-        task_preflight.addChild(task_generate_rib_preflight)
-        task_render_preflight = self.job.author.Task(title="Render Preflight")
-
-        command_render_preflight = self.job.author.Command(argv=[ "prman","-t:{}".format(self.job.jobthreads), "-Progress", "-recover", "%r", "-checkpoint", "5m", "-cwd", self.mayaprojectpath,  "renderman/{}/rib/job/job.rib".format(self.scenebasename)], tags=["prman", "theWholeFarm"],  atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),  service="PixarRender")
-
-        task_render_preflight.addCommand(command_render_preflight)
-        task_preflight.addChild(task_render_preflight)
+        # task_generate_rib_preflight.addCommand(command_ribgen)
+        # task_preflight.addChild(task_permissions_preflight)
+        # task_preflight.addChild(task_generate_rib_preflight)
+        # task_render_preflight = self.job.author.Task(title="Render Preflight")
+        #
+        # command_render_preflight = self.job.author.Command(argv=[ "prman","-t:{}".format(self.job.jobthreads), "-Progress", "-recover", "%r", "-checkpoint", "5m", "-cwd", self.mayaprojectpath,  "renderman/{}/rib/job/job.rib".format(self.scenebasename)], tags=["prman", "theWholeFarm"],  atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),  service="PixarRender")
+        #
+        # task_render_preflight.addCommand(command_render_preflight)
+        # task_preflight.addChild(task_render_preflight)
 
         # ############## 3 RIBGEN ##############
         task_render_allframes = self.job.author.Task(title="ALL FRAMES {}-{}".format(self.job.jobstartframe, self.job.jobendframe))
@@ -177,9 +177,9 @@ class Render(object):
             command_generate_rib = self.job.author.Command(argv=[
                 "Render", "-r","renderman", "-rib",
                 "-proj", self.mayaprojectpath,
-                "-s",_chunkstart,
-                "-e",_chunkend,
-
+                "-s {}".format(_chunkstart),
+                "-e {}".format( _chunkend),
+                "-b {}".format(self.job.jobbyframe),
                 self.mayascenefilefullpath],tags=["maya", "theWholeFarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),service="RfMRibGen")
 
             task_generate_rib.addCommand(command_generate_rib)
