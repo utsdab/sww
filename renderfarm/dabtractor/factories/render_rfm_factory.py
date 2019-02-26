@@ -119,8 +119,8 @@ class Render(object):
         task_preflight = self.job.author.Task(title="Preflight")
         task_preflight.serialsubtasks = 1
         task_thisjob.addChild(task_preflight)
-        task_permissions_preflight  = self.job.author.Task(title="Correct Permissions Preflight")
-        task_generate_rib_preflight = self.job.author.Task(title="Generate RIB Preflight")
+        # task_permissions_preflight  = self.job.author.Task(title="Correct Permissions Preflight")
+        # task_generate_rib_preflight = self.job.author.Task(title="Generate RIB Preflight")
 
         # TODO  this will fail on the .DS files osx creates - need to wrap this up in a python try rxcept clause
         # command_permissions1 = self.job.author.Command(argv=["chmod","-R","g+w", self.mayaprojectpath],
@@ -173,19 +173,16 @@ class Render(object):
                 _chunkend = int(self.job.jobendframe)
             logger.info("Chunk {} is frames {}-{}".format(chunk, _chunkstart, _chunkend))
             task_generate_rib = self.job.author.Task(title="RIB GEN chunk {} frames {}-{}".format( chunk, _chunkstart, _chunkend ))
-            #command_generate_rib = self.job.author.Command(argv=[ "maya", "-batch", "-proj", self.mayaprojectpath, "-command","{command} {layerid} {start} {end} {phase}".format(command = __command, layerid=0, start=_chunkstart, end=_chunkend, phase=2), "-file", self.mayascenefilefullpath],tags=["maya", "theWholeFarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),service="RfMRibGen")
             command_generate_rib = self.job.author.Command(argv=[
                 "Render", "-r","renderman", "-rib",
                 "-proj", self.mayaprojectpath,
-                "-s {}".format(_chunkstart),
-                "-e {}".format( _chunkend),
-                "-b {}".format(self.job.jobbyframe),
-                self.mayascenefilefullpath],tags=["maya", "theWholeFarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),service="RfMRibGen")
-
+                "-s", str(_chunkstart),
+                "-e", str( _chunkend),
+                "-b", str(self.job.jobbyframe),
+                self.mayascenefilefullpath],tags=["maya", "theWholeFarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),service="RfMRibGen",envkey=[self.envkey_rfm,self.envkey_maya])
             task_generate_rib.addCommand(command_generate_rib)
             task_ribgen_allframes.addChild(task_generate_rib)
         task_render_allframes.addChild(task_ribgen_allframes)
-
 
         # ############### 4 RENDER ##############
         task_render_frames = self.job.author.Task(title="RENDER Frames {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
