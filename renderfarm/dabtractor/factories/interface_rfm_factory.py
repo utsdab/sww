@@ -38,8 +38,8 @@ class WindowBase(object):
         try:
             self.job = rfac.Job()
             logger.info("Created job definition")
-        except Exception, err:
-            logger.warn("Couldnt get the job definition {}".format(err))
+        except:
+            pass
         else:
             self.shotgun = self.job.sgtperson
             self.job.shotgunOwner = self.shotgun.shotgunname
@@ -362,12 +362,6 @@ class Window(WindowBase):
         __row += 1
 
         # ###################################################################
-        self.emailtaskend = tk.IntVar()
-        self.emailtaskend.set(0)
-        self.emailtaskendbut=tk.Checkbutton(self.canvas, variable=self.emailtaskend, bg=self.bgcolor1, text="Each Frame End").grid(row=__row, column=1, sticky=tk.W)
-        __row += 1
-
-        # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor3, text="Submit Job To Tractor").grid(row=__row, column=0, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
@@ -449,7 +443,6 @@ class Window(WindowBase):
         else:
             self.sgtClass.set(self.msg_selectSgtClass)
 
-        logger.info("Shotgun Class is {}".format(self.job.shotgunClass))
         self.getSgtSeqAssTypeValues()
 
 
@@ -460,6 +453,7 @@ class Window(WindowBase):
             self.sgtTask.set(self.msg_null)
             self.sgtTaskBox.config(values=[], justify=tk.CENTER)
         except:
+            # logger.warn("Cant set Task {}".format(err))
             pass
 
         if self.sgtClass.get() == "SHOTS":
@@ -478,6 +472,7 @@ class Window(WindowBase):
             self.sgtTask.set(self.msg_null)
             self.sgtTaskBox.config(values=[], justify=tk.CENTER)
         except:
+            # logger.warn("Cant set Task {}".format(err))
             pass
 
         if self.job.shotgunClass == 'ASSETS':
@@ -502,13 +497,13 @@ class Window(WindowBase):
         if self.job.shotgunClass == 'SHOTS':
             try:
                 _ret = self.job.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssetTypeId).keys()
-            except RuntimeError:
-                print "boing"
+            except RuntimeError, err:
+                logger.warn("Cant set Seq {}".format(err))
         elif self.job.shotgunClass == 'ASSETS':
             try:
                 _ret = self.job.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAssetTypeId).keys()
-            except RuntimeError:
-                print "bam"
+            except RuntimeError, err:
+                logger.warn("Cant set Asset {}".format(err))
         _ret.sort()
         self.sgtShotAssBox.configure(values=_ret, justify=tk.CENTER)
 
@@ -519,6 +514,7 @@ class Window(WindowBase):
             self.sgtTaskBox.config(values=[], justify=tk.CENTER)
         except:
             pass
+            # logger.warn("Cant set Task {}".format(err))
 
         if not self.job.shotgunProjectId:
             try:
@@ -526,6 +522,7 @@ class Window(WindowBase):
                 self.sgtTask.set(self.msg_null)
             except:
                 pass
+                # logger.warn("No Shotgun Project {}".format(err))
         else:
             if self.job.shotgunClass == 'SHOTS':
                 self.job.shotgunShotAsset = self.sgtShotAss.get()
@@ -572,10 +569,8 @@ class Window(WindowBase):
         self.filefullpath = tkFileDialog.askopenfilename(\
             parent=self.master,initialdir=self.projfullpath,title=self.msg_selectscene,
             filetypes=[('maya ascii', '.ma'),('maya binary', '.mb')]) # filename not filehandle
-
         _projfullpath=os.path.join(self.job.dabwork,self.job.envtype,self.job.envshow,self.job.envproject)
         _scenerelpath=os.path.relpath(self.filefullpath,_projfullpath)
-
         self.envscenebut["text"] = str(_scenerelpath) if self.filefullpath else self.msg_selectscene
         self.job.envscene=_scenerelpath
 
@@ -638,11 +633,8 @@ class Window(WindowBase):
         self.projfullpath = tkFileDialog.askdirectory(parent=self.master, initialdir=__initialdir, title=self.msg_selectproject)
         _typefullpath = os.path.join(self.job.dabwork,self.job.envtype,self.job.envshow)
         _projectrelpath=os.path.relpath(self.projfullpath,_typefullpath)
-
         _possible = "%s/workspace.mel" % self.projfullpath
-        # print _possible
         if os.path.exists(_possible):
-            # print "ok"
             self.envprojbut["text"] = str(_projectrelpath)  #if self.projfullpath else self.msg_selectproject
             self.workspacelab["text"] = self.msg_workspaceok
             self.workspacelab["bg"] = self.bgcolor3
@@ -653,14 +645,13 @@ class Window(WindowBase):
             self.workspacelab["bg"] = self.bgcolor1
             self.envprojbut["text"] = self.msg_selectproject
             self.envscenebut["text"] = self.msg_selectscene
-
             self.job.envproject=None
             self.job.envscene=None
 
     def consolidate(self):
         try:
             _checkpath=utils.hasBadNaming(self.filefullpath)
-            print _checkpath
+            # print _checkpath
         except Exception, err:
             logger.critical("Problem validating filepath {} : {}".format(self.filefullpath, err))
         else:
@@ -668,28 +659,26 @@ class Window(WindowBase):
                 logger.critical("Problem with naming" % _checkpath)
 
         try:
-            self.job.mayaprojectfullpath=self.projfullpath
-            self.job.mayascenefullpath=self.filefullpath
-            self.job.optionskipframe=self.skipframes.get()  # gets from the tk object
-            self.job.optionmakeproxy=self.makeproxy.get()
-            # self.job.optionresolution=self.resolution.get()
-            self.job.xres=self.job.config.getoptions("resolutions",self.resolution.get())[0]
-            self.job.yres=self.job.config.getoptions("resolutions",self.resolution.get())[1]
-            self.job.optionsendjobstartemail=self.emailjobstart.get()
-            self.job.optionsendjobendemail=self.emailjobend.get()
-            self.job.optionsendtaskendemail=self.emailtaskend.get()
+            self.job.mayaprojectfullpath = self.projfullpath
+            self.job.mayascenefullpath = self.filefullpath
+            self.job.optionskipframe = bool(self.skipframes.get())  # gets from the tk object
+            self.job.optionmakeproxy = bool(self.makeproxy.get())
+            self.job.xres = self.job.config.getoptions("resolutions",self.resolution.get())[0]
+            self.job.yres = self.job.config.getoptions("resolutions",self.resolution.get())[1]
+            self.job.optionsendjobstartemail = bool(self.emailjobstart.get())
+            self.job.optionsendjobendemail = bool(self.emailjobend.get())
             self.job.optionmaxsamples=self.maxsamples.get()  # gets from the tk object
-            self.job.farmtier=self.tier.get()
-            self.job.jobthreads=self.threads.get()
-            self.job.jobstartframe=self.sf.get()
-            self.job.jobendframe=self.ef.get()
-            self.job.jobbyframe=self.bf.get()
-            self.job.jobthreadmemory=self.memory.get()
-            self.job.jobchunks=self.chunks.get()
-            self.job.mayaversion=self.mayaversion.get()
-            self.job.rendermanversion=self.rendermanversion.get()
+            self.job.farmtier = self.tier.get()
+            self.job.jobthreads = self.threads.get()
+            self.job.jobstartframe = self.sf.get()
+            self.job.jobendframe = self.ef.get()
+            self.job.jobbyframe = self.bf.get()
+            self.job.jobthreadmemory = self.memory.get()
+            self.job.jobchunks = self.chunks.get()
+            self.job.mayaversion = self.mayaversion.get()
+            self.job.rendermanversion = self.rendermanversion.get()
         except Exception,err:
-            logger.warn(err)
+            logger.warn("Issue consolidating: {}".format(err))
 
     def validate(self):
         try:
@@ -699,26 +688,31 @@ class Window(WindowBase):
             logger.info("Start: %s" % self.sf.get())
             logger.info("End: %s" % self.ef.get())
             logger.info("By: %s" % self.bf.get())
-            logger.info("Skip Existing Frames: %s" % self.skipframes)
-            logger.info("Make Proxy: %s" % self.makeproxy)
+            logger.info("Skip Existing Frames: %s" % self.skipframes.get())
+            logger.info("Make Proxy: %s" % self.makeproxy.get())
             self.consolidate()
-            rj=rfac.Render(self.job)
-            rj.build()
-            rj.validate()
-
-            #TODO  add in a method to see if this job already exists on the farm
+            if self.filefullpath:
+                rj=rfac.Render(self.job)
+                rj.build()
+                rj.validate()
+                #TODO  add in a method to see if this job already exists on the farm
+            else:
+                logger.warn("************ >>>> PLEASE ENTER A SCENE FILE")
 
         except Exception, validateError:
-            logger.warn("Problem validating %s" % validateError)
+            logger.warn("Problem validating in interface: %s" % validateError)
 
     def submit(self):
         try:
             self.consolidate()
-            self.master.destroy()
-            rj=rfac.Render(self.job)
-            rj.build()
-            rj.validate()
-            rj.spool()
+            if self.filefullpath:
+                self.master.destroy()
+                rj=rfac.Render(self.job)
+                rj.build()
+                rj.validate()
+                rj.spool()
+            else:
+                logger.warn("********** >>>>> PLEASE ENTER A SCENE FILE")
 
         except Exception, submiterror:
             logger.warn("Problem submitting %s" % submiterror)
@@ -728,12 +722,13 @@ class Window(WindowBase):
         self.master.destroy()
 
 
-
 if __name__ == "__main__":
     w=Window()
-    for key in w.job.__dict__.keys():
-        print "{:20} = {}".format(key,w.job.__dict__.get(key))
-
+    try:
+        for key in w.job.__dict__.keys():
+            print "{:20} = {}".format(key,w.job.__dict__.get(key))
+    except Exception, err:
+        logger.warn("Cant show dictionary {}".format(err))
     wb=WindowBase()
 
 
