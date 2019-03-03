@@ -215,6 +215,8 @@ class Render(object):
 
         # ############## 5 PROXY ###############
         if self.job.optionmakeproxy:
+            #TODO  switch to ffmpeg here
+
 
             #### making proxys with rvio
             # TODO we need to find the actual output frames - right now we huess
