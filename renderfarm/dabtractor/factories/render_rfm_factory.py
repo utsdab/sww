@@ -217,23 +217,36 @@ class Render(object):
         if self.job.optionmakeproxy:
             #TODO  switch to ffmpeg here
 
+            task_proxy = self.job.author.Task(title="PROXY MAKE".format(self.job.jobstartframe,self.job.jobendframe))
+            task_rvio_proxy = self.job.author.Task(title="_PROXY RVIO".format(self.job.jobstartframe,self.job.jobendframe))
+            task_ffmpeg_proxy = self.job.author.Task(title="_PROXY FFMPEG".format(self.job.jobstartframe,self.job.jobendframe))
 
             #### making proxys with rvio
             # TODO we need to find the actual output frames - right now we huess
             # (self.job.seqbasename,self.job.seqtemplatename)=utils.getSeqTemplate(self.job.selectedframename)
 
-            self.job.mov = "{}_{}.mov".format(self.scenebasename,utils.getnow())
-            self.job.outmov = os.path.join(self.mayaprojectpath,"movies", self.job.mov)
-            _inseq = "{scene}_beauty.####.exr".format(scene=self.scenebasename)
-            _directory = "{proj}/images/{scene}/".format(proj=self.mayaprojectpath, scene=self.scenebasename)
-            self.job.seq = os.path.join(_directory, _inseq)
+            self.job.proxy_output_base = "{}_{}.mov".format(self.scenebasename,utils.getnow())
+            self.job.proxy_output_base2 = "{}_{}_2.mov".format(self.scenebasename,utils.getnow())
+
+            self.job.proxy_input_seqbase = "{scene}_beauty.####.exr".format(scene=self.scenebasename)
+            self.job.proxy_input_image_seqbase2 = "{scene}_beauty.%04d.exr".format(scene=self.scenebasename)
+
+            self.job.proxy_input_directory = "{proj}/images/{scene}/".format(proj=self.mayaprojectpath, scene=self.scenebasename)
+            self.job.proxy_output_directory = "{proj}/movies/".format(proj=self.mayaprojectpath, scene=self.scenebasename)
+
+            self.job.proxy_input_seq = os.path.join(self.job.proxy_input_directory, self.job.proxy_input_seqbase)
+            self.job.proxy_input_seq2 = os.path.join(self.job.proxy_input_directory, self.job.proxy_input_image_seqbase2)
+
+            self.job.proxy_output = os.path.join(self.job.proxy_output_directory, self.job.proxy_output_base)
+            self.job.proxy_output2 = os.path.join(self.job.proxy_output_directory, self.job.proxy_output_base2)
+
 
             # _imgfile = "{proj}/images/{scenebase}/{scenebase}_beauty.{frame:04d}.{ext}".format( proj=self.mayaprojectpath, scenebase=self.scenebasename, frame=frame, ext=self.outformat)
 
             try:
-                utils.makedirectoriesinpath(os.path.dirname(self.job.outmov))
+                utils.makedirectoriesinpath(os.path.dirname(self.job.proxy_output_directory))
             except Exception, err:
-                logger.warn(err)
+                logger.warn("Cant make proxy output directory {}".format(err))
 
             try:
                 _option1 = "-v -fps 25 -rthreads {threads} -outres {xres} {yres} -t {start}-{end}".format(
@@ -247,20 +260,40 @@ class Render(object):
                               self.job.envtype,
                               self.job.envshow,
                               self.job.envproject,
-                              self.job.mov,
+                              self.job.proxy_output_base,
                               self.job.usernumber,
                               self.job.username,
                               self.job.department,
                               self.thedate)
 
-                _output = "-o %s" % self.job.outmov
-                _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (self.job.seq, _option1, _option2, _option3, _output)) ]
+                _output = "-o %s" % self.job.proxy_output
+                _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (self.job.proxy_input_seq, _option1, _option2, _option3, _output)) ]
                 task_proxy = self.job.author.Task(title="Proxy Generation")
-                proxycommand = self.job.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"], envkey=["rvio"])
-                task_proxy.addCommand(proxycommand)
-                task_job.addChild(task_proxy)
+                rviocommand = self.job.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),envkey=["ShellServices"])
+
+                task_rvio_proxy.addCommand(rviocommand)
+                task_proxy.addChild(task_rvio_proxy)
+
             except Exception, proxyerror:
-                logger.warn("Cant make a proxy {}".format(proxyerror))
+                logger.warn("Cant make an rvio proxy {}".format(proxyerror))
+
+            # ffmpeg proxy
+            # ffmpeg version 4.1 Copyright (c) 2000-2018 the FFmpeg developers is best
+            try:
+                # ffmpeg -y -gamma 2.2 -i rmf22_test_cube_textured_100.0001__perspShape_beauty.%04d.exr -vcodec libx264 -pix_fmt yuv420p -preset slow -crf 18 -filter:v scale=1280:720 -r 25 out.mov
+                _option1 = "-y -gamma 2.2 "
+                _option2 = "-i {input} -vcodec libx264 -pix_fmt yuv420p -preset slow -crf 18 -filter:v scale=1280:720 -r 25 ".format(input = self.job.proxy_input_seq2)
+                _option3 = "{outfile}".format(outfile=self.job.proxy_output2)
+                _cmd = [ utils.expandargumentstring("ffmpeg %s %s %s" % ( _option1, _option2, _option3)) ]
+                ffmpegcommand = self.job.author.Command(argv=_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),envkey=["ShellServices"])
+
+                task_ffmpeg_proxy.addCommand(ffmpegcommand)
+                task_proxy.addChild(task_ffmpeg_proxy)
+
+            except Exception, proxyerror:
+                logger.warn("Cant make an ffmpeg proxy {}".format(proxyerror))
+            task_job.addChild(task_proxy)
+
         else:
             logger.info("make proxy = {}".format(str(self.job.optionmakeproxy)))
 
@@ -276,18 +309,18 @@ class Render(object):
                               "-s", str(self.job.shotgunShotAssetId),
                               "-a", str(self.job.shotgunShotAssetId),
                               "-t", str(self.job.shotgunTaskId),
-                              "-n", self.job.mov,
+                              "-n", self.job.proxy_output_base2,
                               "-d", _description,
-                              "-m", self.job.outmov ]
+                              "-m", self.job.proxy_output2 ]
             elif not self.job.shotgunTaskId:
                 _uploadcmd = ["shotgunupload.py",
                               "-o", str(self.job.shotgunOwnerId),
                               "-p", str(self.job.shotgunProjectId),
                               "-s", str(self.job.shotgunShotAssetId),
                               "-a", str(self.job.shotgunShotAssetId),
-                              "-n", self.job.mov,
+                              "-n", self.job.proxy_output_base2,
                               "-d", _description,
-                              "-m", self.job.outmov ]
+                              "-m", self.job.proxy_output2 ]
             task_upload = self.job.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSeqAssetType,self.job.shotgunShotAsset, self.job.shotgunTask))
             uploadcommand = self.job.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"])
             task_upload.addCommand(uploadcommand)
