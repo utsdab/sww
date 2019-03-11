@@ -162,10 +162,24 @@ class Render(object):
             task_generate_ifd = self.job.author.Task(title="IFD GEN chunk {} frames {}-{}".format( chunk, _chunkstart, _chunkend ))
 
             #TODO is this hrender or hscript
+            __command_hserver = "hserver"
             __command = "hscript -R -i -v 3 -c {command} -f {start} {end} -d {scene}".format( start=_chunkstart, end=_chunkend, scene=self.scenefilefullpath, command="\"render /out/mantra1\"")
             __command2 = "hrender -d {node} -v -f {start} {end} -i {step} -d {scene}".format(node="mantra1", start=_chunkstart, end=_chunkend,step=1,scene=self.scenefilefullpath)
-
-            command_generate_ifd = self.job.author.Command(argv=[ __command ],tags=["houdini", "theWholeFarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads), service="Houdini")
+            command_start_hsever = self.job.author.Command(
+                argv=[ __command_hserver ],
+                tags=["houdini", "theWholeFarm"],
+                samehost = 1,
+                atleast=int(self.job.jobthreads),
+                atmost=int(self.job.jobthreads),
+                service="Houdini")
+            command_generate_ifd = self.job.author.Command(
+                argv=[ __command ],
+                samehost = 1,
+                tags=["houdini", "theWholeFarm"],
+                atleast=int(self.job.jobthreads),
+                atmost=int(self.job.jobthreads),
+                service="Houdini")
+            task_generate_ifd.addCommand(command_start_hsever)
             task_generate_ifd.addCommand(command_generate_ifd)
             task_gen_allframes.addChild(task_generate_ifd)
         task_render_allframes.addChild(task_gen_allframes)
