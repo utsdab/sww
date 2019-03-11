@@ -161,16 +161,18 @@ class Render(object):
                 _chunkend = int(self.job.jobendframe)
             task_generate_ifd = self.job.author.Task(title="IFD GEN chunk {} frames {}-{}".format( chunk, _chunkstart, _chunkend ))
 
-            #TODO is this hrender or hscript
-            __command_hserver = "hserver"
+            #TODO is this hrender or hscript or hbatch
+            __command_hserver = "hserver -f"
             __command = "hscript -R -i -v 3 -c {command} -f {start} {end} -d {scene}".format( start=_chunkstart, end=_chunkend, scene=self.scenefilefullpath, command="\"render /out/mantra1\"")
             __command2 = "hrender -d {node} -v -f {start} {end} -i {step} -d {scene}".format(node="mantra1", start=_chunkstart, end=_chunkend,step=1,scene=self.scenefilefullpath)
+
             command_start_hsever = self.job.author.Command(
                 argv=[ __command_hserver ],
                 tags=["houdini", "theWholeFarm"],
                 samehost = 1,
                 atleast=int(self.job.jobthreads),
                 atmost=int(self.job.jobthreads),
+                envkey=self.envkey_houdini,
                 service="Houdini")
             command_generate_ifd = self.job.author.Command(
                 argv=[ __command ],
@@ -178,6 +180,7 @@ class Render(object):
                 tags=["houdini", "theWholeFarm"],
                 atleast=int(self.job.jobthreads),
                 atmost=int(self.job.jobthreads),
+                envkey=self.envkey_houdini,
                 service="Houdini")
             task_generate_ifd.addCommand(command_start_hsever)
             task_generate_ifd.addCommand(command_generate_ifd)
@@ -213,11 +216,13 @@ class Render(object):
             ])
             _userspecificargs = [ utils.expandargumentstring(self.options)]
             _finalargs = _commonargs + _rendererspecificargs
-            command_render = self.job.author.Command(argv=_finalargs,
-                                            tags=["mantra", "theWholeFarm"],
-                                            atleast=int(self.job.jobthreads),
-                                            atmost=int(self.job.jobthreads),
-                                            service="Houdini")
+            command_render = self.job.author.Command(
+                argv=_finalargs,
+                tags=["mantra", "theWholeFarm"],
+                atleast=int(self.job.jobthreads),
+                atmost=int(self.job.jobthreads),
+                envkey=self.envkey_houdini,
+                service="Houdini")
             task_render_ifd.addCommand(command_render)
 
             # ############## 5 NOTIFY Task END ###############
@@ -263,7 +268,11 @@ class Render(object):
                 _output = "-o %s" % _outmov
                 _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (_seq, _option1, _option2, _option3, _output)) ]
                 task_proxy = self.job.author.Task(title="Proxy Generation")
-                proxycommand = self.job.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"], envkey=["rvio"])
+                proxycommand = self.job.author.Command(
+                    argv=_rvio_cmd,
+                    service="Transcoding",
+                    tags=["rvio", "theWholeFarm"],
+                    envkey=["rvio"])
                 task_proxy.addCommand(proxycommand)
                 task_thisjob.addChild(task_proxy)
             except Exception, proxyerror:
@@ -296,7 +305,10 @@ class Render(object):
                               "-d", _description,
                               "-m", _outmov ]
             task_upload = self.job.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSeqAssetType,self.job.shotgunShotAsset, self.job.shotgunTask))
-            uploadcommand = self.job.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"], envkey=["PixarRender"])
+            uploadcommand = self.job.author.Command(
+                argv=_uploadcmd, service="ShellServices",
+                tags=["shotgun", "theWholeFarm"],
+                envkey=["PixarRender"])
             task_upload.addCommand(uploadcommand)
             task_thisjob.addChild(task_upload)
 
@@ -316,7 +328,9 @@ class Render(object):
             to = self.job.adminemail
         bodystring = "Houdini Render Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
         subjectstring = "FARM JOB: {} {} {} {}".format(level,trigger, str(self.scenebasename), self.job.username)
-        mailcmd = self.job.author.Command(argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
+        mailcmd = self.job.author.Command(
+            argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring],
+            service="ShellServices")
         return mailcmd
 
     def spool(self):
