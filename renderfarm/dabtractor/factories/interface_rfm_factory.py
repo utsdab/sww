@@ -726,7 +726,7 @@ if __name__ == "__main__":
     w=Window()
     try:
         for key in w.job.__dict__.keys():
-            print "{:20} = {}".format(key,w.job.__dict__.get(key))
+            logger.debug( "{:20} = {}".format(key,w.job.__dict__.get(key)))
     except Exception, err:
         logger.warn("Cant show dictionary {}".format(err))
     wb=WindowBase()

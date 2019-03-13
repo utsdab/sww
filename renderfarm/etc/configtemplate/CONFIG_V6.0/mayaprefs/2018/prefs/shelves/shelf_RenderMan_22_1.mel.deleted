@@ -1,0 +1,777 @@
+global proc shelf_RenderMan_22_1 () {
+    global string $gBuffStr;
+    global string $gBuffStr0;
+    global string $gBuffStr1;
+
+
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 0
+        -enable 1
+        -width 8
+        -height 34
+        -manage 0
+        -visible 0
+        -preventOverride 0
+        -annotation "22.1" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "22.1" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Render Current Frame" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Render Current Frame" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_render.png" 
+        -image1 "rm22_render.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "if(!`pluginInfo -q -l \"RenderMan_for_Maya.py\"`) {\n\tevalDeferred \"loadPlugin \\\"RenderMan_for_Maya.py\\\"\";\n}\nelse {\n\tsetCurrentRenderer \"renderman\";\n\trmanPreviewStartCmd();\n}\n" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+        -mi "Preview Render" ( "if(!`pluginInfo -q -l \"RenderMan_for_Maya.py\"`) {\n\tevalDeferred \"loadPlugin \\\"RenderMan_for_Maya.py\\\"\";\n}\nelse {\n\tsetCurrentRenderer \"renderman\";\n\trmanPreviewStartCmd();\n}\n" )
+        -mi "Batch Preview Render" ( "try:\n\timport rfm2.spool.rfm_tractor\n\trfm2.spool.rfm_tractor.batch_preview()\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 64
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Start IPR - Right Click for Options" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Start IPR - Right Click for Options" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_IPR.png" 
+        -image1 "rm22_IPR.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "rmanIprStartCmd()" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+        -mi "Stop IPR" ( "stopIprRendering(`rmanGetRenderWindowPanel`)" )
+        -mi "Flush Texture Cache" ( "try:\n\trfm2.txmanager_maya.invalidate_all_textures()\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 1
+    ;
+    separator
+        -enable 1
+        -width 30
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -style "shelf" 
+        -horizontal 0
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Open \"it\" - The Image Tool" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Open \"it\" - The Image Tool" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_it.png" 
+        -image1 "rm22_it.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "try:\n\trfm2.render.show_it()\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Open \"localqueue\" - Local Maya job queuing system" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Open \"localqueue\" - Local Maya job queuing system" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_localqueue.png" 
+        -image1 "rm22_localqueue.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "try:\n\trfm2.render.show_localqueue()\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    separator
+        -enable 1
+        -width 30
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -style "shelf" 
+        -horizontal 0
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Light - Right Click for Options" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Light - Right Click for Options" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_areaLight.png" 
+        -image1 "rm22_areaLight.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "try:\n\trfm2.api.nodes.create_and_select('PxrRectLight')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+        -mi "PxrRectLight" ( "try:\n\trfm2.api.nodes.create_and_select('PxrRectLight')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 0
+        -mi "PxrDiskLight" ( "try:\n\trfm2.api.nodes.create_and_select('PxrDiskLight')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 1
+        -mi "PxrDistantLight" ( "try:\n\trfm2.api.nodes.create_and_select('PxrDistantLight')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 2
+        -mi "PxrSphereLight" ( "try:\n\trfm2.api.nodes.create_and_select('PxrSphereLight')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 3
+        -mi "PxrAovLight" ( "try:\n\trfm2.api.nodes.create_and_select('PxrAovLight')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 4
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "PxrDomeLight - Right Click for Options" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "PxrDomeLight - Right Click for Options" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_envLight.png" 
+        -image1 "rm22_envLight.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "rfm2.api.nodes.create_and_select('PxrDomeLight')" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+        -mi "PxrDomeLight" ( "try:\n\trfm2.api.nodes.create_and_select('PxrDomeLight')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 0
+        -mi "PxrPortalLight" ( "try:\n\trfm2.api.nodes.create_and_connect_portal('PxrPortalLight')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 1
+        -mi "PxrEnvDayLight" ( "try:\n\trfm2.api.nodes.create_and_select('PxrEnvDayLight')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 2
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "PxrMeshLight - Make Geometry Emissive" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "PxrMeshLight - Make Geometry Emissive" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_emissive_geo.png" 
+        -image1 "rm22_emissive_geo.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "try:\n\trfm2.api.nodes.create_mesh_light()\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Create Light Filter" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Create Light Filter" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_lightBlocker.png" 
+        -image1 "rm22_lightBlocker.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "try:\n\trfm2.api.nodes.create_and_connect_light_filter('PxrRodLighFtilter')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+        -mi "PxrBarnLightFilter" ( "try:\n\trfm2.api.nodes.create_and_connect_light_filter('PxrBarnLightFilter')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 0
+        -mi "PxrBlockerLightFilter" ( "try:\n\trfm2.api.nodes.create_and_connect_light_filter('PxrBlockerLightFilter')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 1
+        -mi "PxrCookieLightFilter" ( "try:\n\trfm2.api.nodes.create_and_connect_light_filter('PxrCookieLightFilter')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 2
+        -mi "PxrGoboLightFilter" ( "try:\n\trfm2.api.nodes.create_and_connect_light_filter('PxrGoboLightFilter')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 3
+        -mi "PxrIntMultLightFilter" ( "try:\n\trfm2.api.nodes.create_and_connect_light_filter('PxrIntMultLightFilter')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 4
+        -mi "PxrRampLightFilter" ( "try:\n\trfm2.api.nodes.create_and_connect_light_filter('PxrRampLightFilter')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 5
+        -mi "PxrRodLightFilter" ( "try:\n\trfm2.api.nodes.create_and_connect_light_filter('PxrRodLightFilter')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 6
+    ;
+    separator
+        -enable 1
+        -width 30
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -style "shelf" 
+        -horizontal 0
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "PxrSurface - Right Click for Options" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "PxrSurface - Right Click for Options" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_luxo.png" 
+        -image1 "rm22_luxo.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "try:\n\trfm2.api.nodes.create_and_assign_bxdf('PxrSurface')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+        -mi "PxrSurface" ( "try:\n\trfm2.api.nodes.create_and_assign_bxdf('PxrSurface')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 0
+        -mi "PxrLayerSurface" ( "try:\n\trfm2.api.nodes.create_and_assign_bxdf('PxrLayerSurface')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 1
+        -mi "PxrMarschnerHair" ( "try:\n\trfm2.api.nodes.create_and_assign_bxdf('PxrMarschnerHair')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 2
+        -mi "PxrDisney" ( "try:\n\trfm2.api.nodes.create_and_assign_bxdf('PxrDisney')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 3
+        -mi "PxrConstant" ( "try:\n\trfm2.api.nodes.create_and_assign_bxdf('PxrConstant')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 4
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Volumes - Right Click for Options" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Volumes - Right Click for Options" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_openvdb.png" 
+        -image1 "rm22_openvdb.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "try:\n\trfm2.api.nodes.create_and_assign_bxdf('PxrVolume')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+        -mi "Create PxrVolume" ( "try:\n\trfm2.api.nodes.create_and_assign_bxdf('PxrVolume')\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 0
+        -mi "Create OpenVDB Visualizer" ( "try:\n\trfm2.api.nodes.create_openvdb()\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Holdout - Create for Selected Geometry" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Holdout - Create for Selected Geometry" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_holdOut.png" 
+        -image1 "rm22_holdOut.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "rfm2.ui.shelf.notImplemented()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+        -mi "Create Holdout" ( "try:\n\trfm2.api.nodes.create_holdout()\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 0
+        -mi "Remove Holdout" ( "try:\n\trfm2.api.nodes.remove_holdout()\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 1
+    ;
+    separator
+        -enable 1
+        -width 30
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -style "shelf" 
+        -horizontal 0
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Create Alembic archives" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Create Alembic archives" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_createArchive.png" 
+        -image1 "rm22_createArchive.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+        -mi "Export Selected for GPU caches..." ( "try:\n\trfm2.utils.abc_support.export(True, True)\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 0
+        -mi "Export Scene for GPU caches..." ( "try:\n\trfm2.utils.abc_support.export(True, False)\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 1
+        -mi "Export Selected for Imported/Referenced caches..." ( "try:\n\trfm2.utils.abc_support.export(False, True)\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 2
+        -mi "Export Scene for Imported/Referenced caches..." ( "try:\n\trfm2.utils.abc_support.export(False, False)\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" )
+        -mip 3
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Open the Dynamic Rule Editor" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Open the Dynamic Rule Editor" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_DynamicRulesEditor.png" 
+        -image1 "rm22_DynamicRulesEditor.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "try:\n\trfm2.ui.rlf_editor.show()\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Open Texture Manager" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Open Texture Manager" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_txmake.png" 
+        -image1 "rm22_txmake.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "try:\n\trfm2.txmanager_maya.show()\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Open Preset Browser" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Open Preset Browser" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_presetBrowser.png" 
+        -image1 "rm22_presetBrowser.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "try:\n\trfm2.ui.assets_browser.show_preset_browser()\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "View Statistics" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "View Statistics" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_viewStatistics.png" 
+        -image1 "rm22_viewStatistics.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "try:\n\trfm2.api.ui_helpers.view_statistics()\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    separator
+        -enable 1
+        -width 30
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -style "shelf" 
+        -horizontal 0
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Load Plugin - RenderMan For Maya" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Load Plugin - RenderMan For Maya" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_loadPlugin.png" 
+        -image1 "rm22_loadPlugin.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "import maya.cmds as mc; import os; mc.evalDeferred(\"mc.loadPlugin(\\\"RenderMan_for_Maya.py\\\")\")" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 35
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Help - Online Documentation" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Help - Online Documentation" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rm22_help.png" 
+        -image1 "rm22_help.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "try:\n\trfm2.api.ui_helpers.show_docs()\nexcept NameError:\n\timport maya.cmds\n\timport maya.utils\n\tmaya.utils.executeDeferred('''maya.cmds.loadPlugin('RenderMan_for_Maya.py')''')\n" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+
+} 

@@ -11,9 +11,9 @@ import renderfarm.dabtractor.factories.utils_factory as utils
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 sh = logging.StreamHandler()
-sh.setLevel(logging.DEBUG)
+sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
@@ -328,12 +328,6 @@ class Window(WindowBase):
         __row += 1
 
         # ###################################################################
-        self.emailtaskend = tk.IntVar()
-        self.emailtaskend.set(0)
-        self.emailtaskendbut=tk.Checkbutton(self.canvas, variable=self.emailtaskend, bg=self.bgcolor1, text="Each Frame End").grid(row=__row, column=1, sticky=tk.W)
-        __row += 1
-
-        # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor3, text="Submit Job To Tractor").grid(row=__row, column=0, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
@@ -625,7 +619,6 @@ class Window(WindowBase):
             self.job.yres=self.job.config.getoptions("resolutions",self.resolution.get())[1]
             self.job.optionsendjobstartemail=self.emailjobstart.get()
             self.job.optionsendjobendemail=self.emailjobend.get()
-            self.job.optionsendtaskendemail=self.emailtaskend.get()
             self.job.optionmaxsamples=self.maxsamples.get()  # gets from the tk object
             self.job.farmtier=self.tier.get()
             self.job.jobthreads=self.threads.get()
@@ -657,13 +650,17 @@ class Window(WindowBase):
             logger.warn("Problem validating %s" % validateError)
 
     def submit(self):
+
         try:
             self.consolidate()
-            self.master.destroy()
-            rj=rfac.Render(self.job)
-            rj.build()
-            rj.validate()
-            rj.spool()
+            if self.filefullpath:
+                self.master.destroy()
+                rj=rfac.Render(self.job)
+                rj.build()
+                rj.validate()
+                rj.spool()
+            else:
+                logger.warn("********** >>>>> PLEASE ENTER A SCENE FILE")
 
         except Exception, submiterror:
             logger.warn("Problem submitting %s" % submiterror)
@@ -676,8 +673,13 @@ class Window(WindowBase):
 
 if __name__ == "__main__":
     w=Window()
-    # for key in w.job.__dict__.keys():
-    #     print "{:20} = {}".format(key,w.job.__dict__.get(key))
+    try:
+        for key in w.job.__dict__.keys():
+            logger.debug( "{:20} = {}".format(key,w.job.__dict__.get(key)))
+    except Exception, err:
+        logger.warn("Cant show dictionary {}".format(err))
+    wb=WindowBase()
+
 
     '''
 Build Interface for Houdini submission

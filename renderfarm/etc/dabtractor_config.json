@@ -14,8 +14,8 @@
   },
 
   "config"            : {
-    "version"         : "CONFIG_V5.0",
-    "template"        : "etc/configtemplate/CONFIG_V5.0"
+    "version"         : "CONFIG_V6.0",
+    "template"        : "etc/configtemplate/CONFIG_V6.0"
   },
 
   "dabrender"         : {

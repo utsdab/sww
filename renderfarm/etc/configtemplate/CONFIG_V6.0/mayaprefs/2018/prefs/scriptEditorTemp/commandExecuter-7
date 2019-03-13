@@ -1,0 +1,19 @@
+import os
+import pprint
+print os.environ["MAYA_PRESET_PATH"]
+
+/Users/Shared/UTS_Dev/gitRepositories/utsdab_repos/usr/etc/maya/dab_presets:
+    /Applications/Autodesk/maya2018/plug-ins/ATF/presets:
+        /Applications/Autodesk/bifrost/maya2018/presets:
+        /Users/Shared/UTS_Dev/gitRepositories/utsdab_repos/usr/etc/maya/dab_modules/DABMOD/presets:
+            /Applications/Autodesk/maya2018/plug-ins/MASH/presets:
+                /Applications/Pixar/RenderManForMaya-22.3/presets:
+                /Applications/Pixar/RenderManForMaya-22.3/presets:
+                    /Applications/Autodesk/maya2018/plug-ins/fbx/presets:
+                    /Applications/Autodesk/maya2018/plug-ins/camd/presets:
+                        /Applications/solidangle/mtoa/2018/presets:
+                        /Applications/Autodesk/maya2018/plug-ins/camd/presets:
+                            /Applications/Autodesk/maya2018/plug-ins/camd/presets:
+                            /Applications/redshift/redshift4maya/presets:
+                                /Applications/Autodesk/maya2018/plug-ins/substance/presets:
+                                /Applications/Autodesk/maya2018/plug-ins/xgen/presets

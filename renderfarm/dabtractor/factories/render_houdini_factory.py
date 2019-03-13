@@ -40,30 +40,31 @@ class Render(object):
     ''' Mantra job defined using the tractor api '''
     def __init__(self, job):
         self.job=job
-        utils.printdict( self.job.__dict__)
+        # utils.printdict( self.job.__dict__)
         self.job.dabwork="$DABWORK"
-        self.projectpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT"
-        self.projectpath = os.path.join(self.job.dabwork, self.job.envtype, self.job.envshow, self.job.envproject)
         self.job.envprojectalias = "$PROJECT"
+        self.projectpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT"
         self.scenefilefullpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/$SCENE"
+        self.renderpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/$SCENENAME"
+        self.renderimagesalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/$SCENENAME/images"
+
+        self.projectpath = os.path.join(self.job.dabwork, self.job.envtype, self.job.envshow, self.job.envproject)
         self.scenefilefullpath = os.path.join( self.job.dabwork, self.job.envtype, self.job.envshow, self.job.envproject,self.job.envscene)
         self.scenename = os.path.basename(self.job.envscene)
         self.scenebasename = os.path.splitext(self.scenename)[0]
         self.sceneext = os.path.splitext(self.scenename)[1]
         self.renderpath = os.path.join( self.job.dabwork, self.job.envtype, self.job.envshow, self.job.envproject,"houdini",self.scenebasename)
-        self.renderpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/$SCENENAME"
         self.renderdirectory = os.path.join(self.renderpath,"images")
-        self.renderimagesalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/$SCENENAME/images"
-        # self.job.houdiniversion = self.job.houdiniversion,
         self.envkey_houdini = "houdini{}".format(self.job.houdiniversion)
         self.options = ""
         self.outformat = "exr"
         self.finaloutputimagebase = "{}/{}".format(self.renderpath,self.scenebasename)
-        # self.proxyoutput = "$DABRENDER/$TYPE/$SHOW/$PROJECT/movies/$SCENENAME_{}.mov".format("datehere")
         self.thedate=time.strftime("%d-%B-%Y")
 
     def build(self):
         ''' Main method to build the job '''
+        logger.info("Starting job BUILD")
+
         # ################# Job Metadata as JSON
         _jobMetaData={}
         _jobMetaData["email"] = self.job.useremail
@@ -80,7 +81,7 @@ class Render(object):
         self.renderjob = self.job.author.Job(title="HOU: {} {} {}-{}".format(
               self.job.username, self.scenename, self.job.jobstartframe, self.job.jobendframe),
               priority=10,
-              envkey=[self.envkey_houdini,"ProjectX",
+              envkey=["ProjectX",
                     "TYPE={}".format(self.job.envtype),
                     "SHOW={}".format(self.job.envshow),
                     "PROJECT={}".format(self.job.envproject),
@@ -91,88 +92,97 @@ class Render(object):
               projects=[str(self.job.department)],
               tier=str(self.job.farmtier),
               tags=["theWholeFarm", ],
-              service="")
+              service="ShellServices")
+
 
         # ############## 0 ThisJob #################
-        task_thisjob = self.job.author.Task(title="Houdini Mantra Job")
-        task_thisjob.serialsubtasks = 1
+        task_job = self.job.author.Task(title="Houdini Mantra Job")
+        task_job.serialsubtasks = 1
 
         # ############## 4 NOTIFY ADMIN OF TASK START ##########
         logger.info("admin email = {}".format(self.job.adminemail))
         task_notify_admin_start = self.job.author.Task(title="Register", service="ShellServices")
-        task_notify_admin_start.addCommand( self.mail(self.job.adminemail,
-                                                      "HOUDINI REGISTER",
-                                                      "{na}".format(na=self.job.username),
-                                                      "{na} {no} {em} {sc}".format(na=self.job.username, no=self.job.usernumber,em=self.job.useremail, sc=self.scenefilefullpath)))
-        task_thisjob.addChild(task_notify_admin_start)
+        task_notify_admin_start.addCommand( self.mail(self.job.adminemail,"HOUDINI REGISTER", "{na}".format(na=self.job.username), "{na} {no} {em} {sc}".format(na=self.job.username, no=self.job.usernumber,em=self.job.useremail, sc=self.scenefilefullpath)))
+        task_job.addChild(task_notify_admin_start)
 
         # ############## 5 NOTIFY USER OF JOB START ###############
         if self.job.optionsendjobstartemail:
             logger.info("email = {}".format(self.job.useremail))
             task_notify_start = self.job.author.Task(title="Notify Start", service="ShellServices")
             task_notify_start.addCommand(self.mail(self.job.useremail, "JOB", "START", "{}".format(self.scenefilefullpath)))
-            task_thisjob.addChild(task_notify_start)
+            task_job.addChild(task_notify_start)
 
         # ####### make a render directory as needed
         _proj = self.projectpath
         _ifdDir = os.path.join(_proj,"ifd",self.scenebasename)
         _imgDir = os.path.join(_proj,"render",self.scenebasename)
         task_prefilight = self.job.author.Task(title="Make render directory")
+
         command_mkdirs1 = self.job.author.Command(argv=[ "mkdir","-p", _ifdDir ],
-                    tags=["houdini", "theWholeFarm"],
-                    atleast=1,
-                    atmost=1,
-                    service="Houdini")
+                tags=["houdini", "theWholeFarm"],
+                atleast=int(self.job.jobthreads),
+                atmost=int(self.job.jobthreads),
+                service="ShellServices")
         command_mkdirs4 = self.job.author.Command(argv=[ "mkdir", "-p",_imgDir ],
-                    tags=["houdini", "theWholeFarm"],
-                    atleast=1,
-                    atmost=1,
-                    service="Houdini")
+                tags=["houdini", "theWholeFarm"],
+                atleast=int(self.job.jobthreads),
+                atmost=int(self.job.jobthreads),
+                service="ShellServices")
+
         task_prefilight.addCommand(command_mkdirs1)
         task_prefilight.addCommand(command_mkdirs4)
-        task_thisjob.addChild(task_prefilight)
+        task_job.addChild(task_prefilight)
 
         # ############## 3 GENERATE INTERMEDIATE FILES ##############
-        task_render_allframes = self.job.author.Task(title="ALL FRAMES {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
+        task_render_allframes = self.job.author.Task(title="RENDER FRAMES")
         task_render_allframes.serialsubtasks = 1
-        task_gen_allframes = self.job.author.Task(title="IFD GEN {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
+        task_gen_allframes = self.job.author.Task(title="IFDGEN {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
 
         # divide the frame range up into chunks
         _totalframes = int(self.job.jobendframe) - int(self.job.jobstartframe) + 1
         _chunks = int(self.job.jobchunks)
-        _framesperchunk=_totalframes
+        _framesperchunk = _totalframes
         if _chunks < _totalframes:
-            _framesperchunk=int(_totalframes/_chunks)
+            _framesperchunk = int( _totalframes / _chunks )
         else:
-            _chunks=1
+            _chunks = 1
 
         #TODO not needed now - can use quotes
         '''
-        hscript  -R -v 3 -i -c "render /out/mantra1" -c "quit" /Volumes/dabrender/work/project_work/mattg/TESTING_Renderfarm/HoudiniProjects/houdini17_test_01/primitives_test.hipnc
+        hscript  -v 3 -c "render /out/mantra1" -c "quit" /Volumes/dabrender/work/project_work/mattg/TESTING_Renderfarm/HoudiniProjects/houdini17_test_01/primitives_test.hipnc
         hrender /Users/Shared/UTS_Jobs/TESTING_HOUDINI/HoudiniProjects/testProject01/scripts/torus1.hipnc -d mantra1 -v -f 1 240 -i 1
         '''
 
-        # loop thru chunks
         for i, chunk in enumerate(range( 1, _chunks + 1 )):
             _offset = i * _framesperchunk
             _chunkstart = int(self.job.jobstartframe) + _offset
             _chunkend = _chunkstart + _framesperchunk - 1
             if chunk >= _chunks:
                 _chunkend = int(self.job.jobendframe)
-            task_generate_ifd = self.job.author.Task(title="IFD GEN chunk {} frames {}-{}".format( chunk, _chunkstart, _chunkend ))
+            logger.info("Chunk {} is frames {}-{}".format(chunk, _chunkstart, _chunkend))
+            task_generate_ifd = self.job.author.Task(title="_IFDGEN Chunk {} frames {}-{}".format( chunk, _chunkstart, _chunkend ))
 
             #TODO is this hrender or hscript
-            __command = "hscript -R -i -v 3 -c {command} -f {start} {end} -d {scene}".format( start=_chunkstart, end=_chunkend, scene=self.scenefilefullpath, command="\"render /out/mantra1\"")
+            __command = "hscript -v 3 -c {command} -f {start} {end} -d {scene}".format( start=_chunkstart, end=_chunkend, scene=self.scenefilefullpath, command="\"render /out/mantra1\"")
             __command2 = "hrender -d {node} -v -f {start} {end} -i {step} -d {scene}".format(node="mantra1", start=_chunkstart, end=_chunkend,step=1,scene=self.scenefilefullpath)
 
-            command_generate_ifd = self.job.author.Command(argv=[ __command ],tags=["houdini", "theWholeFarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads), service="Houdini")
+            command_generate_ifd = self.job.author.Command(
+                argv=[ __command2 ],
+                tags=["houdini", "theWholeFarm"],
+                atleast=int(self.job.jobthreads),
+                atmost=int(self.job.jobthreads),
+                service="Houdini",
+                envkey=[self.envkey_houdini])
+
             task_generate_ifd.addCommand(command_generate_ifd)
             task_gen_allframes.addChild(task_generate_ifd)
+
         task_render_allframes.addChild(task_gen_allframes)
 
         # ############### 4 RENDER ##############
-        task_render_frames = self.job.author.Task(title="RENDER Frames {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
+        task_render_frames = self.job.author.Task(title="RENDER {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
         task_render_frames.serialsubtasks = 0
+
         for frame in range( int(self.job.jobstartframe), int(self.job.jobendframe) + 1, int(self.job.jobbyframe) ):
             # ################# Job Metadata as JSON
             _ifdfile = "{dir}/{scenebase}.{frame:04d}.ifd".format(dir=_ifdDir, scenebase=self.scenebasename, frame=frame)
@@ -183,56 +193,82 @@ class Render(object):
             _taskMetaData["ifdfile"] = _ifdfile
             _taskMetaData["shotgunupload"] = _shotgunupload
             _jsontaskMetaData = json.dumps(_taskMetaData)
-            _title = "RENDER Frame {}".format(frame)
-            task_render_ifd = self.job.author.Task(title=_title, metadata=_jsontaskMetaData)
+            _title = "_RENDER Frame {}".format(frame)
 
-            _commonargs = [ "mantra", "-f", _ifdfile, _outfile ]
-            _rendererspecificargs = [ "-V", "3", ]
+            task_render_ifd = self.job.author.Task(
+                title=_title,
+                atleast=int(self.job.jobthreads),
+                atmost=int(self.job.jobthreads),
+                service="Houdini",
+            )
 
-            # if self.job.optionmaxsamples != "FROMFILE":
-            # rendererspecificargs.extend([ "-maxsamples", "{}".format(self.job.optionmaxsamples) ])
-            # if self.job.jobthreadmemory != "FROMFILE":
-            #     rendererspecificargs.extend([ "-memorylimit", "{}".format(self.job.jobthreadmemory) ])
+            commonargs = [ "mantra", "-f", _ifdfile, _outfile ]
+            rendererspecificargs = [ "-V", "3", ]
+            rendererspecificargs.extend([ "-t", "{}".format(int(self.job.jobthreads)), ])
+            userspecificargs = [ utils.expandargumentstring(self.options)]
+            finalargs = commonargs + rendererspecificargs + userspecificargs
 
-            _rendererspecificargs.extend([
-                "-t", "{}".format(self.job.jobthreads),
-            ])
-            _userspecificargs = [ utils.expandargumentstring(self.options)]
-            _finalargs = _commonargs + _rendererspecificargs
-            command_render = self.job.author.Command(argv=_finalargs,
-                                            tags=["mantra", "theWholeFarm"],
-                                            atleast=int(self.job.jobthreads),
-                                            atmost=int(self.job.jobthreads),
-                                            service="Houdini")
+            command_render = self.job.author.Command(
+                argv=finalargs,
+                service = "Houdini",
+                tags=["houdini", "theWholeFarm"],
+                samehost = 1,
+                atleast=int(self.job.jobthreads),
+                atmost=int(self.job.jobthreads),
+                envkey=[self.envkey_houdini]
+            )
+
+            # task_render_ifd.addCommand(command_environment_init1)
+            # task_render_ifd.addCommand(command_environment_init2)
+            # task_render_ifd.addCommand(command_environment_init3)
+            # task_render_ifd.addCommand(command_environment_init4)
             task_render_ifd.addCommand(command_render)
 
-            # ############## 5 NOTIFY Task END ###############
-            if self.job.optionsendtaskendemail:
-                task_render_ifd.addCommand(self.mail("TASK FRAME {}".format(frame), "END", "{}".format(
-                    self.scenefilefullpath)))
             task_render_frames.addChild(task_render_ifd)
+
         task_render_allframes.addChild(task_render_frames)
-        task_thisjob.addChild(task_render_allframes)
+        task_job.addChild(task_render_allframes)
 
         # ############## 5 PROXY ###############
         if self.job.optionmakeproxy:
+            #TODO  switch to ffmpeg here
+
+            task_proxy = self.job.author.Task(title="PROXY MAKE".format(self.job.jobstartframe,self.job.jobendframe))
+            task_rvio_proxy = self.job.author.Task(title="_PROXY RVIO".format(self.job.jobstartframe,self.job.jobendframe))
+            task_ffmpeg_proxy = self.job.author.Task(title="_PROXY FFMPEG".format(self.job.jobstartframe,self.job.jobendframe))
+
             #### making proxys with rvio
             # TODO we need to find the actual output frames - right now we huess
             # (self.job.seqbasename,self.job.seqtemplatename)=utils.getSeqTemplate(self.job.selectedframename)
-            _mov = "{}_{}.mov".format(self.scenebasename,utils.getnow())
-            _outmov = os.path.join(self.projectpath,"movies",_mov)
-            _inseq = "{}.####.exr".format(self.scenebasename)    #cameraShape1/StillLife.####.exr"
-            _directory = "{}/render/{}/images".format(self.projectpath, self.scenebasename)
-            _seq = os.path.join(_directory, _inseq)
+
+            self.job.proxy_output_base = "{}_{}.mov".format(self.scenebasename,utils.getnow())
+            self.job.proxy_output_base2 = "{}_{}_2.mov".format(self.scenebasename,utils.getnow())
+
+            self.job.proxy_input_seqbase = "{scene}_beauty.####.exr".format(scene=self.scenebasename)
+            self.job.proxy_input_image_seqbase2 = "{scene}_beauty.%04d.exr".format(scene=self.scenebasename)
+
+            self.job.proxy_input_directory = "{proj}/images/{scene}/".format(proj=self.projectpath, scene=self.scenebasename)
+            self.job.proxy_output_directory = "{proj}/movies/".format(proj=self.projectpath, scene=self.scenebasename)
+
+            self.job.proxy_input_seq = os.path.join(self.job.proxy_input_directory, self.job.proxy_input_seqbase)
+            self.job.proxy_input_seq2 = os.path.join(self.job.proxy_input_directory, self.job.proxy_input_image_seqbase2)
+
+            self.job.proxy_output = os.path.join(self.job.proxy_output_directory, self.job.proxy_output_base)
+            self.job.proxy_output2 = os.path.join(self.job.proxy_output_directory, self.job.proxy_output_base2)
+
+
+            # _imgfile = "{proj}/images/{scenebase}/{scenebase}_beauty.{frame:04d}.{ext}".format( proj=self.projectpath, scenebase=self.scenebasename, frame=frame, ext=self.outformat)
+
             try:
-                utils.makedirectoriesinpath(os.path.dirname(_outmov))
+                utils.makedirectoriesinpath(os.path.dirname(self.job.proxy_output_directory))
             except Exception, err:
-                logger.warn(err)
+                logger.warn("Cant make proxy output directory {}".format(err))
+
             try:
                 _option1 = "-v -fps 25 -rthreads {threads} -outres {xres} {yres} -t {start}-{end}".format(
                            threads="4",
                            xres="1280",
-                           yres = "720",
+                           yres="720",
                            start=self.job.jobstartframe,
                            end=self.job.jobendframe)
                 _option2 = "-out8 -outgamma 2.2"
@@ -240,22 +276,42 @@ class Render(object):
                               self.job.envtype,
                               self.job.envshow,
                               self.job.envproject,
-                              # self.scenebasename,
-                              _mov,
+                              self.job.proxy_output_base,
                               self.job.usernumber,
                               self.job.username,
                               self.job.department,
                               self.thedate)
-                _output = "-o %s" % _outmov
-                _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (_seq, _option1, _option2, _option3, _output)) ]
+
+                _output = "-o %s" % self.job.proxy_output
+                _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (self.job.proxy_input_seq, _option1, _option2, _option3, _output)) ]
                 task_proxy = self.job.author.Task(title="Proxy Generation")
-                proxycommand = self.job.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"], envkey=["rvio"])
-                task_proxy.addCommand(proxycommand)
-                task_thisjob.addChild(task_proxy)
+                rviocommand = self.job.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),envkey=["ShellServices"])
+
+                task_rvio_proxy.addCommand(rviocommand)
+                task_proxy.addChild(task_rvio_proxy)
+
             except Exception, proxyerror:
-                logger.warn("Cant make a proxy {}".format(proxyerror))
+                logger.warn("Cant make an rvio proxy {}".format(proxyerror))
+
+            # ffmpeg proxy
+            # ffmpeg version 4.1 Copyright (c) 2000-2018 the FFmpeg developers is best
+            try:
+                # ffmpeg -y -gamma 2.2 -i rmf22_test_cube_textured_100.0001__perspShape_beauty.%04d.exr -vcodec libx264 -pix_fmt yuv420p -preset slow -crf 18 -filter:v scale=1280:720 -r 25 out.mov
+                _option1 = "-y -gamma 2.2 "
+                _option2 = "-i {input} -vcodec libx264 -pix_fmt yuv420p -preset slow -crf 18 -filter:v scale=1280:720 -r 25 ".format(input = self.job.proxy_input_seq2)
+                _option3 = "{outfile}".format(outfile=self.job.proxy_output2)
+                _cmd = [ utils.expandargumentstring("ffmpeg %s %s %s" % ( _option1, _option2, _option3)) ]
+                ffmpegcommand = self.job.author.Command(argv=_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),envkey=["ShellServices"])
+
+                task_ffmpeg_proxy.addCommand(ffmpegcommand)
+                task_proxy.addChild(task_ffmpeg_proxy)
+
+            except Exception, proxyerror:
+                logger.warn("Cant make an ffmpeg proxy {}".format(proxyerror))
+            task_job.addChild(task_proxy)
+
         else:
-            logger.info("make proxy = {}".format(self.job.optionmakeproxy))
+            logger.info("make proxy = {}".format(str(self.job.optionmakeproxy)))
 
         # ############## 6 SEND TO SHOTGUN ###############
         if self.job.sendToShotgun:
@@ -264,56 +320,62 @@ class Render(object):
             _uploadcmd = ""
             if self.job.shotgunTaskId:
                 _uploadcmd = ["shotgunupload.py",
-                              "-o", self.job.shotgunOwnerId,
-                              "-p", self.job.shotgunProjectId,
-                              "-s", self.job.shotgunShotAssetId,
-                              "-a", self.job.shotgunShotAssetId,
-                              "-t", self.job.shotgunTaskId,
-                              "-n", _mov,
+                              "-o", str(self.job.shotgunOwnerId),
+                              "-p", str(self.job.shotgunProjectId),
+                              "-s", str(self.job.shotgunShotAssetId),
+                              "-a", str(self.job.shotgunShotAssetId),
+                              "-t", str(self.job.shotgunTaskId),
+                              "-n", self.job.proxy_output_base2,
                               "-d", _description,
-                              "-m", _outmov ]
+                              "-m", self.job.proxy_output2 ]
             elif not self.job.shotgunTaskId:
                 _uploadcmd = ["shotgunupload.py",
-                              "-o", self.job.shotgunOwnerId,
-                              "-p", self.job.shotgunProjectId,
-                              "-s", self.job.shotgunShotAssetId,
-                              "-a", self.job.shotgunShotAssetId,
-                              "-n", _mov,
+                              "-o", str(self.job.shotgunOwnerId),
+                              "-p", str(self.job.shotgunProjectId),
+                              "-s", str(self.job.shotgunShotAssetId),
+                              "-a", str(self.job.shotgunShotAssetId),
+                              "-n", self.job.proxy_output_base2,
                               "-d", _description,
-                              "-m", _outmov ]
+                              "-m", self.job.proxy_output2 ]
             task_upload = self.job.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSeqAssetType,self.job.shotgunShotAsset, self.job.shotgunTask))
-            uploadcommand = self.job.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"], envkey=["PixarRender"])
+            uploadcommand = self.job.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"])
             task_upload.addCommand(uploadcommand)
-            task_thisjob.addChild(task_upload)
+            task_job.addChild(task_upload)
 
         # ############## 5 NOTIFY JOB END ###############
         if self.job.optionsendjobendemail:
             logger.info("email = {}".format(self.job.useremail))
             task_notify_end = self.job.author.Task(title="Notify End", service="ShellServices")
             task_notify_end.addCommand(self.mail(self.job.useremail, "JOB", "COMPLETE", "{}".format(self.scenefilefullpath)))
-            task_thisjob.addChild(task_notify_end)
-        self.renderjob.addChild(task_thisjob)
+            task_job.addChild(task_notify_end)
+        self.renderjob.addChild(task_job)
+        logger.info("Ending job BUILD")
 
     def validate(self):
-        logger.info("\n\n{:_^80}\n{}\n{:_^80}".format("snip", self.renderjob.asTcl(), "snip"))
+        #TODO  check to see if there is already this job on the farm
+        logger.info("Starting job VALIDATE")
+        logger.info("\n\n{:_^80}\n{}\n{:_^80}".format("snip", self.renderjob.asTcl(),"snip"))
+        logger.info("Ending job VALIDATE")
 
     def mail(self, to=None, level="Level", trigger="Trigger", body="Render Progress Body"):
         if not to:
             to = self.job.adminemail
         bodystring = "Houdini Render Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
         subjectstring = "FARM JOB: {} {} {} {}".format(level,trigger, str(self.scenebasename), self.job.username)
-        mailcmd = self.job.author.Command(argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
+        mailcmd = self.job.author.Command(
+            argv=["sendmail.py", "-t", to, "-b", bodystring, "-s", subjectstring],
+            service="ShellServices")
         return mailcmd
 
     def spool(self):
         # double check scene file exists
+        logger.info("Starting job SPOOL")
         logger.info("Double Checking: {}".format(os.path.expandvars(self.scenefilefullpath)))
         if os.path.exists(os.path.expandvars(self.scenefilefullpath)):
             try:
                 logger.info("Spooled correctly")
                 # all jobs owner by pixar user on the farm
                 self.renderjob.spool(owner=self.job.config.getdefault("tractor","jobowner"),port=int(self.job.config.getdefault("tractor","port")))
-
             except Exception, spoolerr:
                 logger.warn("A spool error %s" % spoolerr)
         else:
@@ -322,43 +384,12 @@ class Render(object):
             logger.critical(os.path.normpath(self.scenefilefullpath))
             logger.critical(os.path.expandvars(self.scenefilefullpath))
             sys.exit(message)
+        logger.info("Ending job SPOOL")
+
 
 ###############################################################################
 if __name__ == "__main__":
-    logger.setLevel(logging.INFO)
-    # logger.info("START TESTING")
-    #
-    #
-    #
-    # TEST = Render(
-    #                    envdabrender="/Volumes/dabrender",
-    #                    envproject="testFarm",
-    #                    envshow="matthewgidney",
-    #                    envscene="dottyrms.ma",
-    #                    envtype="user_work",
-    #                    # seqfullpath="/usr/local/tmp/scene/file.ma",
-    #                    # mayaprojectpath="/usr/local/tmp/",
-    #                    # mayaversion="2016",
-    #                    # rendermanversion="20.2",
-    #                    startframe=1,
-    #                    endframe=12,
-    #                    byframe=1,
-    #                    outformat="exr",
-    #                    resolution="540p",
-    #                    options="",
-    #                    skipframes=1,
-    #                    makeproxy=1,
-    #                    threadmemory="4000",
-    #                    rendermaxsamples="128",
-    #                    threads="4",
-    #                    ribgenchunks=3,
-    #                    email=[1, 0, 0, 0, 1, 0]
-    # )
-    # TEST.build()
-    # TEST.validate()
-    # logger.info("FINISHED TESTING")
-
-
+    logger.setLevel(logging.DEBUG)
 '''
 
 ASSUMPTION
