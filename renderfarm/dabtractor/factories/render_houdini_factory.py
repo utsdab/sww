@@ -163,9 +163,10 @@ class Render(object):
             task_generate_ifd = self.job.author.Task(title="_IFDGEN Chunk {} frames {}-{}".format( chunk, _chunkstart, _chunkend ))
 
             #TODO is this hrender or hscript
-            __command = "hscript -v 3 -c {command} -f {start} {end} -d {scene}".format( start=_chunkstart, end=_chunkend, scene=self.scenefilefullpath, command="\"render /out/mantra1\"")
-            __command2 = "hrender -d {node} -v -f {start} {end} -i {step} -d {scene}".format(node="mantra1", start=_chunkstart, end=_chunkend,step=1,scene=self.scenefilefullpath)
-
+            #TODO is this hrender or hscript or hbatch
+            __command_hserver = "sesictrl -f"
+            __command = "hscript -R -i -v 3 -c {command} -c {quit} -f {start} {end} -d {scene}".format(
+                start=_chunkstart,
             command_generate_ifd = self.job.author.Command(
                 argv=[ __command2 ],
                 tags=["houdini", "theWholeFarm"],
@@ -193,35 +194,30 @@ class Render(object):
             _taskMetaData["ifdfile"] = _ifdfile
             _taskMetaData["shotgunupload"] = _shotgunupload
             _jsontaskMetaData = json.dumps(_taskMetaData)
-            _title = "_RENDER Frame {}".format(frame)
-
-            task_render_ifd = self.job.author.Task(
                 title=_title,
-                atleast=int(self.job.jobthreads),
-                atmost=int(self.job.jobthreads),
-                service="Houdini",
-            )
+            _title = "RENDER Frame {}".format(frame)
+            task_render_ifd = self.job.author.Task(title=_title, metadata=_jsontaskMetaData)
 
-            commonargs = [ "mantra", "-f", _ifdfile, _outfile ]
-            rendererspecificargs = [ "-V", "3", ]
-            rendererspecificargs.extend([ "-t", "{}".format(int(self.job.jobthreads)), ])
-            userspecificargs = [ utils.expandargumentstring(self.options)]
-            finalargs = commonargs + rendererspecificargs + userspecificargs
+            _commonargs = [ "mantra", "-f", _ifdfile, _outfile ]
+            _rendererspecificargs = [ "-V", "3", ]
 
+            # if self.job.optionmaxsamples != "FROMFILE":
+            # rendererspecificargs.extend([ "-maxsamples", "{}".format(self.job.optionmaxsamples) ])
+            # if self.job.jobthreadmemory != "FROMFILE":
+            #     rendererspecificargs.extend([ "-memorylimit", "{}".format(self.job.jobthreadmemory) ])
+
+            _rendererspecificargs.extend([
+                "-t", "{}".format(self.job.jobthreads),
+            ])
+            _userspecificargs = [ utils.expandargumentstring(self.options)]
+            _finalargs = _commonargs + _rendererspecificargs
             command_render = self.job.author.Command(
-                argv=finalargs,
-                service = "Houdini",
-                tags=["houdini", "theWholeFarm"],
-                samehost = 1,
+                argv=_finalargs,
+                tags=["mantra", "theWholeFarm"],
                 atleast=int(self.job.jobthreads),
                 atmost=int(self.job.jobthreads),
-                envkey=[self.envkey_houdini]
-            )
-
-            # task_render_ifd.addCommand(command_environment_init1)
-            # task_render_ifd.addCommand(command_environment_init2)
-            # task_render_ifd.addCommand(command_environment_init3)
-            # task_render_ifd.addCommand(command_environment_init4)
+                envkey=[self.envkey_houdini],
+                service="Houdini")
             task_render_ifd.addCommand(command_render)
 
             task_render_frames.addChild(task_render_ifd)
@@ -338,7 +334,11 @@ class Render(object):
                               "-d", _description,
                               "-m", self.job.proxy_output2 ]
             task_upload = self.job.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSeqAssetType,self.job.shotgunShotAsset, self.job.shotgunTask))
-            uploadcommand = self.job.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"])
+
+            uploadcommand = self.job.author.Command(
+                argv=_uploadcmd, service="ShellServices",
+                tags=["shotgun", "theWholeFarm"],
+                envkey=["PixarRender"])
             task_upload.addCommand(uploadcommand)
             task_job.addChild(task_upload)
 

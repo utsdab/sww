@@ -125,9 +125,14 @@ class Render(object):
         #     "-filter","catmull-rom","-resize","up-","-compression","lossless","-newer","infile","outfile",],
         #     tags=["maya", "theWholeFarm"], atleast=int(self.job.jobthreads),  atmost=int(self.job.jobthreads), service="PixarRender",envkey=[self.envkey_rfm])
         #TODO  handle texture making
-        command_txmake = self.job.author.Command(argv=[
-            "echo","this is just a placeholder til 22.4",],
-            tags=["maya", "theWholeFarm"], atleast=int(self.job.jobthreads),  atmost=int(self.job.jobthreads), service="PixarRender",envkey=[self.envkey_rfm])
+
+        command_txmake = self.job.author.Command(
+            argv=["ls","-l",],
+            tags=["maya", "theWholeFarm"],
+            atleast=int(self.job.jobthreads),
+            atmost=int(self.job.jobthreads),
+            service="PixarRender",
+            envkey=[self.envkey_rfm])
 
         task_generate_textures_preflight.addCommand(command_txmake)
         task_preflight.addChild(task_generate_textures_preflight)
@@ -137,6 +142,7 @@ class Render(object):
         task_render_allframes = self.job.author.Task(title="RENDER FRAMES")
         task_render_allframes.serialsubtasks = 1
         task_ribgen_allframes = self.job.author.Task(title="RIBGEN {}-{}".format(self.job.jobstartframe, self.job.jobendframe))
+
 
         # divide the frame range up into chunks
         _totalframes = int(self.job.jobendframe) - int(self.job.jobstartframe) + 1
@@ -156,7 +162,8 @@ class Render(object):
             logger.info("Chunk {} is frames {}-{}".format(chunk, _chunkstart, _chunkend))
             task_generate_rib = self.job.author.Task(title="_RIBGEN Chunk {} frames {}-{}".format( chunk, _chunkstart, _chunkend ))
 
-            command_generate_rib = self.job.author.Command( argv=[
+            command_generate_rib = self.job.author.Command(
+                argv=[
                 "Render", "-r","renderman", "-rib",
                 "-proj", self.projectpath,
                 "-preRender", "dab_rfm_pre_render_mel",
@@ -276,7 +283,12 @@ class Render(object):
                 _output = "-o %s" % self.job.proxy_output
                 _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (self.job.proxy_input_seq, _option1, _option2, _option3, _output)) ]
                 task_proxy = self.job.author.Task(title="Proxy Generation")
-                rviocommand = self.job.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),envkey=["ShellServices"])
+                rviocommand = self.job.author.Command(
+                    argv=_rvio_cmd, service="Transcoding",
+                    tags=["rvio", "theWholeFarm"],
+                    atleast=int(self.job.jobthreads),
+                    atmost=int(self.job.jobthreads),
+                    envkey=["ShellServices"])
 
                 task_rvio_proxy.addCommand(rviocommand)
                 task_proxy.addChild(task_rvio_proxy)
@@ -292,7 +304,12 @@ class Render(object):
                 _option2 = "-i {input} -vcodec libx264 -pix_fmt yuv420p -preset slow -crf 18 -filter:v scale=1280:720 -r 25 ".format(input = self.job.proxy_input_seq2)
                 _option3 = "{outfile}".format(outfile=self.job.proxy_output2)
                 _cmd = [ utils.expandargumentstring("ffmpeg %s %s %s" % ( _option1, _option2, _option3)) ]
-                ffmpegcommand = self.job.author.Command(argv=_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),envkey=["ShellServices"])
+                ffmpegcommand = self.job.author.Command(
+                    argv=_cmd, service="Transcoding",
+                    tags=["rvio", "theWholeFarm"],
+                    atleast=int(self.job.jobthreads),
+                    atmost=int(self.job.jobthreads),
+                    envkey=["ShellServices"])
 
                 task_ffmpeg_proxy.addCommand(ffmpegcommand)
                 task_proxy.addChild(task_ffmpeg_proxy)
@@ -329,7 +346,10 @@ class Render(object):
                               "-d", _description,
                               "-m", self.job.proxy_output2 ]
             task_upload = self.job.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSeqAssetType,self.job.shotgunShotAsset, self.job.shotgunTask))
-            uploadcommand = self.job.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"])
+            uploadcommand = self.job.author.Command(
+                argv=_uploadcmd,
+                service="ShellServices",
+                tags=["shotgun", "theWholeFarm"])
             task_upload.addCommand(uploadcommand)
             task_job.addChild(task_upload)
 
