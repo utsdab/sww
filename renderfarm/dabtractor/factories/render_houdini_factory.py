@@ -162,19 +162,37 @@ class Render(object):
             logger.info("Chunk {} is frames {}-{}".format(chunk, _chunkstart, _chunkend))
             task_generate_ifd = self.job.author.Task(title="_IFDGEN Chunk {} frames {}-{}".format( chunk, _chunkstart, _chunkend ))
 
-            #TODO is this hrender or hscript
             #TODO is this hrender or hscript or hbatch
             __command_hserver = "sesictrl -f"
             __command = "hscript -R -i -v 3 -c {command} -c {quit} -f {start} {end} -d {scene}".format(
                 start=_chunkstart,
+                end=_chunkend,
+                scene=self.scenefilefullpath,
+                command="\'render /out/mantra1\'",
+                quit = "quit")
+            __command2 = "hrender {scene} -d {node} -v -e -f {start} {end} -i {step}".format(
+                node="mantra1",
+                start=_chunkstart,
+                end=_chunkend,
+                step=1,
+                scene=self.scenefilefullpath)
+            command_start_hsever = self.job.author.Command(
+                argv=[ __command_hserver ],
+                tags=["houdini", "theWholeFarm"],
+                samehost = 1,
+                atleast=int(self.job.jobthreads),
+                atmost=int(self.job.jobthreads),
+                envkey=[self.envkey_houdini],
+                service="Houdini")
             command_generate_ifd = self.job.author.Command(
                 argv=[ __command2 ],
+                samehost = 1,
                 tags=["houdini", "theWholeFarm"],
                 atleast=int(self.job.jobthreads),
                 atmost=int(self.job.jobthreads),
-                service="Houdini",
-                envkey=[self.envkey_houdini])
-
+                envkey=[self.envkey_houdini],
+                service="Houdini")
+            task_generate_ifd.addCommand(command_start_hsever)
             task_generate_ifd.addCommand(command_generate_ifd)
             task_gen_allframes.addChild(task_generate_ifd)
 
@@ -194,7 +212,6 @@ class Render(object):
             _taskMetaData["ifdfile"] = _ifdfile
             _taskMetaData["shotgunupload"] = _shotgunupload
             _jsontaskMetaData = json.dumps(_taskMetaData)
-                title=_title,
             _title = "RENDER Frame {}".format(frame)
             task_render_ifd = self.job.author.Task(title=_title, metadata=_jsontaskMetaData)
 
