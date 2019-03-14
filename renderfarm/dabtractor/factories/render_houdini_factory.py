@@ -113,9 +113,9 @@ class Render(object):
             task_job.addChild(task_notify_start)
 
         # ####### make a render directory as needed
-        _proj = self.projectpath
-        _ifdDir = os.path.join(_proj,"ifd",self.scenebasename)
-        _imgDir = os.path.join(_proj,"render",self.scenebasename)
+        # _proj = self.projectpath
+        _ifdDir = os.path.join(self.projectpath,"ifds")
+        _imgDir = os.path.join(self.projectpath,"render",self.scenebasename)
         task_prefilight = self.job.author.Task(title="Make render directory")
 
         command_mkdirs1 = self.job.author.Command(argv=[ "mkdir","-p", _ifdDir ],
@@ -148,10 +148,7 @@ class Render(object):
             _chunks = 1
 
         #TODO not needed now - can use quotes
-        '''
-        hscript  -v 3 -c "render /out/mantra1" -c "quit" /Volumes/dabrender/work/project_work/mattg/TESTING_Renderfarm/HoudiniProjects/houdini17_test_01/primitives_test.hipnc
-        hrender /Users/Shared/UTS_Jobs/TESTING_HOUDINI/HoudiniProjects/testProject01/scripts/torus1.hipnc -d mantra1 -v -f 1 240 -i 1
-        '''
+
 
         for i, chunk in enumerate(range( 1, _chunks + 1 )):
             _offset = i * _framesperchunk
@@ -163,36 +160,48 @@ class Render(object):
             task_generate_ifd = self.job.author.Task(title="_IFDGEN Chunk {} frames {}-{}".format( chunk, _chunkstart, _chunkend ))
 
             #TODO is this hrender or hscript or hbatch
-            __command_hserver = "sesictrl -f"
+            command_hserver = "hserver"
+
+            '''
+            hscript  -R -v 3 -c "render /out/mantra1" -c "quit" /Volumes/dabrender/work/project_work/mattg/TESTING_Renderfarm/HoudiniProjects/houdini17_test_01/primitives_test.hipnc
+            hrender /Users/Shared/UTS_Jobs/TESTING_HOUDINI/HoudiniProjects/testProject01/scripts/torus1.hipnc -d mantra1 -v -f 1 240 -i 1
+            '''
             __command = "hscript -R -i -v 3 -c {command} -c {quit} -f {start} {end} -d {scene}".format(
                 start=_chunkstart,
                 end=_chunkend,
                 scene=self.scenefilefullpath,
                 command="\'render /out/mantra1\'",
                 quit = "quit")
-            __command2 = "hrender {scene} -d {node} -v -e -f {start} {end} -i {step}".format(
+            '''
+            "hrender -R -e -f 1 4 -i 1 -v -d mantra1 
+            -o $DABWORK/project_work/mattg/TESTING_Renderfarm/HoudiniProjects/houdini17_test_01/ifds/out.$F.ifd $DABWORK/project_work/mattg/TESTING_Renderfarm/HoudiniProjects/houdini17_test_01/primitives_test.hipnc"
+            '''
+            command_hrender = "hrender -R -e -f {start} {end} -i {step} -v -d {node} -o {output} {scenefile}".format(
                 node="mantra1",
                 start=_chunkstart,
                 end=_chunkend,
                 step=1,
-                scene=self.scenefilefullpath)
-            command_start_hsever = self.job.author.Command(
-                argv=[ __command_hserver ],
-                tags=["houdini", "theWholeFarm"],
+                threads = self.job.jobthreads,
+                output = "{dir}/{scenebase}.$F.ifd".format(dir=_ifdDir, scenebase=self.scenebasename),
+                scenefile=self.scenefilefullpath)
+
+            command_hserver = self.job.author.Command(
+                argv=[ command_hserver ],
                 samehost = 1,
+                tags=["houdini", "theWholeFarm"],
                 atleast=int(self.job.jobthreads),
                 atmost=int(self.job.jobthreads),
                 envkey=[self.envkey_houdini],
                 service="Houdini")
             command_generate_ifd = self.job.author.Command(
-                argv=[ __command2 ],
+                argv=[ command_hrender ],
                 samehost = 1,
                 tags=["houdini", "theWholeFarm"],
                 atleast=int(self.job.jobthreads),
                 atmost=int(self.job.jobthreads),
                 envkey=[self.envkey_houdini],
                 service="Houdini")
-            task_generate_ifd.addCommand(command_start_hsever)
+            # task_generate_ifd.addCommand(command_hserver)
             task_generate_ifd.addCommand(command_generate_ifd)
             task_gen_allframes.addChild(task_generate_ifd)
 
@@ -204,8 +213,8 @@ class Render(object):
 
         for frame in range( int(self.job.jobstartframe), int(self.job.jobendframe) + 1, int(self.job.jobbyframe) ):
             # ################# Job Metadata as JSON
-            _ifdfile = "{dir}/{scenebase}.{frame:04d}.ifd".format(dir=_ifdDir, scenebase=self.scenebasename, frame=frame)
-            _outfile = "{dir}/{scenebase}.{frame:04d}.exr".format(dir=_imgDir, scenebase=self.scenebasename, frame=frame)
+            _ifdfile = "{dir}/{node}.{frame:01d}.ifd".format(dir=_ifdDir, node="mantra1", scenebase=self.scenebasename, frame=frame)
+            _outfile = "{dir}/{scenebase}.{frame:04d}.exr".format(dir=_imgDir, node="mantra1", scenebase=self.scenebasename, frame=frame)
             _shotgunupload = "PR:{} SQ:{} SH:{} TA:{}".format(self.job.shotgunProject, self.job.shotgunSeqAssetType, self.job.shotgunShotAsset, self.job.shotgunTask)
             _taskMetaData={}
             _taskMetaData["imgfile"] = _outfile
@@ -235,6 +244,8 @@ class Render(object):
                 atmost=int(self.job.jobthreads),
                 envkey=[self.envkey_houdini],
                 service="Houdini")
+
+            # task_render_ifd.addCommand(command_hserver)
             task_render_ifd.addCommand(command_render)
 
             task_render_frames.addChild(task_render_ifd)
@@ -391,12 +402,11 @@ class Render(object):
         if os.path.exists(os.path.expandvars(self.scenefilefullpath)):
             try:
                 logger.info("Spooled correctly")
-                # all jobs owner by pixar user on the farm
                 self.renderjob.spool(owner=self.job.config.getdefault("tractor","jobowner"),port=int(self.job.config.getdefault("tractor","port")))
             except Exception, spoolerr:
                 logger.warn("A spool error %s" % spoolerr)
         else:
-            message = "Maya scene file non existant %s" % self.scenefilefullpath
+            message = "Houdini scene file non existant %s" % self.scenefilefullpath
             logger.critical(message)
             logger.critical(os.path.normpath(self.scenefilefullpath))
             logger.critical(os.path.expandvars(self.scenefilefullpath))
