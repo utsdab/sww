@@ -176,7 +176,7 @@ class Render(object):
             "hrender -R -e -f 1 4 -i 1 -v -d mantra1 
             -o $DABWORK/project_work/mattg/TESTING_Renderfarm/HoudiniProjects/houdini17_test_01/ifds/out.$F.ifd $DABWORK/project_work/mattg/TESTING_Renderfarm/HoudiniProjects/houdini17_test_01/primitives_test.hipnc"
             '''
-            command_hrender = "hrender -R -e -f {start} {end} -i {step} -v -d {node} -o {output} {scenefile}".format(
+            command_hrender = "hrender -R -e -f {start} {end} -i {step} -v -d {node} {scenefile}".format(
                 node="mantra1",
                 start=_chunkstart,
                 end=_chunkend,
@@ -233,7 +233,7 @@ class Render(object):
             #     rendererspecificargs.extend([ "-memorylimit", "{}".format(self.job.jobthreadmemory) ])
 
             _rendererspecificargs.extend([
-                "-t", "{}".format(self.job.jobthreads),
+                "-j", "{}".format(self.job.jobthreads),
             ])
             _userspecificargs = [ utils.expandargumentstring(self.options)]
             _finalargs = _commonargs + _rendererspecificargs
