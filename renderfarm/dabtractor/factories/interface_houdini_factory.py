@@ -6,8 +6,6 @@ import tkFileDialog
 import Tkconstants
 import os
 import renderfarm.dabtractor as dabtractor
-import renderfarm.dabtractor.factories.render_houdini_factory as rfac
-import renderfarm.dabtractor.factories.utils_factory as utils
 import render_houdini_factory as rfac
 import utils_factory as utils
 import logging
@@ -110,6 +108,7 @@ class Window(WindowBase):
         __row += 1
 
         # ###################################################################
+        tk.Label(self.canvas, bg=self.bgcolor1, text="$PROJECT (Houdini $JOB)").grid(row=__row, column=0, sticky=tk.E)
         self.envproj = tk.StringVar()
         self.envprojbut = tk.Button(self.canvas, text=self.msg_selectproject, bg=self.bgcolor1, fg='black', command=self.setproject)
         self.envprojbut.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
@@ -249,6 +248,13 @@ class Window(WindowBase):
 
         # ############################ D E T A I L S ##########################
         tk.Label(self.canvas, bg=self.bgcolor3,text="Renderer Specific Details").grid(row=__row,column=0, columnspan=4,sticky=tk.W + tk.E)
+        __row += 1
+
+        # ###################################################################
+        tk.Label(self.canvas, bg=self.bgcolor1, text="Render Nodes").grid(row=__row, column=0, sticky=tk.E)
+        self.nodes = tk.StringVar()
+        self.nodes.set("mantra1")
+        self.bar7 = tk.Entry(self.canvas, bg=self.bgcolor2, textvariable=self.nodes, width=40).grid(row=__row,column=1, columnspan=4,sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
