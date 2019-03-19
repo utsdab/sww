@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 '''
-Arnold for maya job
+Arnold for maya job construction
 '''
 
 import json
@@ -18,6 +18,7 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
+
 
 class Job(envfac.TractorJob):
     ''' The payload of gui-data needed to describe a rfm render job '''

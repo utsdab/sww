@@ -15,10 +15,10 @@ import os
 import inspect
 # import Set
 from shotgun_api3 import Shotgun
-from renderfarm.dabtractor.factories.site_factory import JsonConfig
-from renderfarm.dabtractor.factories.utils_factory import dictfromlistofdicts
-from renderfarm.dabtractor.factories.utils_factory import dictfromlistofdictionaries
-from renderfarm.dabtractor.factories.utils_factory import cleanname
+from site_factory import JsonConfig
+from utils_factory import dictfromlistofdicts
+from utils_factory import dictfromlistofdictionaries
+from utils_factory import cleanname
 
 logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
@@ -142,7 +142,7 @@ class Person(ShotgunBase):
                 self.user_prefs = os.path.join(os.environ["DABUSERPREFS"], self.dabnumber)
         finally:
             if  not self.tractor:
-                logger.critical("Shotgun user {} is not Active. Sorry.".format(self.shotgunlogin))
+                logger.critical("Shotgun user {} is not tractor user. Sorry.".format(self.shotgunlogin))
                 sys.exit()
             logger.info("Shotgun Login {} : {}".format(self.shotgunlogin,__person))
 

@@ -8,7 +8,7 @@ To do:
 
 
 """
-###############################################################
+
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -18,7 +18,6 @@ sh.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-###############################################################
 
 import Tkinter as tk
 # from PIL import ImageTk, Image
@@ -26,8 +25,6 @@ import ttk
 import tkFileDialog
 import Tkconstants
 import os
-import sys
-from renderfarm.dabtractor.factories import user_factory as ufac
 import renderfarm.dabtractor as dabtractor
 import renderfarm.dabtractor.factories.environment_factory as envfac
 

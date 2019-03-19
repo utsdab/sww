@@ -1,7 +1,4 @@
 #!/usr/bin/python
-
-# TODO
-
 """
     All these Classes are to do with the defining of the USER
 
@@ -11,12 +8,15 @@
     Thus we can definr the concept of renderusername and renderusernumber
     this just need to be in the path some place  dabanim/usr/utils
 """
+
+# TODO
+
 import os
 import sys
 import string
 import time
 import subprocess
-import shotgun_factory as sgt
+import renderfarm.dabtractor.factories.shotgun_factory as sgt
 
 # ##############################################################
 import logging

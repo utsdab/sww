@@ -5,8 +5,6 @@
 # TODO handle integrators
 # TODO handle ribgen only
 
-
-###############################################################
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -15,7 +13,6 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-###############################################################
 
 import Tkinter as tk
 import ttk

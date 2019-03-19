@@ -9,8 +9,8 @@ import tkFileDialog
 import Tkconstants
 import os
 import renderfarm.dabtractor as dabtractor
-import renderfarm.dabtractor.factories.render_arnold_factory as rfac
-import renderfarm.dabtractor.factories.utils_factory as utils
+import render_arnold_factory as rfac
+import utils_factory as utils
 import logging
 
 logger = logging.getLogger(__name__)

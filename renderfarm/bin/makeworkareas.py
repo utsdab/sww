@@ -16,10 +16,10 @@ logger.addHandler(sh)
 import os
 import sys
 import pwd
-import grp
+# import grp
 import shutil
-import renderfarm.dabtractor.factories.shotgun_factory as sgt
-import renderfarm.dabtractor.factories.environment_factory as envfac
+import renderfarm.dabtractor.shotgun_factory as sgt
+import renderfarm.dabtractor.environment_factory as envfac
 
 tj=envfac.TractorJob()
 people=sgt.People()

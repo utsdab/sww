@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 '''
-Houdini Render Job
+Houdini Render Job construction
 '''
 #TODO make this work
 
@@ -19,6 +19,7 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
+
 
 class Job(envfac.TractorJob):
     ''' The payload of gui-data needed to describe the render job '''

@@ -16,8 +16,8 @@ import tkFileDialog
 import Tkconstants
 import os
 import renderfarm.dabtractor as dabtractor
-import renderfarm.dabtractor.factories.render_rfm_factory as rfac
-import renderfarm.dabtractor.factories.utils_factory as utils
+import render_rfm_factory as rfac
+import utils_factory as utils
 import logging
 
 logger = logging.getLogger(__name__)
@@ -90,8 +90,8 @@ class Window(WindowBase):
         __row = 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor3, text="Maya RIB generation then prman").grid(row=__row, column=0,
-                                                                                            columnspan=5, sticky=tk.W + tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor3, text="Maya RIB generation then prman").grid(
+            row=__row, column=0,columnspan=5,sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################

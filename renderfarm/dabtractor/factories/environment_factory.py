@@ -12,14 +12,12 @@
 import os
 import json
 from pprint import pprint
-from renderfarm.dabtractor.factories.shotgun_factory import Person
-from renderfarm.dabtractor.factories.shotgun_factory import Project
-from renderfarm.dabtractor.factories.site_factory import JsonConfig
-
+from shotgun_factory import Person
+from shotgun_factory import Project
+from site_factory import JsonConfig
 import renderfarm as rf
 import tractor.api.author as author
 import tractor.api.query as tq
-
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

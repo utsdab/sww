@@ -3,12 +3,6 @@
 '''
 Useful user functions
 '''
-
-import datetime
-import os
-import string
-import subprocess
-###############################################################
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -17,7 +11,12 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-###############################################################
+
+import datetime
+import os
+import string
+import subprocess
+
 
 def printdict(dict):
     if type(dict) == type({"a": "1"}):

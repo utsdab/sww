@@ -4,7 +4,6 @@ This chunk of code if to do with queries to the tractor farm
 '''
 # TODO  this is all WIP and testing
 
-###############################################################
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -13,13 +12,11 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-###############################################################
-
 import os, sys
 from pprint import pprint
 import tractor.api.author as author
 import tractor.api.query as tq
-import renderfarm.dabtractor.factories.environment_factory as envfac
+import environment_factory as envfac
 import json
 
 

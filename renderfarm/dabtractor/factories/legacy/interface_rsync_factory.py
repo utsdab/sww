@@ -1,10 +1,5 @@
 #!/usr/bin/env python2
-"""
-To do:
 
-
-"""
-###############################################################
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -13,18 +8,16 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-###############################################################
 
 import Tkinter as tk
-import ttk
 import socket
 import tkFileDialog
 import Tkconstants
 import os
 import sys
-from renderfarm.dabtractor.factories import user_factory as ufac
 import renderfarm.dabtractor as dabtractor
 import renderfarm.dabtractor.factories.environment_factory as envfac
+
 
 class WindowBase(object):
     """

@@ -2,9 +2,7 @@
 # TODO  add in frame fange override
 # TODO  add in date suffic and versioning  rather than overwriting.
 
-# ##############################################################
 import logging
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
@@ -12,15 +10,11 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-# ##############################################################
-
 import os
 import time
 import sys
-from pprint import pprint
-import utils_factory as utils
+import renderfarm.dabtractor.factories.utils_factory as utils
 import renderfarm.dabtractor.factories.environment_factory as envfac
-
 
 
 class Job(object):
