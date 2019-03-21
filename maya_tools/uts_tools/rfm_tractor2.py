@@ -32,8 +32,18 @@
 #
 # -----------------------------------------------------------------------------
 
+# in maya run as python
+# import maya_tools.uts_tools.rfm_tractor2 as rfm_tractor
+# reload (rfm_tractor)
+# from maya_tools.uts_tools.rfm_tractor2 import *
+# batch_render_spool(do_bake=False)
+#
+
+THREADS=8
+
 # pylint: disable=import-error
 import subprocess
+import sys
 import maya.mel as mel
 import maya.cmds as mc
 from rfm2.config import cfg, RfmError
@@ -78,7 +88,12 @@ def add_prman_render_task(parentTask, title, threads, rib, img, args=[]):
     if img:
         task.preview = 'sho %s' % str(img)
 
-    command = author.Command(local=False, service="PixarRender")
+    command = author.Command(
+        local=False,
+        service="PixarRender",
+        tags=["prman", "theWholeFarm"],
+        atleast=threads,
+        atmost=threads)
     command.argv = ["prman"]
     for arg in args:
         command.argv.append(arg)
@@ -116,7 +131,13 @@ def add_maya_batch_render_task(parentTask, title, stash_scene_name, imgs,
                 sho_cmd = sho_cmd + '%s ' % str(img)
             task.preview = sho_cmd
 
-    command = author.Command(local=False, service="PixarRender")
+    command = author.Command(
+        local=False,
+        service="PixarRender",
+        tags=["prman", "theWholeFarm"],
+        atleast=THREADS,
+        atmost=THREADS
+    )
     proj = mc.workspace(q=True, rd=True)
 
     rendercmd = "Render"
@@ -150,7 +171,10 @@ def add_txmake_task(parentTask, title, args):
     task = author.Task()
     task.title = title
 
-    command = author.Command(local=False, service="PixarRender")
+    command = author.Command(
+        local=False,
+        service="PixarRender"
+    )
     argv = ['txmake'] + args
     command.argv = argv
 
@@ -177,7 +201,13 @@ def add_denoise_task(parentTask, title, args, imgs, preview_imgs=[],
     task = author.Task()
     task.title = title
 
-    command = author.Command(local=False, service="PixarRender")
+    command = author.Command(
+        local=False,
+        service="PixarRender",
+        tags=["prman", "theWholeFarm"],
+        atleast=THREADS,
+        atmost=THREADS
+    )
     command.argv = ["denoise"]
     for arg in args:
         command.argv.append(arg)
@@ -456,22 +486,37 @@ def generate_txmake_tasks():
 
 
 def add_job_level_attrs(is_localqueue, job):
-
+    '''   Take the settings from the json file rather than from the interface
+    in maya.
+    '''
     rmanversion = cfg().rfm_env['versions']['rfm']
+    paused = False
+    priority = ""
+    service = ""
+    envkey = "rfm-22.4 maya-2018"
+    crews = ""
+    tier = "tier"
+    projects = "projects"
+    comment = "comment"
+    metadata = "metadata"
+    whendone = ""
+    whenerror = ""
+    whenalways = ""
+    after = ""
 
-    paused = rfm2.ui.prefs.get_pref_by_name('rfmTractorPaused')
-    priority = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorPriority'))
-    service = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorService'))
-    envkey = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorEnvKey'))
-    crews = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorCrews'))
-    tier = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorTier'))
-    projects = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorProjects'))
-    comment = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorComment'))
-    metadata = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorMetaData'))
-    whendone = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorWhenDone'))
-    whenerror = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorWhenError'))
-    whenalways = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorWhenAlways'))
-    after = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorAfter'))
+    # paused = rfm2.ui.prefs.get_pref_by_name('rfmTractorPaused')
+    # priority = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorPriority'))
+    # service = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorService'))
+    # envkey = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorEnvKey'))
+    # crews = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorCrews'))
+    # tier = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorTier'))
+    # projects = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorProjects'))
+    # comment = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorComment'))
+    # metadata = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorMetaData'))
+    # whendone = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorWhenDone'))
+    # whenerror = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorWhenError'))
+    # whenalways = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorWhenAlways'))
+    # after = str(rfm2.ui.prefs.get_pref_by_name('rfmTractorAfter'))
 
     if cfg().dirmaps:
         for k in cfg().dirmaps:
@@ -925,7 +970,8 @@ def generate_job_file(is_localqueue, scene, stash_scene_name, do_RIB, do_bake):
     else:
         anim = False
 
-    threads = int(rfm2.ui.prefs.get_pref_by_name('rfmBatchThreads'))
+    # threads = int(rfm2.ui.prefs.get_pref_by_name('rfmBatchThreads'))
+    threads = 8
 
     aovs = apidspy.get_displays()
     displays = aovs['displays']
@@ -996,6 +1042,11 @@ def generate_job_file(is_localqueue, scene, stash_scene_name, do_RIB, do_bake):
     try:
         f = open(jobfile, 'w')
         as_tcl = job.asTcl()
+
+        print "--------------- snip ---------------------"
+        print as_tcl
+        print "--------------- snip ---------------------"
+
         f.write(as_tcl)
         f.close()
     except IOError as ioe:
@@ -1019,6 +1070,9 @@ def batch_render_spool(do_bake=False):
     apistr.lock_jobid(None)
 
     rfm2.render.RNDR.set_render_type(rfm2.render.RT_BATCH)
+
+    print "rfm_tractor2 ........................."
+    # sys.exit("stop")
 
     # tell texture manager to start parsing scene, before
     # we set up batch rendering
@@ -1293,7 +1347,7 @@ def register_tractor_prefs():
                                      node_desc.NodeDescParamJSON(pref))
 
     pref = {'name': 'rfmTractorComment', 'type': 'string',
-            'default': '', 'label': 'Comments:',
+            'default': 'Spooled from Maya', 'label': 'Comments:',
             'page': 'Render/Batch Render/Tractor',
             'help': ("""Additional comment about the job.""")}
     rfm2.ui.prefs.register_pref_item(prefGroup,

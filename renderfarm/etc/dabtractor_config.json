@@ -50,13 +50,20 @@
     "jobowner"     : "pixar"
   },
 
+
+
   "maya"           : {
     "version"      : [ "2018"],
     "mayarenderer" : [ "sw","arnold"]
   },
 
+  "rfmbatch"       : {
+    "servicekey"   : [ "2018"],
+    "envkey"       : [ "rmf-22.4","maya-2018"],
+  },
+
   "nuke"           : {
-    "version"      : [ "11.2v4"]
+    "version"      : [ "11.3v1"]
   },
 
   "houdini"        : {
@@ -64,7 +71,7 @@
   },
 
   "renderman"      : {
-    "version"      : [ "22.3", "21.8"],
+    "version"      : [ "22.4", "22.3", "21.8"],
     "integrator"   : [ "FROMFILE", "pxr", "vcm", "visualiser", "occlusion"]
   },
 
