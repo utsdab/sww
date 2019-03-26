@@ -39,7 +39,7 @@
 # batch_render_spool(do_bake=False)
 #
 
-THREADS=8
+THREADS=int(8)
 
 # pylint: disable=import-error
 import subprocess
@@ -93,7 +93,8 @@ def add_prman_render_task(parentTask, title, threads, rib, img, args=[]):
         service="PixarRender",
         tags=["prman", "theWholeFarm"],
         atleast=threads,
-        atmost=threads)
+        atmost=threads
+    )
     command.argv = ["prman"]
     for arg in args:
         command.argv.append(arg)
@@ -491,8 +492,8 @@ def add_job_level_attrs(is_localqueue, job):
     '''
     rmanversion = cfg().rfm_env['versions']['rfm']
     paused = False
-    priority = ""
-    service = ""
+    priority = "10"
+    service = "PixarRender"
     envkey = "rfm-22.4 maya-2018"
     crews = ""
     tier = "tier"
@@ -971,7 +972,7 @@ def generate_job_file(is_localqueue, scene, stash_scene_name, do_RIB, do_bake):
         anim = False
 
     # threads = int(rfm2.ui.prefs.get_pref_by_name('rfmBatchThreads'))
-    threads = 8
+    threads = int(8)
 
     aovs = apidspy.get_displays()
     displays = aovs['displays']
@@ -1042,11 +1043,9 @@ def generate_job_file(is_localqueue, scene, stash_scene_name, do_RIB, do_bake):
     try:
         f = open(jobfile, 'w')
         as_tcl = job.asTcl()
-
         print "--------------- snip ---------------------"
         print as_tcl
         print "--------------- snip ---------------------"
-
         f.write(as_tcl)
         f.close()
     except IOError as ioe:
@@ -1096,8 +1095,8 @@ def batch_render_spool(do_bake=False):
     else:
         stash_scene_name = sputils.stash_scene(doSave=True)
 
-    job, jobfile = generate_job_file(is_localqueue, scene, stash_scene_name,
-                                     do_RIB, do_bake)
+    job, jobfile = generate_job_file(
+        is_localqueue, scene, stash_scene_name,do_RIB, do_bake)
 
     apistr.unlock_jobid()
 

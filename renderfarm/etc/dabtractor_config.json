@@ -59,7 +59,7 @@
 
   "rfmbatch"       : {
     "servicekey"   : [ "2018"],
-    "envkey"       : [ "rmf-22.4","maya-2018"],
+    "envkey"       : [ "rmf-22.4","maya-2018"]
   },
 
   "nuke"           : {
