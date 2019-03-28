@@ -51,7 +51,6 @@
   },
 
 
-
   "maya"           : {
     "version"      : [ "2018"],
     "mayarenderer" : [ "sw","arnold"]
