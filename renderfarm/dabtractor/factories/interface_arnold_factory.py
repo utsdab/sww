@@ -1,4 +1,4 @@
-#!/usr/bin/env rmanpy
+#!/usr/bin/env python2
 '''
 Build Interface for Arnold submission
 '''
@@ -9,8 +9,8 @@ import tkFileDialog
 import Tkconstants
 import os
 import renderfarm.dabtractor as dabtractor
-import renderfarm.dabtractor.factories.render_arnold_factory as rfac
-import renderfarm.dabtractor.factories.utils_factory as utils
+import render_arnold_factory as rfac
+import utils_factory as utils
 import logging
 
 logger = logging.getLogger(__name__)
@@ -82,8 +82,7 @@ class Window(WindowBase):
         __row = 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor3, text="Maya ASS generation then kick").grid(row=__row, column=0,
-                                                                                        columnspan=5, sticky=tk.W + tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor3, text="Maya ASS generation then kick").grid(row=__row, column=0, columnspan=5, sticky=tk.W + tk.E)
         __row += 1
 
         # ###################################################################
@@ -686,8 +685,8 @@ class Window(WindowBase):
             logger.info("Start: %s" % self.sf.get())
             logger.info("End: %s" % self.ef.get())
             logger.info("By: %s" % self.bf.get())
-            logger.info("Skip Existing Frames:" % self.skipframes)
-            logger.info("Make Proxy:" % self.makeproxy)
+            logger.info("Skip Existing Frames: %s" % self.skipframes)
+            logger.info("Make Proxy: %s" % self.makeproxy)
             self.consolidate()
             rj=rfac.Render(self.job)
             rj.build()

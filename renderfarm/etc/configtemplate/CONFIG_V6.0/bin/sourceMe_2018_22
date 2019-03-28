@@ -1,0 +1,120 @@
+#!/bin/bash
+# version 1.0 mattg
+# this is the confirm dialog to the initialiser
+####################################################
+CWD=$(pwd)
+echo ""
+echo "STARTING UTS STUDIO CONFIGURATION: "${USER}"@"$CWD
+unset CONFIG
+echo  "STARTING: ${BASH_SOURCE}"
+
+export MAYA_VERSION="2018"
+export RMAN_VERSION="22.3"
+export NUKE_VERSION="11.2v4"
+export TRACTOR_VERSION="2.2"
+
+unset PYTHONPATH
+unset RFMTREE
+unset RMANTREE
+unset MAYA_SCRIPT_PATH
+unset MAYA_PLUG_IN_PATH
+unset XBMLANGPATH
+unset HFS
+
+#echo "..........setting up houdini"
+export HOUDINI_LOCATION="/Applications/Houdini"
+export HFS="${HOUDINI_LOCATION}/Current/Frameworks/Houdini.framework/Versions/Current/Resources"
+cd ${HFS}
+source ${HFS}/houdini_setup
+cd ${CWD}
+
+export RMANTREE="/Applications/Pixar/RenderManProServer-${RMAN_VERSION}"
+export RFMTREE="/Applications/Pixar/RenderManForMaya-${RMAN_VERSION}"
+export TRACTOR_LOCATION="/Applications/Pixar/Tractor-${TRACTOR_VERSION}"
+export ARNOLD_LOCATION="/Applications/solidangle/mtoa/${MAYA_VERSION}"
+export MAYA_APPLICATION_LOCATION="/Applications/Autodesk/maya${MAYA_VERSION}"
+export MAYA_LOCATION="${MAYA_APPLICATION_LOCATION}/Maya.app/Contents"
+export MAYA_RENDER_DESC_PATH="${ARNOLD_LOCATION}/arnoldRenderer.xml:${MAYA_RENDER_DESC_PATH}"
+# export NUKE_INSTALL_PATH="/Applications/Nuke${NUKE_VERSION}"
+# export NUKE_LOCATION="${NUKE_INSTALL_PATH}/Nuke${NUKE_VERSION}.app"
+# export NUKE_TEMP_DIR="/var/tmp/nuke-${USER}"
+# export PATH="${PATH}:${NUKE_LOCATION}/Contents/MacOS"
+export PATH="/usr/aw/COM/bin:/usr/aw/COM/etc:${PATH}"
+export PATH="/Applications/RV64.app/Contents/MacOS:${PATH}"
+
+
+export RMS_SCRIPT_PATHS="${DABETC}/pixar/config"
+export RDIR="${DABETC}/pixar/config"
+export foundry_LICENSE="${DABETC}/foundry/foundry_license.lic"
+export RV_LICENSE_FILE="${DABETC}/tweak/license.gto"
+export TWEAK_LICENSE_FILE="${DABETC}/tweak/license.gto"
+export MU_MODULE_PATH="${DABUSR}/etc/tweak/mu"
+export SGTK_DESKTOP_CONFIG_LOCATION="${DABPREFS}/shotgun/toolkit_configs"
+export SGTK_PREFERENCES_LOCATION="${DABPREFS}/shotgun/toolkit_configs"
+export SHOTGUN_BUNDLE_CACHE_FALLBACK_PATHS="${DABPREFS}/shotgun/toolkit_configs"
+export SHOTGUN_PATH_MAC="${DABWORK}/shotgun_work"
+export ARNOLD_PLUGIN_PATH="${ARNOLD_LOCATION}/shaders"
+export MTOA_TEMPLATES_PATH="" # is for the Attribute Editor (AE) templates of Arnold shaders.
+export MTOA_EXTENSIONS_PATH="" # is for MtoA extensions like Yeti.
+export MAYA_CUSTOM_TEMPLATE_PATH="" # is for Node Editor templates for Arnold shaders.
+export MTOA_STARTUP_LOG_VERBOSITY=""  # sets the MtoA log verbosity during startup: 1 for Errors and Warnings, 2 for Errors, Warnings, and Info, 3 for all
+export MTOA_LOG_PATH="/var/tmp/arnold" # default location for Arnold log files.
+
+##########################  PATH settings
+export PATH="${DABUSR}/bin:${PATH}"
+export PATH="${DABUSR}/etc/tractor:${PATH}"
+export PATH="${DABSWW}/renderfarm/bin:${PATH}"
+export PATH="${RMANTREE}/bin:${PATH}"
+export PATH="${TRACTOR_LOCATION}/bin:${PATH}"
+export PATH="${MAYA_LOCATION}/bin:${PATH}"
+export PATH="${ARNOLD_LOCATION}/bin:${PATH}"
+
+##########################  PYTHONPATH settings
+export PYTHONPATH="${MAYA_LOCATION}/Frameworks/Python.framework/Versions/Current/lib/python2.7/site-packages:${PYTHONPATH}"
+export PYTHONPATH="${TRACTOR_LOCATION}/lib/python2.7/site-packages:${PYTHONPATH}"
+export PYTHONPATH="${RFMTREE}/scripts:${PYTHONPATH}"
+export PYTHONPATH="${RMANTREE}/bin:${PYTHONPATH}"
+export PYTHONPATH="${DABSWW}:${PYTHONPATH}"
+export PYTHONPATH="${DABUSR}/etc/tractor:${PYTHONPATH}"
+export PYTHONPATH="${DABUSR}/etc/maya/dab_scripts:${PYTHONPATH}"
+export PYTHONPATH="${DABUSR}/etc/maya/dab_plug-ins:${PYTHONPATH}"
+
+##########################  MAYA and RENDERMAN settings  also in the Maya.env
+export MAYA_PLUG_IN_PATH="${DABUSR}/etc/maya/dab_plug-ins:${MAYA_PLUG_IN_PATH}"
+export MAYA_PLUG_IN_PATH="${RFMTREE}/plug-ins:${MAYA_PLUG_IN_PATH}"
+export MAYA_PLUG_IN_PATH="${MAYA_APPLICATION_LOCATION}/plug-ins:${MAYA_PLUG_IN_PATH}"
+export MAYA_SCRIPT_PATH="${DABUSR}/etc/maya/dab_scripts:${MAYA_SCRIPT_PATH}"
+export MAYA_SCRIPT_PATH="${RFMTREE}/scripts:${MAYA_SCRIPT_PATH}"
+export XBMLANGPATH="${DABUSR}/maya/dab_icons/%B$:${XBMLANGPATH}"
+export XBMLANGPATH="${RFMTREE}/icons/%B:${XBMLANGPATH}"
+export MAYA_PRESET_PATH="${DABUSR}/etc/maya/dab_presets"
+export RMAN_ASSET_LIBRARY="${DABASSETS}/RenderManAssetLibrary"
+export MAYA_MODULE_PATH="${DABUSR}/etc/maya/dab_modules"
+export MAYA_SHELF_PATH="${DABUSR}/etc/maya/dab_shelves"
+export MAYA_MAC_SET_UMASK=0
+export MAYA_DISABLE_CIP=1
+
+
+if [ -e ~/.startDirectory ] ; then
+	export STARTD=$(cat ~/.startDirectory)
+	echo "INFO    : STARTD=${STARTD}"
+else
+	echo "WARNING : No ~/.startDirctory found, $STARTD not set"
+fi
+
+################################################
+#	Set the local site is running from a thumbdrive
+
+if [ -e ${CWD}/mayaprefs ] ; then
+	export CONFIG=${CWD}
+	export MAYA_APP_DIR=${CONFIG}/mayaprefs
+	echo "INFO    : CONFIG=${CONFIG}"
+else
+	echo "WARNING : No CONFIG found"
+fi
+
+
+source ${DABETC}/uts/introduction
+##########################
+echo   "ENDING  : ${CWD}  ${BASH_SOURCE}"
+echo   ""

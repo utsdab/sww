@@ -16,10 +16,10 @@ logger.addHandler(sh)
 import os
 import sys
 import pwd
-import grp
+# import grp
 import shutil
-import renderfarm.dabtractor.factories.shotgun_factory as sgt
-import renderfarm.dabtractor.factories.environment_factory as envfac
+import renderfarm.dabtractor.shotgun_factory as sgt
+import renderfarm.dabtractor.environment_factory as envfac
 
 tj=envfac.TractorJob()
 people=sgt.People()
@@ -85,14 +85,14 @@ def deprecatedirectory(rootpath,rootnames=[]):
                       os.path.join(zapdir,each))
     except Exception, err:
         logger.warn("Cant move alien directories, exiting")
-        sys.exit(err)
+        #sys.exit(err)
 
 def removed(dir):
     try:
         shutil.rmtree(dir)   # ignore_errors=False)
     except Exception, err:
         logger.warn("Cant remove the directory in the .zapped directory, exiting")
-        sys.exit(err)
+        #sys.exit(err)
     else:
         logger.info("Removed existing directory that was zapped before")
 
@@ -124,7 +124,7 @@ def setpermissionsontree(rootpath):
         chmod g+s
     """
     _uid=8888
-    _gid=8888
+    _gid=1438417908
 
     try:
         pixar = people.config.getenvordefault("farm","user")

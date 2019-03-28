@@ -23,7 +23,7 @@ import Tkconstants
 import os
 import sys
 import renderfarm.dabtractor as dabtractor
-import renderfarm.dabtractor.factories.render_proxy_factory as rfac
+import renderfarm.dabtractor.factories.legacy.render_proxy_factory as rfac
 import renderfarm.dabtractor.factories.shotgun_factory as sgt
 
 class WindowBase(object):

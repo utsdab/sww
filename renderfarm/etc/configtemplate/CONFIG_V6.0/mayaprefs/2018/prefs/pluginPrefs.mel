@@ -1,0 +1,22 @@
+//Maya Preference 2018 (Release 1)
+//
+//
+evalDeferred("autoLoadPlugin(\"\", \"invertShape\", \"invertShape\")");
+evalDeferred("autoLoadPlugin(\"\", \"CloudImportExport\", \"CloudImportExport\")");
+evalDeferred("autoLoadPlugin(\"\", \"curveWarp\", \"curveWarp\")");
+evalDeferred("autoLoadPlugin(\"\", \"tiffFloatReader\", \"tiffFloatReader\")");
+evalDeferred("autoLoadPlugin(\"\", \"poseInterpolator\", \"poseInterpolator\")");
+evalDeferred("autoLoadPlugin(\"\", \"bifrostvisplugin\", \"bifrostvisplugin\")");
+evalDeferred("autoLoadPlugin(\"\", \"hairPhysicalShader\", \"hairPhysicalShader\")");
+evalDeferred("autoLoadPlugin(\"\", \"ATFPlugin\", \"ATFPlugin\")");
+evalDeferred("autoLoadPlugin(\"\", \"ikSpringSolver\", \"ikSpringSolver\")");
+evalDeferred("autoLoadPlugin(\"\", \"ik2Bsolver\", \"ik2Bsolver\")");
+evalDeferred("autoLoadPlugin(\"\", \"xgenToolkit\", \"xgenToolkit\")");
+evalDeferred("autoLoadPlugin(\"\", \"AbcExport\", \"AbcExport\")");
+evalDeferred("autoLoadPlugin(\"\", \"OpenEXRLoader\", \"OpenEXRLoader\")");
+evalDeferred("autoLoadPlugin(\"\", \"RenderMan_for_Maya.py\", \"RenderMan_for_Maya\")");
+evalDeferred("autoLoadPlugin(\"\", \"mtoa\", \"mtoa\")");
+evalDeferred("autoLoadPlugin(\"\", \"modelingToolkit\", \"modelingToolkit\")");
+evalDeferred("autoLoadPlugin(\"\", \"xgSplineDataToXpd\", \"xgSplineDataToXpd\")");
+evalDeferred("autoLoadPlugin(\"\", \"AbcImport\", \"AbcImport\")");
+evalDeferred("autoLoadPlugin(\"\", \"gpuCache\", \"gpuCache\")");

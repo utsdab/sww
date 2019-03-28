@@ -15,9 +15,7 @@ formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
 # ##############################################################
-import os
-import sys
-import renderfarm.dabtractor.factories.user_factory as ufac
+import renderfarm.dabtractor.factories.legacy.user_factory as ufac
 import renderfarm.dabtractor.factories.utils_factory as utilfac
 
 class MayaRenderGlobals(object):

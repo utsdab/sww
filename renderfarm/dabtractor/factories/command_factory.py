@@ -1,4 +1,4 @@
-#!/usr/bin/env rmanpy
+#!/usr/bin/env python2
 '''
 This code supports submitting bash shell scripts to the farm
 Some common commands are wrapped up as convenience objects - like mail and rsync
@@ -21,7 +21,7 @@ logger.addHandler(sh)
 
 import os
 import sys
-import renderfarm.dabtractor.factories.environment_factory as envfac
+import renderfarm.dabtractor.environment_factory as envfac
 
 class Base(object):
     """ Base class for all batch jobs """

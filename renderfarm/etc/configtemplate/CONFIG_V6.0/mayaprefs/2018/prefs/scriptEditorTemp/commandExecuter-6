@@ -1,0 +1,43 @@
+import subprocess
+import maya.mel as mel
+import maya.cmds as mc
+from rfm2.config import cfg, RfmError
+from rfm2.config import DEFAULT_DISPLAY_NAME, DEFAULT_DISPLAY_NODE
+import rfm2.api.strings as apistr
+import rfm2.api.displays as apidspy
+import rfm2.api.nodes as apinodes
+import rfm2.spool.utils as sputils
+import rfm2.render
+from rfm2 import rfm_log
+import rfm2.ui.prefs
+from rfm2.utils.filepath import FilePath
+import rfm2.txmanager_maya as txmgr_maya
+import txmanager.core as txmgr
+from maya import utils as mutils
+import rfm2
+
+rmanGlobals = apinodes.rman_globals()
+#mc.setAttr('%s.ribOutputDir' % rmanGlobals,'xxx')
+mc.setAttr('defaultRenderGlobals.animation', 1)
+#rfm2.ui.prefs.set_defaults()
+mc.refresh()
+iff='<scene>_<aov>.<f4>.<ext>'
+rff='<scene>.<f4>.rib'
+iod='<ws>/images/<scene>'
+rod='<ws>/renderman/rib/<scene>'
+
+rfm2.mc.setAttr('%s.imageFileFormat' % rmanGlobals,iff, type='string')
+rfm2.mc.setAttr('%s.imageOutputDir' % rmanGlobals, iod, type='string')
+rfm2.mc.setAttr('%s.ribFileFormat' % rmanGlobals, rff, type='string')
+rfm2.mc.setAttr('%s.ribOutputDir' % rmanGlobals, rod, type='string')
+
+imgOutputDir = mc.getAttr('%s.imageOutputDir' % rmanGlobals)
+imgFileFormat = mc.getAttr('%s.imageFileFormat' % rmanGlobals)
+ribFileFormat = mc.getAttr('%s.ribFileFormat' % rmanGlobals)
+ribOutputDir = mc.getAttr('%s.ribOutputDir' % rmanGlobals)
+
+apistr.expand_string(ribOutputDir)
+rfm2.ui.maya_ui.update_maya_common_tab()
+
+
+    

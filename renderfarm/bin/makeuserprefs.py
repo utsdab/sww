@@ -17,8 +17,8 @@ logger.addHandler(sh)
 import os
 import sys
 import shutil
-import renderfarm.dabtractor.factories.shotgun_factory as sgt
-import renderfarm.dabtractor.factories.environment_factory as envfac
+import renderfarm.dabtractor.shotgun_factory as sgt
+import renderfarm.dabtractor.environment_factory as envfac
 
 """
     makeuserprefs.py is designed to be run as a farm job so as user pixar with
@@ -74,13 +74,13 @@ def main():
         makedirectorytree(dabuserprefs, peoplelist)
     except Exception, err:
         logger.critical("Cant run makedirectorytree, exiting")
-        sys.exit(err)
+        #sys.exit(err)
 
     try:
         deprecatedirectory(dabuserprefs,peoplelist)
     except Exception, err:
         logger.critical("Cant run deprecatedirectory, exiting")
-        sys.exit(err)
+        #sys.exit(err)
 
 def makedirectorytree(rootpath,rootnames=[]):
     """  Make the template directory tree  """
@@ -136,7 +136,7 @@ def setupconfig(path):
             logger.info("  Linking {} -> {}".format(linkdest, dest))
 
     else:
-        raise Exception("The template {} does not exist".format(template))
+        raise Exception("The template {} or path {} do not exist".format(template,path))
 
 
 
@@ -160,15 +160,15 @@ def deprecatedirectory(rootpath,rootnames=[]):
                       os.path.join(zapdir,each))
     except Exception, err:
         logger.warn("Cant move alien directories to .zapped directory, exiting")
-        sys.exit(err)
+        #sys.exit(err)
 
 def removed(dir):
     try:
         shutil.rmtree(dir)   # ignore_errors=False)
 
     except Exception, err:
-        logger.warn("Cant remove the directory in the .zapped directory, exiting")
-        sys.exit(err)
+        logger.warn("Cant remove the directory in the .zapped directory, exiting, {}".format(err))
+        #sys.exit(err)
     else:
         logger.info("Removed existing directory that was zapped before")
 

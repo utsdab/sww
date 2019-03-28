@@ -1,12 +1,6 @@
 #!/usr/bin/env python
 import os
 import datetime
-import sys
-import time
-import stat
-from renderfarm.dabtractor.factories import user_factory as uf
-from renderfarm.dabtractor.factories import environment_factory as ef
-from renderfarm.dabtractor.factories import utils_factory as utf
 from renderfarm.dabtractor.factories import shotgun_factory as sgt
 
 # ##############################################################

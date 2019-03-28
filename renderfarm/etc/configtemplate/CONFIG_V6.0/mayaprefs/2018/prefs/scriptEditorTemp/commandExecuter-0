@@ -1,0 +1,12 @@
+import studiolibrary
+studiolibrary.main()
+
+import xy_control as xy
+xy.main()  
+
+import xy_control as xy
+xy.main()  
+
+import x_control as cont
+cont.main()  
+

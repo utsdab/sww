@@ -1,10 +1,6 @@
 *.py[cod]
-**/.DS_Store
+*/.DS_Store
 *.DS_Store
-*.gitignore
 .idea*
 .DS_Store
-renderfarm/dabtractor/factories/shotgun_factory.py
-renderfarm/dabtractor/factories/interface_rfm_factory.py
-renderfarm/dabtractor/factories/render_rfm_factory.py
-renderfarm/dabtractor/factories/shotgun_factory.py
+.DS_Store

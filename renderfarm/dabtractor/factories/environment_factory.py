@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 '''
     This code handles the creation of a user area.
     At UTS the $USER is a number and there is no nice name exposed at all.
@@ -12,14 +12,12 @@
 import os
 import json
 from pprint import pprint
-from renderfarm.dabtractor.factories.shotgun_factory import Person
-from renderfarm.dabtractor.factories.shotgun_factory import Project
-from renderfarm.dabtractor.factories.site_factory import JsonConfig
-
+from shotgun_factory import Person
+from shotgun_factory import Project
+from site_factory import JsonConfig
 import renderfarm as rf
 import tractor.api.author as author
 import tractor.api.query as tq
-
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -38,7 +36,6 @@ class TractorJob(object):
         self.config = JsonConfig()
         self.shotgunOwner = None
         self.shotgunOwnerId = None
-
         try:
             self.sgtperson = Person()
         except Exception, err:
@@ -52,21 +49,17 @@ class TractorJob(object):
             self.department = self.sgtperson.department
             self.shotgunOwner = self.sgtperson.shotgunlogin
             self.shotgunOwnerId = self.sgtperson.shotgun_id
-
         try:
             self.sgtproject=Project()
         except Exception, err:
             logger.warn("Cant get project from Shotgun %s" % err)
-
         self.hostname = str(self.config.getdefault("tractor","engine"))
         self.port = int(self.config.getdefault("tractor","port"))
         self.jobowner = str(self.config.getdefault("tractor","jobowner"))
         self.engine = str(self.config.getdefault("tractor","engine"))
         self.dabwork = self.config.getenvordefault("environment","DABWORK")
-
         self.author.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
         self.tq.setEngineClientParam( hostname=self.hostname, port=self.port, user=self.jobowner, debug=True)
-
         self.jobtitle = None
         self.jobenvkey = None
         self.jobfile = None
@@ -75,16 +68,13 @@ class TractorJob(object):
         self.jobchunks = None
         self.jobthreads = None
         self.jobthreadmemory = None
-
         self.envtype = None
         self.envshow = None
         self.envproject = None
         self.envscene = None
-
         self.mayaversion = None
         self.rendermanversion = None
-
-
+        self.houdiniversion = None
         self.shotgunProject = None
         self.shotgunProjectId = None
         self.shotgunClass = None
@@ -95,11 +85,9 @@ class TractorJob(object):
         self.shotgunTask = None
         self.shotgunTaskId = None
         self.sendToShotgun = False
-
         self.farmpriority = None
         self.farmcrew = None
         self.farmtier=None
-
         self.optionskipframe = None
         self.optionmakeproxy = None
         self.optionsendemail = None

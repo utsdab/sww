@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 '''
 This code supports all access to shotgun which is used as an authentication model for users, and
 as the main production tracking database.
@@ -15,15 +15,15 @@ import os
 import inspect
 # import Set
 from shotgun_api3 import Shotgun
-from renderfarm.dabtractor.factories.site_factory import JsonConfig
-from renderfarm.dabtractor.factories.utils_factory import dictfromlistofdicts
-from renderfarm.dabtractor.factories.utils_factory import dictfromlistofdictionaries
-from renderfarm.dabtractor.factories.utils_factory import cleanname
+from site_factory import JsonConfig
+from utils_factory import dictfromlistofdicts
+from utils_factory import dictfromlistofdictionaries
+from utils_factory import cleanname
 
 logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
-sh.setLevel(logging.DEBUG)
+sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
@@ -37,7 +37,7 @@ class ShotgunBase(object):
         self.development = None
         if os.environ.get("DABDEV"):
             self.development = os.environ.get("DABDEV")
-            logger.warn("DEVMODE: You are in DEV mode: {}".format(self.development))
+            logger.info("DEVMODE: You are in DEV mode: {}".format(self.development))
         self.config=JsonConfig()
         self.serverpath = str(self.config.getdefault("shotgun", "serverpath"))
         self.scriptname = str(self.config.getdefault("shotgun", "scriptname"))
@@ -48,7 +48,7 @@ class ShotgunBase(object):
             logger.warn("SHOTGUN: Cant talk to shotgun")
             self.sg = None
         else:
-            logger.info("SHOTGUN: talking to shotgun ...... %s" % self.serverpath)
+            logger.debug("SHOTGUN: talking to shotgun ...... %s" % self.serverpath)
 
 
 class ShotgunLink(object):
@@ -83,6 +83,7 @@ class Person(ShotgunBase):
         """
         super(Person, self).__init__()
         logger.debug("Initiated Class {}".format(self.__class__.__name__))
+        self.status = None
         self.tractor = None
         self.shotgunname = None
         self.shotgun_id = None
@@ -109,8 +110,8 @@ class Person(ShotgunBase):
 
     def getInfo(self):
         __fields = ['login', 'name', 'firstname', 'lastname', 'department',
-                    'email', 'sg_tractor', 'id']
-        __filters = [['login', 'is', self.shotgunlogin]]
+                    'email', 'sg_tractor', 'id', 'sg_status_list']
+        __filters = [['login', 'is', self.shotgunlogin],['sg_status_list','is','act']]
         __person = None
 
         try:
@@ -119,6 +120,8 @@ class Person(ShotgunBase):
             logger.warn("%s"%err)
             raise
         else:
+            if __person.has_key('sg_status_list'):
+                self.status = __person.get('sg_status_list')
             if __person.has_key('sg_tractor'):
                 self.tractor = __person.get('sg_tractor')
             if __person.has_key('name'):
@@ -126,7 +129,8 @@ class Person(ShotgunBase):
             if __person.has_key('email'):
                 self.email =__person.get('email')
                 self.dabname = cleanname(self.email)
-                self.user_work = os.path.join(os.environ["DABWORK"], "user_work", self.dabname)
+            if os.environ.has_key("DABWORK"):
+                self.user_work = os.path.join( os.environ["DABWORK"], "user_work", self.dabname )
             if __person.has_key('department'):
                 self.department = __person.get('department').get('name')
             if __person.has_key('id'):
@@ -134,10 +138,11 @@ class Person(ShotgunBase):
             if __person.has_key('login'):
                 self.login = __person.get('login')
                 self.dabnumber = self.login
+            if os.environ.has_key("DABUSERPREFS"):
                 self.user_prefs = os.path.join(os.environ["DABUSERPREFS"], self.dabnumber)
         finally:
             if  not self.tractor:
-                logger.critical("Shotgun user {} is not Active. Sorry.".format(self.shotgunlogin))
+                logger.critical("Shotgun user {} is not tractor user. Sorry.".format(self.shotgunlogin))
                 sys.exit()
             logger.info("Shotgun Login {} : {}".format(self.shotgunlogin,__person))
 
@@ -541,8 +546,9 @@ class People(ShotgunBase):
         super(People, self).__init__()
         logger.debug("Initiated Class {}".format(self.__class__.__name__))
         __fields = ['login', 'name', 'firstname', 'lastname',
-                    'department', 'email', 'sg_tractor']
-        __filters = [['sg_tractor','is', True]]
+                    'department', 'email', 'sg_tractor', 'sg_status_list']
+        __filters = [['sg_tractor','is', True],['sg_status_list','is','act']]
+        #TODO need to check active also
         __people = None
         self.people = None
         try:
@@ -598,6 +604,29 @@ class People(ShotgunBase):
         finally:
             logger.info("Wrote tractor crew file: {}".format(self.crewfilefullpath))
 
+class Schema(ShotgunBase):
+    # just to see the schema
+
+    def __init__(self):
+        super(Schema, self).__init__()
+
+    def task(self):
+        pprint(self.sg.schema_field_read("Task"))
+
+    def shot(self):
+        pprint(self.sg.schema_field_read("Shot"))
+
+    def asset(self):
+        pprint(self.sg.schema_field_read("Asset"))
+
+    def humanuser(self):
+        pprint(self.sg.schema_field_read("HumanUser"))
+
+    def episode(self):
+        pprint(self.sg.schema_field_read("Episode"))
+
+    def sequence(self):
+        pprint(self.sg.schema_field_read("Sequence"))
 
 
 class Version(ShotgunBase):
@@ -668,6 +697,7 @@ class Version(ShotgunBase):
 if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
     logger.debug(">>>> TESTING {} ------".format(__file__))
+    #    T E S T I N G
     # ----------------------------------------------
     # upload a movie example
     # a = ShotgunBase()
@@ -700,13 +730,22 @@ if __name__ == "__main__":
 
 
     ########## PERSON TEST
-    p = Person("120988")
-    print "Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department)
+    # p = Person("120988")
+    # print "Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department)
+    #
+    # print p.myProjects()
+    # print p.myGroups()
+    # print p.me()
+    # raise SystemExit(".......done and exiting")
 
-    print p.myProjects()
-    print p.myGroups()
-    print p.me()
-    raise SystemExit(".......done and exiting")
+    # logger.debug(">>>> SCHEMA {} ------".format(__file__))
+    # schema=Schema()
+    # schema.task()
+    # schema.asset()
+    # schema.shot()
+    # schema.humanuser()
+    # schema.episode()
+    # schema.sequence()
 
 
     # ############# PROJECT TEST
@@ -725,11 +764,12 @@ if __name__ == "__main__":
     # pr.taskFromAsset(175,1241)
 
 
-    # ############# PEOPLE TEST
+    ############# PEOPLE TEST
     # pe=People()
     # print pe.people
+    # print len(pe.people)
     # pe.writetractorcrewfile("/Users/120988/Desktop/crew.list.txt")
-    #
+
     # ----------------------------------------------
     # Find Character Assets in Sequence WRF_03 in projectX
     # fields = ['id', 'code', 'sg_asset_type']
@@ -803,6 +843,7 @@ if __name__ == "__main__":
     # print mg.seqFromProject(171)
     # print mg.shotFromSeq(171,281)
     # print mg.taskFromShot(171,3143)
+    # print dir(mg)
     # sys.exit()
 
     # Find Sequences..........................

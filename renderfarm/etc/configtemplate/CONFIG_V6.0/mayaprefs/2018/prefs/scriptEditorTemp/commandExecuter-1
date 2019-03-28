@@ -1,0 +1,255 @@
+/*
+'Maya Environment Variables' MEL script
+
+Author: Carlos Rico Adega - carlos.rico.3d@gmail.com
+
+Copyright (c) 2015 Carlos Rico Adega
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+
+SCRIPT NAME:
+	craMayaEnvs.mel
+
+	Main procedure:
+	    craMayaEnvs;
+
+DESCRIPTION:
+    List Maya environment variables and their values
+		
+LAUNCH SCRIPT:
+    craMayaEnvs;
+
+CHANGE LOG:
+
+    Version: 1.1.0
+    Date: May 16, 2015
+        - Maya 2016 support
+        - Added optionVar to save 'Sort paths by name' state
+        - Minor UI tweaks
+          
+    Version: 1.0.1
+    Date: October 4, 2014
+        - Added Linux and MAC specific environment variables
+    
+    Version: 1.0.0
+    Date: October 3, 2014
+        - First release
+*/
+
+global proc craMayaEnvs()
+{
+    if(!`optionVar -exists craMayaEnvsSortPathsOV`)
+		optionVar -iv craMayaEnvsSortPathsOV 0;
+	
+    string $MACOSX[] = {"MAYA_MAC_SET_UMASK"};
+    string $LINUX[] = {"__GL_MAYA_OPTIMIZE", "MAYA_MMSET_DEFAULT_XCURSOR", "MAYA_SOUND_SCRUB", "MAYA_WEBBROWSER ) WEBBROWSER", "MAYA_SET_PARENT_HINT", "MAYA_STYLUS_DEVICE", "MAYA_SET_XERROR", "MAYA_FORCE_SHOW_ACTIVATE", "MAYA_ACTIVE_STEREO_REFRESH", "XLIB_SKIP_ARGB_VISUALS", "MAYA_TTIP_OFFSETX", "MAYA_TTIP_OFFSETY", "MAYA_HBDOWN_ENABLE", "MAYA_HBDOWN_TIME", "MAYA_HBDOWN_DEBUG"};
+    
+    string $craSystemEnvs[] = python("import os;envs = os.environ.keys();envs.sort();envs");
+    string $craMayaEnvs[] = {"AW_JPEG_Q_FACTOR", "AW_JPEG_SUB_SAMPLING", "MAYA_ALIAS_LICENSE_TIMEOUT", "MAYA_ALT_EN", "MAYA_APP_DIR", "MAYA_ASCII_ENABLE_BULK_PARSING", "MAYA_ASCII_SUPPORT_MAC_LINE_ENDINGS", "MAYA_AUDIO_LIBRARY", "MAYA_AUDIO_OPENAL_DEVICE", "MAYA_CMD_FILE_OUTPUT", "MAYA_CUSTOM_TEMPLATE_PATH", "MAYA_DEBUG_ENABLE_CRASH_REPORTING", "MAYA_DISABLE_BACKSPACE_DELETE", "MAYA_DISALLOW_DUPLICATE_ATTRIBUTE_NAMES", "MAYA_EXR_LONGNAME", "MAYA_FILE_ICON_PATH", "MAYA_FORCE_REF_READ", "MAYA_HELP_URL", "MAYA_HW_FILE_TEXTURE_RESOLUTION_OVERRIDE", "MAYA_IP_TYPE", "MAYA_LOCATION", "MAYA_MODULE_PATH", "MAYA_MOVIE_DIR", "MAYA_MR_STARTUP_DIR", "MAYA_NO_JITTER_FINAL_COLOR", "MAYA_OFFSCREEN_HRB", "MAYA_OVERRIDE_UI", "MAYA_PAINT_EFFECTS_THREADS", "MAYA_PARALLEL_MEMCPY", "MAYA_PLUG_IN_PATH", "MAYA_PRESET_PATH", "MAYA_PROJECT", "MAYA_PROJECTS_DIR", "MAYA_QUICKTIME_ENCODING_GAMMA", "MAYA_RENDER_DESC_PATH", "MAYA_RENDERER_RT_BACKGROUND_COLOR", "MAYA_SCRIPT_PATH", "MAYA_SHELF_PATH", "MAYA_TEXCOORD_ORIENTATION", "MAYA_UI_LANGUAGE", "MI_CUSTOM_SHADER_PATH", "MI_MAYA_SOCKETS", "WINEDITOR"};
+    string $craMaya2014Envs[] = {"MAYA_FORCE_DX_WARP", "MAYA_GPUCACHE_VP2_OVERRIDE_API", "MAYA_INCLUDE_EMPTY_SHADING_GROUPS", "MAYA_OBJECT_SORT_USING_BOUNDING_BOX", "MAYA_FORCE_DX_DEBUG_DEVICE", "MAYA_VP2_OFF_NON_PE_FRAGMENT", "MAYA_VP2_USE_LINEAR_NC_SPACE_DEPTH_PRIORITY", "MAYA_VP2_DEVICE_OVERRIDE", "MAYA_USE_SUBRENDERING", "MAYA_TOOLCLIPS_PATH", "MAYA_USE_MALLOC", "MAYA_USE_VARYING_INT", "MAYA_DISABLE_CASCADING", "MAYA_CER_INCLUDE_SCENE_NAME", "MAYA_FORCE_PANEL_FOCUS", "MAYA_ENABLE_NG_CONSOLE_STATS", "SYNHUB_CONFIG_PATH", "MAYA_SYNSUITE_CONFIG_PATH", "ONECLICK_TEMP_DIR"};
+    string $craMaya2015Envs[] = {"BIFROST_DUMP_STATE_SERVER", "BIFROST_GRAPH_STEP_ADAPTIVITY", "BIFROST_GRAPH_STEP_MAX", "BIFROST_GRAPH_STEP_MIN", "MAYA_DISABLE_PLUGIN_SCENE_MODIFIED_WARNING", "MAYA_ENABLE_LEGACY_INCORRECT_NODE_NAMES", "MAYA_CUSTOM_TEMPLATE_WRITE_PATH", "MAYA_ALLOW_RENDER_LAYER_SWITCHING"};
+    string $craMaya2016Envs[] = {"MAYA_COLOR_MANAGEMENT_POLICY_FILE", "MAYA_COLOR_MANAGEMENT_POLICY_LOCK", "OCIO"};
+    
+    string $craEnvVariables[] = stringArrayCatenate($craSystemEnvs, $craMayaEnvs);
+    
+    if(`getApplicationVersionAsFloat` > 2013)
+        $craEnvVariables = stringArrayCatenate($craEnvVariables, $craMaya2014Envs);
+    if(`getApplicationVersionAsFloat` > 2014)
+        $craEnvVariables = stringArrayCatenate($craEnvVariables, $craMaya2015Envs);
+    if(`getApplicationVersionAsFloat` > 2015)
+        $craEnvVariables = stringArrayCatenate($craEnvVariables, $craMaya2016Envs);
+    
+    if(`about -linux`)
+        $craEnvVariables = stringArrayCatenate($craEnvVariables, $LINUX);
+    if(`about -macOS`)
+        $craEnvVariables = stringArrayCatenate($craEnvVariables, $MACOSX);
+    
+    $craEnvVariables = stringArrayRemoveDuplicates($craEnvVariables);
+    $craEnvVariables = sort($craEnvVariables);
+    
+    if (`window -exists craMayaEnvsWindow`)
+        deleteUI craMayaEnvsWindow;
+            
+    window -tlb 0 -t ("Maya " + `getApplicationVersionAsFloat` + " Environment Variables") craMayaEnvsWindow;
+    
+    frameLayout -lv 0 -mw 2 -mh 2;
+    frameLayout -lv 0 -mw 5 -mh 5;
+        rowLayout -nc 11 craMayaEnvsRL;
+            button -h 16 -l "Application" -ann "Application directory" -c "craMayaEnv MAYA_APP_DIR";
+            button -h 16 -l "Icons" -c "craMayaEnv XBMLANGPATH";
+            button -h 16 -l "Maya Location" -c "craMayaEnv MAYA_LOCATION";
+            button -h 16 -l "Modules" -c "craMayaEnv MAYA_MODULE_PATH";
+            button -h 16 -l "Path" -c "craMayaEnv PATH";
+            button -h 16 -l "Plug-ins" -c "craMayaEnv MAYA_PLUG_IN_PATH";
+            button -h 16 -l "Presets" -c "craMayaEnv MAYA_PRESET_PATH";
+            button -h 16 -l "Python" -c "craMayaEnv PYTHONPATH";
+            button -h 16 -l "Scripts" -c "craMayaEnv MAYA_SCRIPT_PATH";
+            button -h 16 -l "Shelfs" -c "craMayaEnv MAYA_SHELF_PATH";
+            if(`about -win`)
+                button -h 16 -l "Temp" -c "craMayaEnv TEMP";
+            else
+                button -h 16 -l "Temp" -c "craMayaEnv TMPDIR";
+        setParent ..;
+        
+        rowLayout -nc 4 -adj 2;
+            text -l " Current Environment Variable ";
+            textField 
+                -h 18
+                -ec "craMayaEnv `textField -q -text craCurrentEnvTXT`"
+                -cc "craMayaEnv `textField -q -text craCurrentEnvTXT`"
+                -text "" 
+            craCurrentEnvTXT;
+
+            popupMenu;
+            for($env in $craEnvVariables)
+                menuItem -l $env -c ("craMayaEnv " + $env);
+            setParent -m ..;
+
+            text -l "";
+            checkBox -v `optionVar -q craMayaEnvsSortPathsOV` -l "Sort paths by name" -cc "optionVar -iv craMayaEnvsSortPathsOV #1;craMayaEnv `textField -q -text craCurrentEnvTXT`;" craMayaEnvsSortPathsCB;
+        setParent ..;
+        
+        textScrollList -w 500 -h 150 -ann "Double-click to open path / right-click" -dcc "craMayaEnvsOpenPath" -sc "print `textScrollList -q -si craMayaEnvsTSL`" craMayaEnvsTSL;
+        popupMenu;
+            menuItem -l "Open path" -c "craMayaEnvsOpenPath";
+        setParent -m ..;
+        
+        rowLayout -nc 4 -adj 2;
+            text -l (" MAYA " + `getApplicationVersionAsFloat` + " ENVIRONMENT VARIABLES ");
+            optionMenu -cc ("craMayaEnv `optionMenu -q -v craVariablesOM`") craVariablesOM;
+                for($env in $craEnvVariables)
+                    menuItem -l $env;
+            setParent -m ..;
+            
+            if(`getApplicationVersionAsFloat` == 2016)
+            {
+                optionMenu -e -h 21 craVariablesOM;
+                nodeIconButton -ann "Maya 2016 Documentation: Environment Variables" -h 20 -w 20 -i "info.png" -c "showHelp -absolute \"http://help.autodesk.com/cloudhelp/2016/ENU/Maya/files/GUID-925EB3B5-1839-45ED-AA2E-3184E3A45AC7.htm\"";
+            }
+            if(`getApplicationVersionAsFloat` == 2015)
+                nodeIconButton -ann "Maya 2015 Documentation: Environment Variables" -h 20 -w 20 -i "info.png" -c "showHelp -absolute \"http://help.autodesk.com/cloudhelp/2015/ENU/Maya/files/Environment_Variables.htm\"";
+            if(`getApplicationVersionAsFloat` == 2014)                                                             
+                nodeIconButton -ann "Maya 2014 Documentation: Environment Variables" -h 20 -w 20 -i "info.png" -c "showHelp -absolute \"http://download.autodesk.com/global/docs/maya2014/en_us/files/Environment_Variables.htm\"";
+            if(`getApplicationVersionAsFloat` == 2013)                                                             
+                nodeIconButton -ann "Maya 2013 Documentation: Environment Variables" -h 20 -w 20 -i "info.png" -c "showHelp -absolute \"http://download.autodesk.com/global/docs/maya2013/en_us/files/Environment_Variables.htm\"";
+            if(`getApplicationVersionAsFloat` == 2012)                                                             
+                nodeIconButton -ann "Maya 2012 Documentation: Environment Variables" -h 20 -w 20 -i "info.png" -c "showHelp -absolute \"http://download.autodesk.com/global/docs/maya2012/en_us/files/Environment_Variables.htm\"";
+            
+            nodeIconButton -h 20 -w 20 -i "pickOtherObj.png" -ann "About this tool" -c "craAboutEnvsTool";
+        setParent -m ..;
+
+    optionMenu -e -v "MAYA_SCRIPT_PATH" craVariablesOM;
+    
+    craMayaEnv "MAYA_SCRIPT_PATH";
+    
+    int $items = (size(`rowLayout -q -ca craMayaEnvsRL`));
+    float $inc = 1.0/($items);
+    float $hue = 0;
+    
+    for($i in `rowLayout -q -ca craMayaEnvsRL` )
+    {
+            vector $rgb = `hsv_to_rgb <<$hue,.5,1>>`;
+            if(`button -q -ex $i`)                
+                button -e -bgc ($rgb.x) ($rgb.y) ($rgb.z) $i;
+            $hue+=$inc;
+    }
+    
+    showWindow ("craMayaEnvsWindow");
+}
+
+global proc craMayaEnv( string $variable )
+{
+        $variable = `toupper $variable`;
+        string $envVariable = $variable;
+        string $pluginPath = `getenv $envVariable`;
+        string $directories[];
+        
+        textField -e -text $variable craCurrentEnvTXT;
+        textScrollList -e -ra craMayaEnvsTSL;
+        catchQuiet(`optionMenu -e -v $variable craVariablesOM`);
+
+        if(`about -win`)
+		tokenize $pluginPath  ";" $directories;
+	else        
+		tokenize $pluginPath ":" $directories;
+
+	if(`checkBox -q -v craMayaEnvsSortPathsCB`)
+        $directories = sort($directories);
+        
+    for($dir in $directories)
+    {
+        $dir = `substituteAllString $dir "/%B" ""`;
+        textScrollList -e -a $dir craMayaEnvsTSL;
+    }
+        
+    print ("getenv \"" + $variable + "\"" + "\n"); 
+}
+
+global proc craAboutEnvsTool()
+{
+	if (`window -exists craAboutEnvsToolWin`)
+		deleteUI craAboutEnvsToolWin;
+	
+	window -t  "About Tool" -s 0 -tlb 1 craAboutEnvsToolWin;
+	frameLayout -mw 2 -mh 2 -lv 0;
+	frameLayout -mw 5 -mh 5 -lv 0;
+		columnLayout -adj 1;
+            text -l "<font color=gold><h3>Environment Variables</h3></font>";
+            text -l "<font color=steelblue><h3>v1.1.0</h3></font>";
+            text -l "";
+            textField -ed 0 -text "  carlos.rico.3d@gmail.com";
+            text -l "" -h 8;
+            text -l "<font color=indianred><h4>Carlos Rico Adega &copy; 2015</h4></font>";
+            text -l "";
+            button -w 70 -l "Tool Demo" -ann "" -c "showHelp -absolute \"https://www.youtube.com/watch?v=p2R_1Vfe1TI\"";
+            rowLayout -nc 2 -adj 1;
+                button -w 70 -l "Downloads" -ann "Free downloads from CreativeCrash.com" -c "showHelp -absolute \"http://www.creativecrash.com/users/charliewales/contributions?tab=free_downloads\"";
+                button -w 70 -ann "Linked[In] profile"-l "Linked[In]" -c "showHelp -absolute \"http://www.linkedin.com/pub/carlos-rico/6/58/325\"";
+            setParent ..;
+            rowLayout -nc 2 -adj 1;
+                button -l "Vimeo" -ann "Vimeo Channel" -c "showHelp -absolute \"https://vimeo.com/channels/749131\"";
+                button -w 70 -l "YouTube" -ann "Youtube Channel" -c "showHelp -absolute \"https://www.youtube.com/channel/UCXnSX8PHpQtwJR-uN-atO3Q\"";
+            setParent ..;      
+        setParent ..;    
+		setParent ..;
+    window -e -wh 170 192 craAboutEnvsToolWin;
+    showWindow craAboutEnvsToolWin;
+}
+
+global proc craMayaEnvsOpenPath()
+{
+	string $craGetCurrentPaths[] = `textScrollList -q -si craMayaEnvsTSL`;
+	string $craGetCurrentPath = $craGetCurrentPaths[0];
+	
+    if(`about -linux`)
+            system ("xdg-open " + `toNativePath $craGetCurrentPath` + "&");
+    else if(`about -macOS`)
+            system ("open " + `toNativePath $craGetCurrentPath`);
+    else if(`about -win`)
+            system ("start explorer \"" + `toNativePath $craGetCurrentPath` + "\"");
+}
+
+
+craMayaEnvs();
