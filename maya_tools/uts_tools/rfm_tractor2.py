@@ -69,6 +69,21 @@ import time
 import datetime
 from collections import OrderedDict
 
+try:
+    import renderfarm.dabtractor.factories.environment_factory as envfac
+except ImportError as ie:
+    print("Failed to import module: {}".format(ie))
+else:
+    dabuser=envfac.TractorJob()
+    print dabuser.department
+    print dabuser.useremail
+    print dabuser.username
+    print dabuser.usernumber
+    print dabuser.shotgunOwner
+
+
+
+
 
 def add_prman_render_task(parentTask, title, threads, rib, img, args=[]):
     """Create a single prman task for a Tractor job.
@@ -301,8 +316,8 @@ def generate_denoise_tasks(frametasktitle, frametask, displays, frame,
         for d in denoise_displays:
             is_variance = False
             filepath = denoise_displays[d]['filePath']
-            imgfile = FilePath(apistr.expand_string(filepath, display=d,
-                                                    frame=frame))
+            imgfile = FilePath(apistr.expand_string(
+                filepath, display=d,frame=frame))
             dspy_node = d
             if variance_display == d:
                 is_variance = True
@@ -494,12 +509,13 @@ def add_job_level_attrs(is_localqueue, job):
     paused = False
     priority = "10"
     service = "PixarRender"
-    envkey = "rfm-22.4 maya-2018"
+    ################
+    envkey = ""  # is defined later
     crews = ""
-    tier = "tier"
-    projects = "projects"
-    comment = "comment"
-    metadata = "metadata"
+    tier = "batch"
+    projects = str(dabuser.department)
+    comment = "Created from Maya by {}".format(dabuser.useremail)
+    metadata = "User:{user} Email:{mail}".format(user=dabuser.username,mail=dabuser.useremail)
     whendone = ""
     whenerror = ""
     whenalways = ""
@@ -939,7 +955,10 @@ def generate_job_file(is_localqueue, scene, stash_scene_name, do_RIB, do_bake):
     """
 
     job = author.Job()
-    job.title = str(scene)
+    #TODO  set title
+    _title = "{scene} {user} {number}".format(scene=scene,user=dabuser.username,number=dabuser.usernumber)
+
+    job.title = str(_title)
     job.serialsubtasks = True
     add_job_level_attrs(is_localqueue, job)
 
@@ -1111,7 +1130,7 @@ def batch_render_spool(do_bake=False):
         # spool to tractor
         tractor_cfg = cfg().tractor_cfg
         tractor_engine = tractor_cfg.get('engine', 'tractor-engine')
-        tractor_port = tractor_cfg.get('port', '80')
+        tractor_port = tractor_cfg.get('port', '5600')
         owner = tractor_cfg.get('user', getpass.getuser())
 
         # env var trumps rfm.config
@@ -1188,8 +1207,14 @@ def batch_preview():
         # just get a name, used to generate job file name
         stash_scene_name = sputils.stash_scene(doSave=False)
 
+
+
+
+
     job = author.Job()
-    job.title = str(scene)
+    _title = "{scene} {user} {number}".format(scene=scene,user=dabuser.username,number=dabuser.usernumber)
+
+    job.title = str(_title)
     job.serialsubtasks = True
     job.service = 'PixarRender'
 

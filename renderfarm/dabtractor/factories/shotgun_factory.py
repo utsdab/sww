@@ -23,7 +23,7 @@ from utils_factory import cleanname
 logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
-sh.setLevel(logging.DEBUG)
+sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
@@ -37,7 +37,7 @@ class ShotgunBase(object):
         self.development = None
         if os.environ.get("DABDEV"):
             self.development = os.environ.get("DABDEV")
-            logger.warn("DEVMODE: You are in DEV mode: {}".format(self.development))
+            logger.info("DEVMODE: You are in DEV mode: {}".format(self.development))
         self.config=JsonConfig()
         self.serverpath = str(self.config.getdefault("shotgun", "serverpath"))
         self.scriptname = str(self.config.getdefault("shotgun", "scriptname"))
@@ -48,7 +48,7 @@ class ShotgunBase(object):
             logger.warn("SHOTGUN: Cant talk to shotgun")
             self.sg = None
         else:
-            logger.info("SHOTGUN: talking to shotgun ...... %s" % self.serverpath)
+            logger.debug("SHOTGUN: talking to shotgun ...... %s" % self.serverpath)
 
 
 class ShotgunLink(object):
