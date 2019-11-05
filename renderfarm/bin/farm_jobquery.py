@@ -17,8 +17,13 @@ To do:
     ts.main()
 
 """
-###############################################################
+
+import os, sys
+from pprint import pprint
+import tractor.api.query as tq
+import renderfarm.dabtractor.factories.environment_factory as envfac
 import logging
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
@@ -26,12 +31,7 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-###############################################################
 
-import os, sys
-from pprint import pprint
-import tractor.api.query as tq
-import renderfarm.dabtractor.factories.environment_factory as envfac
 
 ################################
 env=envfac.Environment()

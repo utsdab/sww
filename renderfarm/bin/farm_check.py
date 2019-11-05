@@ -1,10 +1,10 @@
 #!/usr/bin/env python
+
+
 import os
 import stat
 from renderfarm.dabtractor.factories import utils_factory as utf
 from renderfarm.dabtractor.factories.shotgun_factory import Person
-
-# ##############################################################
 import logging
 
 logger = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(filename)s as %(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-# ##############################################################
+
 
 
 #TODO check LDAP

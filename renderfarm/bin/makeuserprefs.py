@@ -3,7 +3,11 @@
 command to be run as a farm job by pixar user
 '''
 
-# ##############################################################
+import os
+import sys
+import shutil
+import renderfarm.dabtractor.shotgun_factory as sgt
+import renderfarm.dabtractor.environment_factory as envfac
 import logging
 
 logger = logging.getLogger(__name__)
@@ -13,12 +17,7 @@ sh.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-# ##############################################################
-import os
-import sys
-import shutil
-import renderfarm.dabtractor.shotgun_factory as sgt
-import renderfarm.dabtractor.environment_factory as envfac
+
 
 """
     makeuserprefs.py is designed to be run as a farm job so as user pixar with

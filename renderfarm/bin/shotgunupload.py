@@ -1,6 +1,9 @@
 #!/usr/bin/python
 
-# ##############################################################
+import argparse
+import os
+import sys
+from renderfarm.dabtractor.factories import shotgun_factory as sgt
 import logging
 
 logger = logging.getLogger(__name__)
@@ -10,12 +13,6 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-# ##############################################################
-
-import argparse
-import os
-import sys
-from renderfarm.dabtractor.factories import shotgun_factory as sgt
 
 def parseArguments():
     parser = argparse.ArgumentParser(description="Simple sendmail wrapper",  epilog="This is a pain to get right")

@@ -5,7 +5,15 @@
 # TODO handle integrators
 # TODO handle ribgen only
 
+import Tkinter as tk
+import ttk
+import tkFileDialog
+import Tkconstants
+import os
+import renderfarm.dabtractor as dabtractor
+import render_nuke_factory as rfac
 import logging
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
@@ -14,13 +22,6 @@ formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
 
-import Tkinter as tk
-import ttk
-import tkFileDialog
-import Tkconstants
-import os
-import renderfarm.dabtractor as dabtractor
-import render_nuke_factory as rfac
 
 
 class WindowBase(object):

@@ -12,8 +12,6 @@ import string
 import sys
 import logging
 import os
-import inspect
-# import Set
 from shotgun_api3 import Shotgun
 from site_factory import JsonConfig
 from utils_factory import dictfromlistofdicts

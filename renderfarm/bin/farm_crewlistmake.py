@@ -1,9 +1,8 @@
 #!/usr/bin/env python
+
 import os
 import datetime
 from renderfarm.dabtractor.factories import shotgun_factory as sgt
-
-# ##############################################################
 import logging
 
 logger = logging.getLogger(__name__)
@@ -13,7 +12,7 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(filename)s as %(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-# ##############################################################
+
 
 
 logger.info(">>>>>>> Checking if you are a Farm User <<<<<<<<")

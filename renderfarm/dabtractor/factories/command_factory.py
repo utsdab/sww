@@ -7,9 +7,8 @@ Some common commands are wrapped up as convenience objects - like mail and rsync
 
 # TODO
 
-# ##############################################################
-import logging
 
+import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
@@ -17,7 +16,7 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-# ##############################################################
+
 
 import os
 import sys

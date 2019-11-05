@@ -3,7 +3,9 @@
 returns your to your user prefs area
 '''
 
-# ##############################################################
+import os
+import sys
+from renderfarm.dabtractor.factories.shotgun_factory import Person
 import logging
 
 logger = logging.getLogger(__name__)
@@ -13,11 +15,7 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-# ##############################################################
 
-import os
-import sys
-from renderfarm.dabtractor.factories.shotgun_factory import Person
 
 def getuserwork():
     try:

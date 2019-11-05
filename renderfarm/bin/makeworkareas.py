@@ -3,8 +3,14 @@
 command to be run as a farm job by pixar user
 '''
 
-# ##############################################################
+import os
+import sys
+import pwd
+import shutil
+import renderfarm.dabtractor.shotgun_factory as sgt
+import renderfarm.dabtractor.environment_factory as envfac
 import logging
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
@@ -12,14 +18,6 @@ sh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
-# ##############################################################
-import os
-import sys
-import pwd
-# import grp
-import shutil
-import renderfarm.dabtractor.shotgun_factory as sgt
-import renderfarm.dabtractor.environment_factory as envfac
 
 tj=envfac.TractorJob()
 people=sgt.People()
