@@ -7,6 +7,10 @@
 # print ps.__file__
 
 import sys
+
+import inspect
+print("Using Python executable from: {}".format(sys.executable))
+
 from PySide import QtGui
 
 
