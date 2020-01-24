@@ -3,8 +3,6 @@
 Main submission of a renderman for maya job to tractor.
 '''
 
-#TODO
-
 import os
 import sys
 import logging
@@ -21,7 +19,7 @@ logger.addHandler(sh)
 
 def main():
     try:
-        w=ui.Window()
+        ui.Window()
     except Exception, err:
         logger.warn(err)
         sys.exit("Sorry you dont appear to be a registered farm user {}, try running farm_adduser.py and then contact "
@@ -33,4 +31,5 @@ def main():
 if __name__ == '__main__':
     # print os.environ['PYTHONPATH']
     main()
+    # print "This cannot work until autodesk fix maya sadly"
 

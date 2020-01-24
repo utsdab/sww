@@ -29,7 +29,6 @@ def main():
                  "matthew.gidney@uts.edu.au".format(os.environ["USER"]))
 
 
-
 if __name__ == '__main__':
     # print os.environ['PYTHONPATH']
     # main()
