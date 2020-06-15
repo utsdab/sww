@@ -29,9 +29,8 @@ def main():
                  "matthew.gidney@uts.edu.au".format(os.environ["USER"]))
 
 
-
 if __name__ == '__main__':
     # print os.environ['PYTHONPATH']
-    # main()
+    main()
     print "PLEASE LAUNCH RFM JOBS FROM MAYA USING THE DAB SHELF"
 

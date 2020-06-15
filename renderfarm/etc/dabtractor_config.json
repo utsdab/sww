@@ -52,17 +52,17 @@
 
 
   "maya"           : {
-    "version"      : [ "2018"],
+    "version"      : [ "2020","2019"],
     "mayarenderer" : [ "sw","arnold"]
   },
 
   "rfmbatch"       : {
-    "servicekey"   : [ "2018"],
-    "envkey"       : [ "rmf-22.4","maya-2018"]
+    "servicekey"   : [ "2020","2019"],
+    "envkey"       : [ "rfm-23.3","maya-2020"]
   },
 
   "nuke"           : {
-    "version"      : [ "11.3v1"]
+    "version"      : [ "12.0v1"]
   },
 
   "houdini"        : {
@@ -70,17 +70,17 @@
   },
 
   "renderman"      : {
-    "version"      : [ "22.4", "22.3", "21.8"],
+    "version"      : [ "23.3", "22.7"],
     "integrator"   : [ "FROMFILE", "pxr", "vcm", "visualiser", "occlusion"]
   },
 
   "renderjob"      : {
     "tier"         : [ "batch", "low", "default", "preview", "rush", "admin" ],
-    "projectgroup" : [ "Year1", "Year2", "Year3", "Year4", "Masters", "Staff", "Other" ]
+    "projectgroup" : [ "Year1", "Year2", "Year3", "Year4", "Staff", "Other" ]
   },
 
   "render"         : {
-    "threads"      : [ "8", "16", "32" ],
+    "threads"      : [ "4", "8", "16", "32" ],
     "chunks"       : [ "1", "2", "4", "8", "16" ,"32","64"],
     "maxsamples"   : [ "64", "128","256", "512", "FROMFILE", "1024", "32", "16" ],
     "memory"       : [ "4000", "8000", "2000" ],

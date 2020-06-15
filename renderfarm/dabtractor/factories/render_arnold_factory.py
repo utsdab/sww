@@ -40,19 +40,19 @@ class Render(object):
     def __init__(self, job):
         self.job=job
         utils.printdict( self.job.__dict__)
-        self.job.dabwork="$DABWORK"
-        self.mayaprojectpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT"
+        self.job.dabwork="/Volumes/dabrender/work"
+        self.mayaprojectpathalias = "$DABWORK/$TYPE/$SHOW/$PROJECT"
         self.mayaprojectpath = os.path.join(self.job.dabwork, self.job.envtype, self.job.envshow, self.job.envproject)
         self.job.envprojectalias = "$PROJECT"
-        self.mayascenefilefullpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/$SCENE"
+        self.mayascenefilefullpathalias = "$DABWORK/$TYPE/$SHOW/$PROJECT/$SCENE"
         self.mayascenefilefullpath = os.path.join( self.job.dabwork, self.job.envtype, self.job.envshow,self.job.envproject,self.job.envscene)
         self.scenename = os.path.basename(self.job.envscene)
         self.scenebasename = os.path.splitext(self.scenename)[0]
         self.sceneext = os.path.splitext(self.scenename)[1]
         self.renderpath = os.path.join( self.job.dabwork, self.job.envtype, self.job.envshow, self.job.envproject,"arnold", self.scenebasename)
-        self.renderpathalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/arnold/$SCENENAME"
+        self.renderpathalias = "$DABWORK/$TYPE/$SHOW/$PROJECT/arnold/$SCENENAME"
         self.renderdirectory = os.path.join(self.renderpath,"images")
-        self.renderimagesalias = "$DABRENDER/$TYPE/$SHOW/$PROJECT/arnold/$SCENENAME/images"
+        self.renderimagesalias = "$DABWORK/$TYPE/$SHOW/$PROJECT/arnold/$SCENENAME/images"
         self.envkey_maya = "maya{}".format(self.job.mayaversion)
         self.options = ""
         self.outformat = "exr"
@@ -206,7 +206,7 @@ class Render(object):
                           "-o", _outfile]
             rendererspecificargs = [ "-nstdin", "-nokeypress", "-dp", "-dw" ]
             # if self.job.optionmaxsamples != "FROMFILE":
-                # rendererspecificargs.extend([ "-maxsamples", "{}".format(self.job.optionmaxsamples) ])
+            #     rendererspecificargs.extend([ "-maxsamples", "{}".format(self.job.optionmaxsamples) ])
             # if self.job.jobthreadmemory != "FROMFILE":
             #     rendererspecificargs.extend([ "-memorylimit", "{}".format(self.job.jobthreadmemory) ])
 
@@ -309,7 +309,8 @@ class Render(object):
     def spool(self):
         # double check scene file exists
         logger.info("Double Checking: {}".format(os.path.expandvars(self.mayascenefilefullpath)))
-        if os.path.exists(os.path.expandvars(self.mayascenefilefullpath)):
+        expandedpath=os.path.expandvars(self.mayascenefilefullpath)
+        if os.path.isfile(expandedpath):
             try:
                 logger.info("Spooled correctly")
                 # all jobs owner by pixar user on the farm
@@ -317,10 +318,10 @@ class Render(object):
             except Exception, spoolerr:
                 logger.warn("A spool error %s" % spoolerr)
         else:
-            message = "Maya scene file non existant %s" % self.mayascenefilefullpath
+            message = "Maya scene file non existant %s" % expandedpath
             logger.critical(message)
             logger.critical(os.path.normpath(self.mayascenefilefullpath))
-            logger.critical(os.path.expandvars(self.mayascenefilefullpath))
+            logger.critical(expandedpath)
             sys.exit(message)
 
 # ##############################################################################
@@ -353,29 +354,28 @@ maya -batch -proj /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Render
 
 kick -i /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Renderfarm/data/xxx.0001.ass -t 6 -dp -ds 8 -r 1280 720
 
--o outputfile eh out.exr
-
-
-https://github.com/kiryha/AnimationDNA/wiki/06-Tutorials
- 
- 
+Arnold 6.0.1.0 [25372a4c] darwin clang-5.0.2 oiio-2.1.4 osl-1.11.0 vdb-4.0.0 clm-1.1.2.132 rlm-12.4.2 2019/12/04 07:50:24
 Usage:  kick [options] ...
   -i %s               Input .ass file
   -o %s               Output filename
   -of %s              Output format: exr jpg png tif 
-  -ocs %s             Output color space
+  -ocs %s             Output color space for render window
   -r %d %d            Image resolution
   -sr %f              Scale resolution %f times in each dimension
   -rg %d %d %d %d     Render region (minx miny maxx maxy)
   -as %d              Anti-aliasing samples
+  -asmax %d           Anti-aliasing samples maximum (for adaptive sampling)
   -af %s %f           Anti-aliasing filter and width (box triangle gaussian ...)
   -asc %f             Anti-aliasing sample clamp
   -c %s               Active camera
   -sh %f %f           Motion blur shutter (start end)
   -fov %f             Camera FOV
   -e %f               Camera exposure
-  -ar %f              Aspect ratio
+  -ar %f              Pixel aspect ratio
   -t %d               Threads
+  -gpu %s             Enabled gpu devices
+  -gpu_warm           Run the gpu cache warming pre-process
+  -gpu_cache_dir      Specify the directory in which to store the OptiX cache
   -bs %d              Bucket size
   -bc %s              Bucket scanning (top left random spiral hilbert)
   -td %d              Total ray depth
@@ -408,12 +408,16 @@ Usage:  kick [options] ...
   -dp                 Disable progressive rendering (recommended for batch rendering)
   -ipr [m|q]          Interactive rendering mode, using Maya (default) or Quake/WASD controls
   -turn %d            Render n frames rotating the camera around the lookat point
+  -turn_smooth        Use a smooth start/end when rendering turn tables with -turn
   -lookat %f %f %f    Override camera look_at point (useful if the camera is specified by a matrix)
   -position %f %f %f  Override camera position
   -up %f %f %f        Override camera up vector
   -v %d               Verbose level (0..6)
   -nw %d              Maximum number of warnings
   -logfile %s         Write log file to the specified file path
+  -ostatsfile %s      Write stats to the specified .json file, overwriting it if it exists
+  -statsfile %s       Append stats to the specified .json file
+  -profile %s         Write profile events to the specified .json file
   -l %s               Add search path for plugin libraries
   -nodes [n|t]        List all installed nodes, sorted by Name (default) or Type
   -info [n|u] %s      Print detailed information for a given node, sorted by Name or Unsorted (default)
@@ -422,17 +426,28 @@ Usage:  kick [options] ...
   -resave %s          Re-save .ass scene to filename
   -db                 Disable binary encoding when re-saving .ass files (useful for debugging)
   -forceexpand        Force expansion of procedural geometry before re-saving
+  -laovs              List available AOVs in loaded .ass files
   -lcs                List available color spaces in loaded .ass files
   -nostdin            Ignore input from stdin
   -nokeypress         Disable wait for ESC keypress after rendering to display window
   -sl                 Skip license check (assume license is not available)
+  -op %s              Operator node name to evaluate from
+  -iops               Ignore operators
   -licensecheck       Check the connection with the license servers and list installed licenses
   -utest              Run unit tests for the Arnold API
   -av, --version      Print Arnold version number
   -notices            Print copyright notices
+  -ADP                Display ADP optin dialog
   -h, --help          Show this help message
 where %d=integer, %f=float, %s=string
 Example:  kick -i teapot.ass -r 640 480 -as 4 -o teapot.tif
+
+
+https://github.com/kiryha/AnimationDNA/wiki/06-Tutorials
+ 
+ 
+Example:  kick -i teapot.ass -r 640 480 -as 4 -o teapot.tif
+
 
 -set options.skip_license_check off
 
