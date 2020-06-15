@@ -58,11 +58,11 @@
 
   "rfmbatch"       : {
     "servicekey"   : [ "2020","2019"],
-    "envkey"       : [ "rmf-23.1","maya-2020"]
+    "envkey"       : [ "rfm-23.3","maya-2020"]
   },
 
   "nuke"           : {
-    "version"      : [ "11.3v1"]
+    "version"      : [ "12.0v1"]
   },
 
   "houdini"        : {
@@ -70,7 +70,7 @@
   },
 
   "renderman"      : {
-    "version"      : [ "23.1", "22.7"],
+    "version"      : [ "23.3", "22.7"],
     "integrator"   : [ "FROMFILE", "pxr", "vcm", "visualiser", "occlusion"]
   },
 
