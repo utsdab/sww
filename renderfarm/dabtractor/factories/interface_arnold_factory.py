@@ -653,8 +653,7 @@ class Window(WindowBase):
             logger.critical("Problem validating filepath {} : {}".format(self.filefullpath, err))
         else:
             if _checkpath:
-                logger.critical("Problem with naming" % _checkpath)
-
+                logger.critical("Problem with naming {}".format(_checkpath))
         try:
             self.job.mayaprojectfullpath=self.projfullpath
             self.job.mayascenefullpath=self.filefullpath
@@ -675,7 +674,7 @@ class Window(WindowBase):
             self.job.mayaversion=self.mayaversion.get()
             # self.job.renderversion=self.renderversion.get()
         except Exception,err:
-            logger.warn(err)
+            logger.warn("Pass Data {}".format(err))
 
     def validate(self):
         try:
@@ -693,7 +692,7 @@ class Window(WindowBase):
             rj.validate()
 
         except Exception, validateError:
-            logger.warn("Problem validating %s" % validateError)
+            logger.warn("Problem validating farm sumbission {}".format(validateError))
 
     def submit(self):
         try:
@@ -705,7 +704,7 @@ class Window(WindowBase):
             rj.spool()
 
         except Exception, submiterror:
-            logger.warn("Problem submitting %s" % submiterror)
+            logger.warn("Problem submitting to farm {}".format(submiterror))
 
     def cancel(self):
         logger.info("Camcelled")
