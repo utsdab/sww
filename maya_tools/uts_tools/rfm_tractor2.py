@@ -83,8 +83,6 @@ else:
 
 
 
-
-
 def add_prman_render_task(parentTask, title, threads, rib, img, args=[]):
     """Create a single prman task for a Tractor job.
 
