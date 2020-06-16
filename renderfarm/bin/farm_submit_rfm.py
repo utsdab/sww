@@ -33,5 +33,5 @@ def main():
 if __name__ == '__main__':
     # print os.environ['PYTHONPATH']
     main()
-    #print "PLEASE LAUNCH RFM JOBS FROM MAYA USING THE DAB SHELF"
+    print "PLEASE LAUNCH RFM JOBS FROM MAYA USING THE DAB SHELF"
 
