@@ -30,9 +30,8 @@
 -----------------------------------------------------------------------------
 """
 
-import cPickle as pickle
+from ..six.moves import cPickle as pickle
 import os
-import copy
 
 from .errors import MockgunError
 
@@ -81,7 +80,7 @@ class SchemaFactory(object):
 
     @classmethod
     def _read_file(cls, path):
-        fh = open(path, "r")
+        fh = open(path, "rb")
         try:
             return pickle.load(fh)
         finally:
@@ -110,14 +109,14 @@ def generate_schema(shotgun, schema_file_path, schema_entity_file_path):
     """
 
     schema = shotgun.schema_read()
-    fh = open(schema_file_path, "w")
+    fh = open(schema_file_path, "wb")
     try:
         pickle.dump(schema, fh, protocol=_HIGHEST_24_PICKLE_PROTOCOL)
     finally:
         fh.close()
 
     schema_entity = shotgun.schema_entity_read()
-    fh = open(schema_entity_file_path, "w")
+    fh = open(schema_entity_file_path, "wb")
     try:
         pickle.dump(schema_entity, fh, protocol=_HIGHEST_24_PICKLE_PROTOCOL)
     finally:
