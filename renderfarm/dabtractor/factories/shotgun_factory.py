@@ -1,9 +1,8 @@
 #!/usr/bin/env python2
 '''
-This code supports all access to shotgun which is used as an authentication model for users, and
-as the main production tracking database.
-
+This code supports all access to shotgun which is used as an authentication model for users, and as the main production tracking database.
 '''
+
 # TODO  handle no connection to shotgun especially in dev mode
 # TODO put project-if at top leve; of Project
 
@@ -12,6 +11,7 @@ import string
 import sys
 import logging
 import os
+
 from shotgun_api3 import Shotgun
 from site_factory import JsonConfig
 from utils_factory import dictfromlistofdicts
@@ -19,9 +19,9 @@ from utils_factory import dictfromlistofdictionaries
 from utils_factory import cleanname
 
 logger = logging.getLogger(__name__)
-# logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
-sh.setLevel(logging.INFO)
+sh.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
@@ -100,7 +100,7 @@ class Person(ShotgunBase):
             logger.debug("Shotgun Login Found: {}".format(self.shotgunlogin))
         else:
             self.shotgunlogin = os.environ["USER"]
-            logger.debug("Shotgun Login Not Found using $USER: {}".format(self.shotgunlogin))
+            logger.debug("Shotgun Login Not Passed using $USER: {}".format(self.shotgunlogin))
         if not self.sg:
             self.getDevInfo()
         else:
@@ -538,7 +538,6 @@ class Project(ShotgunBase):
 
 
 
-
 class People(ShotgunBase):
     def __init__(self):
         super(People, self).__init__()
@@ -717,9 +716,9 @@ if __name__ == "__main__":
 
     # ############ SOFTWARE TEST
     logger.debug("TEST CLASS SOFTWARE")
-    # p=Project()
+    p=Project()
     # p.getsoftware()
-    # pprint (p.projects())
+    pprint (p.projects())
     # s=Software()
     # aa=s.getprojectsoftware(176)
     # q=Project()

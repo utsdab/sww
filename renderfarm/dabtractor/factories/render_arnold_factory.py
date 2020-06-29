@@ -106,12 +106,14 @@ class Render(object):
         task_thisjob.addChild(task_notify_admin_start)
 
         # ############## 5 NOTIFY USER OF JOB START ###############
-        if self.job.optionsendjobstartemail:
-            logger.info("email = {}".format(self.job.useremail))
-            task_notify_start = self.job.author.Task(title="Notify Start", service="ShellServices")
-            task_notify_start.addCommand(self.mail(self.job.useremail, "JOB", "START", "{}".format(self.mayascenefilefullpath)))
-            task_thisjob.addChild(task_notify_start)
-
+        try:
+            if self.job.optionsendjobstartemail:
+                logger.info("email = {}".format(self.job.useremail))
+                task_notify_start = self.job.author.Task(title="Notify Start", service="ShellServices")
+                task_notify_start.addCommand(self.mail(self.job.useremail, "JOB", "START", "{}".format(self.mayascenefilefullpath)))
+                task_thisjob.addChild(task_notify_start)
+        except Exception:
+            pass
         # ####### make a render directory - mayaproj/arnold/scene/[ass,images]
         _mayaproj = self.mayaprojectpath
         _arnolddir = os.path.join(self.mayaprojectpath,"arnold")

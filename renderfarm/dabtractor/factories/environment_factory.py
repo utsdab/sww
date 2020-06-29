@@ -138,17 +138,18 @@ class Environment(object):
 
 if __name__ == '__main__':
 
-    sh.setLevel(logging.INFO)
+    sh.setLevel(logging.DEBUG)
 
     logger.debug("\n-------- ENVIRONMENT ------------")
     _E2=Environment()
     # logger.debug( _E2.requiredenvars)
-    # pprint(_E2.environ)
+    for k in _E2.requiredenvars:
+        logger.debug("KEY {key} : {value}".format(key=k[0],value=k[:0]))
 
 
     logger.debug("\n-------- TRACTOR JOB ------------")
-    _TJ=TractorJob()
-    pprint(_TJ.__dict__)
+    # _TJ=TractorJob()
+    # pprint(_TJ.__dict__)
 
 
 

@@ -132,71 +132,71 @@ class Window(WindowBase):
         self.envscenebut.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor3,text="Upload as new version to SHOTGUN").grid(row=__row, column=0, columnspan=4, rowspan=1, sticky=tk.W + tk.E)
-        __row += 1
+        # # ###################################################################
+        # tk.Label(self.canvas, bg=self.bgcolor3,text="Upload as new version to SHOTGUN").grid(row=__row, column=0, columnspan=4, rowspan=1, sticky=tk.W + tk.E)
+        # __row += 1
+        #
+        # self.sgtProject = tk.StringVar()
+        # self.sgtClass = tk.StringVar()
+        # self.sgtShotAss = tk.StringVar()
+        # self.sgtSeqAssType = tk.StringVar()
+        # self.sgtTask = tk.StringVar()
 
-        self.sgtProject = tk.StringVar()
-        self.sgtClass = tk.StringVar()
-        self.sgtShotAss = tk.StringVar()
-        self.sgtSeqAssType = tk.StringVar()
-        self.sgtTask = tk.StringVar()
-
-        # ########################### S H O T G U N ############################
-        _txt="Send the resulting proxy to Shotgun"
-        self.sendToShotgun = tk.IntVar()
-        self.sendToShotgun.set(1)
-        self.job.sendToShotgun = True
-        self.sendtoshotgunbut=ttk.Checkbutton(self.canvas, variable=self.sendToShotgun, command=self.setSendToShotgun)
-        self.sendtoshotgunbut.config(text=_txt)
-        self.sendtoshotgunbut.grid(row=__row,column=1,sticky=tk.W)
-        __row += 1
-
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="SHOTGUN PROJ").grid(row=__row, column=0, sticky=tk.E)
-        self.sgtProject.set(self.msg_selectSgtProject)
-        self.sgtProjectBox = ttk.Combobox(self.canvas, textvariable=self.sgtProject)
-        self.sgtProjectBox.config(values=self.getSgtProjectValues(), justify=tk.CENTER)
-        self.sgtProjectBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        self.sgtProjectBox.bind("<<ComboboxSelected>>", self.setSgtProject)
-        __row += 1
-
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="CLASS").grid(row=__row, column=0, sticky=tk.E)
-        self.sgtClass.set(self.msg_null)
-        self.sgtClassBox = ttk.Combobox(self.canvas, textvariable=self.sgtClass)
-        self.sgtClassBox.config(values=self.getSgtClassValues(), justify=tk.CENTER)
-        self.sgtClassBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        self.sgtClassBox.bind("<<ComboboxSelected>>", self.setSgtClass)
-        __row += 1
-
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1, text="SEQUENCE or ASSETTYPE").grid(row=__row, column=0, sticky=tk.E)
-        self.sgtSeqAssType.set(self.msg_null)
-        self.sgtSeqAssTypeBox = ttk.Combobox(self.canvas, textvariable=self.sgtSeqAssType)
-        self.sgtSeqAssTypeBox.config(values=self.getSgtSeqAssTypeValues(), justify=tk.CENTER)
-        self.sgtSeqAssTypeBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        self.sgtSeqAssTypeBox.bind("<<ComboboxSelected>>", self.setSgtSeqAssetType)
-        __row += 1
-
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="SHOT or ASSET").grid(row=__row, column=0, sticky=tk.E)
-        self.sgtShotAss.set(self.msg_null)
-        self.sgtShotAssBox = ttk.Combobox(self.canvas, textvariable=self.sgtShotAss)
-        self.sgtShotAssBox.config(values=self.getSgtShotAssValues(), justify=tk.CENTER)
-        self.sgtShotAssBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        self.sgtShotAssBox.bind("<<ComboboxSelected>>", self.setSgtShotAss)
-        __row += 1
-
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="TASK").grid(row=__row, column=0, sticky=tk.E)
-        self.sgtTask.set(self.msg_null)
-        self.sgtTaskBox = ttk.Combobox(self.canvas, textvariable=self.sgtTask)
-        self.sgtTaskBox.config(values=self.getSgtTaskValues(), justify=tk.CENTER)
-        self.sgtTaskBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        self.sgtTaskBox.bind("<<ComboboxSelected>>", self.setSgtTask)
-        __row += 1
-
+        # # ########################### S H O T G U N ############################
+        # _txt="Send the resulting proxy to Shotgun"
+        # self.sendToShotgun = tk.IntVar()
+        # self.sendToShotgun.set(1)
+        # self.job.sendToShotgun = True
+        # self.sendtoshotgunbut=ttk.Checkbutton(self.canvas, variable=self.sendToShotgun, command=self.setSendToShotgun)
+        # self.sendtoshotgunbut.config(text=_txt)
+        # self.sendtoshotgunbut.grid(row=__row,column=1,sticky=tk.W)
+        # __row += 1
+        #
+        # # ###################################################################
+        # tk.Label(self.canvas, bg=self.bgcolor1,text="SHOTGUN PROJ").grid(row=__row, column=0, sticky=tk.E)
+        # self.sgtProject.set(self.msg_selectSgtProject)
+        # self.sgtProjectBox = ttk.Combobox(self.canvas, textvariable=self.sgtProject)
+        # self.sgtProjectBox.config(values=self.getSgtProjectValues(), justify=tk.CENTER)
+        # self.sgtProjectBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        # self.sgtProjectBox.bind("<<ComboboxSelected>>", self.setSgtProject)
+        # __row += 1
+        #
+        # # ###################################################################
+        # tk.Label(self.canvas, bg=self.bgcolor1,text="CLASS").grid(row=__row, column=0, sticky=tk.E)
+        # self.sgtClass.set(self.msg_null)
+        # self.sgtClassBox = ttk.Combobox(self.canvas, textvariable=self.sgtClass)
+        # self.sgtClassBox.config(values=self.getSgtClassValues(), justify=tk.CENTER)
+        # self.sgtClassBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        # self.sgtClassBox.bind("<<ComboboxSelected>>", self.setSgtClass)
+        # __row += 1
+        #
+        # # ###################################################################
+        # tk.Label(self.canvas, bg=self.bgcolor1, text="SEQUENCE or ASSETTYPE").grid(row=__row, column=0, sticky=tk.E)
+        # self.sgtSeqAssType.set(self.msg_null)
+        # self.sgtSeqAssTypeBox = ttk.Combobox(self.canvas, textvariable=self.sgtSeqAssType)
+        # self.sgtSeqAssTypeBox.config(values=self.getSgtSeqAssTypeValues(), justify=tk.CENTER)
+        # self.sgtSeqAssTypeBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        # self.sgtSeqAssTypeBox.bind("<<ComboboxSelected>>", self.setSgtSeqAssetType)
+        # __row += 1
+        #
+        # # ###################################################################
+        # tk.Label(self.canvas, bg=self.bgcolor1,text="SHOT or ASSET").grid(row=__row, column=0, sticky=tk.E)
+        # self.sgtShotAss.set(self.msg_null)
+        # self.sgtShotAssBox = ttk.Combobox(self.canvas, textvariable=self.sgtShotAss)
+        # self.sgtShotAssBox.config(values=self.getSgtShotAssValues(), justify=tk.CENTER)
+        # self.sgtShotAssBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        # self.sgtShotAssBox.bind("<<ComboboxSelected>>", self.setSgtShotAss)
+        # __row += 1
+        #
+        # # ###################################################################
+        # tk.Label(self.canvas, bg=self.bgcolor1,text="TASK").grid(row=__row, column=0, sticky=tk.E)
+        # self.sgtTask.set(self.msg_null)
+        # self.sgtTaskBox = ttk.Combobox(self.canvas, textvariable=self.sgtTask)
+        # self.sgtTaskBox.config(values=self.getSgtTaskValues(), justify=tk.CENTER)
+        # self.sgtTaskBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
+        # self.sgtTaskBox.bind("<<ComboboxSelected>>", self.setSgtTask)
+        # __row += 1
+        #
         # ########################## M A Y A ##########################
         tk.Label(self.canvas, bg=self.bgcolor3,text="Maya Generic Details").grid(row=__row, column=0, columnspan=4, rowspan=1, sticky=tk.W + tk.E)
         __row += 1
@@ -309,12 +309,12 @@ class Window(WindowBase):
         self.chunksbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
-        # ###################################################################
-        _txt="Dont Re-Render Existing Frames"
-        self.skipframes = tk.IntVar()
-        self.skipframes.set(1)
-        tk.Checkbutton(self.canvas, bg=self.bgcolor1, text=_txt, variable=self.skipframes).grid(row=__row, column=1,sticky=tk.W)
-        __row += 1
+        # # ###################################################################
+        # _txt="Dont Re-Render Existing Frames"
+        # self.skipframes = tk.IntVar()
+        # self.skipframes.set(1)
+        # tk.Checkbutton(self.canvas, bg=self.bgcolor1, text=_txt, variable=self.skipframes).grid(row=__row, column=1,sticky=tk.W)
+        # __row += 1
 
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1, text="Other Options").grid(row=__row, column=0)
@@ -323,42 +323,42 @@ class Window(WindowBase):
         self.bar7 = tk.Entry(self.canvas, bg=self.bgcolor2, textvariable=self.options, width=40).grid(row=__row,column=1, columnspan=4,sticky=tk.W + tk.E)
         __row += 1
 
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor3,text="Make Proxy").grid(row=__row,column=0,columnspan=4,sticky=tk.W + tk.E)
-        __row += 1
+        # # ###################################################################
+        # tk.Label(self.canvas, bg=self.bgcolor3,text="Make Proxy").grid(row=__row,column=0,columnspan=4,sticky=tk.W + tk.E)
+        # __row += 1
 
-        # ########################### P R O X Y ############################
-        _txt="Make Movie from Finished Frames"
-        self.makeproxy = tk.IntVar()
-        self.makeproxy.set(1)
-        tk.Checkbutton(self.canvas, bg=self.bgcolor1, text=_txt, variable=self.makeproxy).grid(row=__row, column=1,sticky=tk.W)
-        __row += 1
+        # # ########################### P R O X Y ############################
+        # _txt="Make Movie from Finished Frames"
+        # self.makeproxy = tk.IntVar()
+        # self.makeproxy.set(1)
+        # tk.Checkbutton(self.canvas, bg=self.bgcolor1, text=_txt, variable=self.makeproxy).grid(row=__row, column=1,sticky=tk.W)
+        # __row += 1
 
-        # ########################### N O T I F I C A T I O N S #############
-        _txt="Tractor Notifications"
-        tk.Label(self.canvas, bg=self.bgcolor3, text=_txt).grid(row=__row,column=0,columnspan=4,sticky=tk.W + tk.E)
-        __row += 1
+        # # ########################### N O T I F I C A T I O N S #############
+        # _txt="Tractor Notifications"
+        # tk.Label(self.canvas, bg=self.bgcolor3, text=_txt).grid(row=__row,column=0,columnspan=4,sticky=tk.W + tk.E)
+        # __row += 1
+        #
+        # # ###################################################################
+        # self.emailjobstart = tk.IntVar()
+        # self.emailjobstart.set(1)
+        # self.emailjobstartbut=tk.Checkbutton(self.canvas, variable=self.emailjobstart, bg=self.bgcolor1, text="Job Start").grid(row=__row, column=1,sticky=tk.W)
+        #
+        #
+        # self.emailjobend = tk.IntVar()
+        # self.emailjobend.set(1)
+        # self.emailjobendbut=tk.Checkbutton(self.canvas, variable=self.emailjobend, bg=self.bgcolor1,text="Job End").grid(row=__row, column=2, sticky=tk.W)
+        # __row += 1
 
-        # ###################################################################
-        self.emailjobstart = tk.IntVar()
-        self.emailjobstart.set(1)
-        self.emailjobstartbut=tk.Checkbutton(self.canvas, variable=self.emailjobstart, bg=self.bgcolor1, text="Job Start").grid(row=__row, column=1,sticky=tk.W)
-
-
-        self.emailjobend = tk.IntVar()
-        self.emailjobend.set(1)
-        self.emailjobendbut=tk.Checkbutton(self.canvas, variable=self.emailjobend, bg=self.bgcolor1,text="Job End").grid(row=__row, column=2, sticky=tk.W)
-        __row += 1
-
-        # ###################################################################
-        self.emailtaskend = tk.IntVar()
-        self.emailtaskend.set(0)
-        self.emailtaskendbut=tk.Checkbutton(self.canvas, variable=self.emailtaskend, bg=self.bgcolor1, text="Each Frame End").grid(row=__row, column=1, sticky=tk.W)
-        __row += 1
-
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor3, text="Submit Job To Tractor").grid(row=__row, column=0, columnspan=4, sticky=tk.W + tk.E)
-        __row += 1
+        # # ###################################################################
+        # self.emailtaskend = tk.IntVar()
+        # self.emailtaskend.set(0)
+        # self.emailtaskendbut=tk.Checkbutton(self.canvas, variable=self.emailtaskend, bg=self.bgcolor1, text="Each Frame End").grid(row=__row, column=1, sticky=tk.W)
+        # __row += 1
+        #
+        # # ###################################################################
+        # tk.Label(self.canvas, bg=self.bgcolor3, text="Submit Job To Tractor").grid(row=__row, column=0, columnspan=4, sticky=tk.W + tk.E)
+        # __row += 1
 
         # ###################################################################
         # tk.Buttons
@@ -657,12 +657,12 @@ class Window(WindowBase):
         try:
             self.job.mayaprojectfullpath=self.projfullpath
             self.job.mayascenefullpath=self.filefullpath
-            self.job.optionskipframe=self.skipframes.get()  # gets from the tk object
-            self.job.optionmakeproxy=self.makeproxy.get()
+            # self.job.optionskipframe=self.skipframes.get()  # gets from the tk object
+            # self.job.optionmakeproxy=self.makeproxy.get()
             self.job.optionresolution=self.resolution.get()
-            self.job.optionsendjobstartemail=self.emailjobstart.get()
-            self.job.optionsendjobendemail=self.emailjobend.get()
-            self.job.optionsendtaskendemail=self.emailtaskend.get()
+            # self.job.optionsendjobstartemail=self.emailjobstart.get()
+            # self.job.optionsendjobendemail=self.emailjobend.get()
+            # self.job.optionsendtaskendemail=self.emailtaskend.get()
             self.job.optionmaxsamples=self.maxsamples.get()  # gets from the tk object
             self.job.farmtier=self.tier.get()
             self.job.jobthreads=self.threads.get()
@@ -684,8 +684,8 @@ class Window(WindowBase):
             logger.info("Start: %s" % self.sf.get())
             logger.info("End: %s" % self.ef.get())
             logger.info("By: %s" % self.bf.get())
-            logger.info("Skip Existing Frames: %s" % self.skipframes)
-            logger.info("Make Proxy: %s" % self.makeproxy)
+            # logger.info("Skip Existing Frames: %s" % self.skipframes)
+            # logger.info("Make Proxy: %s" % self.makeproxy)
             self.consolidate()
             rj=rfac.Render(self.job)
             rj.build()
