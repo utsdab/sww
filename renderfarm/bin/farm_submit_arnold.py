@@ -8,7 +8,7 @@ Main submission of a renderman for maya job to tractor.
 import os
 import sys
 import logging
-from renderfarm.dabtractor.factories import interface_arnold_factory2 as ui
+from renderfarm.dabtractor.factories import interface_arnold_factory as ui
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
