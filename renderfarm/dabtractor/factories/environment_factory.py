@@ -65,6 +65,7 @@ class TractorJob(object):
         self.jobstartframe = None
         self.jobendframe = None
         self.jobchunks = None
+        self.jobbyframe = None
         self.jobthreads = None
         self.jobthreadmemory = None
         self.envtype = None

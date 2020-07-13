@@ -132,70 +132,6 @@ class Window(WindowBase):
         self.envscenebut.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
-        # # ###################################################################
-        # tk.Label(self.canvas, bg=self.bgcolor3,text="Upload as new version to SHOTGUN").grid(row=__row, column=0, columnspan=4, rowspan=1, sticky=tk.W + tk.E)
-        # __row += 1
-        #
-        # self.sgtProject = tk.StringVar()
-        # self.sgtClass = tk.StringVar()
-        # self.sgtShotAss = tk.StringVar()
-        # self.sgtSeqAssType = tk.StringVar()
-        # self.sgtTask = tk.StringVar()
-
-        # # ########################### S H O T G U N ############################
-        # _txt="Send the resulting proxy to Shotgun"
-        # self.sendToShotgun = tk.IntVar()
-        # self.sendToShotgun.set(1)
-        # self.job.sendToShotgun = True
-        # self.sendtoshotgunbut=ttk.Checkbutton(self.canvas, variable=self.sendToShotgun, command=self.setSendToShotgun)
-        # self.sendtoshotgunbut.config(text=_txt)
-        # self.sendtoshotgunbut.grid(row=__row,column=1,sticky=tk.W)
-        # __row += 1
-        #
-        # # ###################################################################
-        # tk.Label(self.canvas, bg=self.bgcolor1,text="SHOTGUN PROJ").grid(row=__row, column=0, sticky=tk.E)
-        # self.sgtProject.set(self.msg_selectSgtProject)
-        # self.sgtProjectBox = ttk.Combobox(self.canvas, textvariable=self.sgtProject)
-        # self.sgtProjectBox.config(values=self.getSgtProjectValues(), justify=tk.CENTER)
-        # self.sgtProjectBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        # self.sgtProjectBox.bind("<<ComboboxSelected>>", self.setSgtProject)
-        # __row += 1
-        #
-        # # ###################################################################
-        # tk.Label(self.canvas, bg=self.bgcolor1,text="CLASS").grid(row=__row, column=0, sticky=tk.E)
-        # self.sgtClass.set(self.msg_null)
-        # self.sgtClassBox = ttk.Combobox(self.canvas, textvariable=self.sgtClass)
-        # self.sgtClassBox.config(values=self.getSgtClassValues(), justify=tk.CENTER)
-        # self.sgtClassBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        # self.sgtClassBox.bind("<<ComboboxSelected>>", self.setSgtClass)
-        # __row += 1
-        #
-        # # ###################################################################
-        # tk.Label(self.canvas, bg=self.bgcolor1, text="SEQUENCE or ASSETTYPE").grid(row=__row, column=0, sticky=tk.E)
-        # self.sgtSeqAssType.set(self.msg_null)
-        # self.sgtSeqAssTypeBox = ttk.Combobox(self.canvas, textvariable=self.sgtSeqAssType)
-        # self.sgtSeqAssTypeBox.config(values=self.getSgtSeqAssTypeValues(), justify=tk.CENTER)
-        # self.sgtSeqAssTypeBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        # self.sgtSeqAssTypeBox.bind("<<ComboboxSelected>>", self.setSgtSeqAssetType)
-        # __row += 1
-        #
-        # # ###################################################################
-        # tk.Label(self.canvas, bg=self.bgcolor1,text="SHOT or ASSET").grid(row=__row, column=0, sticky=tk.E)
-        # self.sgtShotAss.set(self.msg_null)
-        # self.sgtShotAssBox = ttk.Combobox(self.canvas, textvariable=self.sgtShotAss)
-        # self.sgtShotAssBox.config(values=self.getSgtShotAssValues(), justify=tk.CENTER)
-        # self.sgtShotAssBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        # self.sgtShotAssBox.bind("<<ComboboxSelected>>", self.setSgtShotAss)
-        # __row += 1
-        #
-        # # ###################################################################
-        # tk.Label(self.canvas, bg=self.bgcolor1,text="TASK").grid(row=__row, column=0, sticky=tk.E)
-        # self.sgtTask.set(self.msg_null)
-        # self.sgtTaskBox = ttk.Combobox(self.canvas, textvariable=self.sgtTask)
-        # self.sgtTaskBox.config(values=self.getSgtTaskValues(), justify=tk.CENTER)
-        # self.sgtTaskBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        # self.sgtTaskBox.bind("<<ComboboxSelected>>", self.setSgtTask)
-        # __row += 1
         #
         # ########################## M A Y A ##########################
         tk.Label(self.canvas, bg=self.bgcolor3,text="Maya Generic Details").grid(row=__row, column=0, columnspan=4, rowspan=1, sticky=tk.W + tk.E)
@@ -226,22 +162,23 @@ class Window(WindowBase):
         __row += 1
 
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1, text="Frame Start").grid(row=__row, column=0, sticky=tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor1, text="Frames: Start End By").grid(row=__row, column=0, sticky=tk.E)
         self.sf = tk.StringVar()
         self.sf.set("1")
-        self.bar3 = tk.Entry(self.canvas, bg=self.bgcolor1,textvariable=self.sf,width=8).grid(row=__row, column=1, sticky=tk.W)
+        self.bar3 = tk.Entry(self.canvas, bg=self.bgcolor1,textvariable=self.sf,width=6).grid(row=__row, column=1, sticky=tk.W)
 
-        tk.Label(self.canvas, bg=self.bgcolor1,text="Frame End").grid(row=__row, column=3, sticky=tk.W)
+        # tk.Label(self.canvas, bg=self.bgcolor1,text="Frame End").grid(row=__row, column=3, sticky=tk.W)
         self.ef = tk.StringVar()
         self.ef.set("4")
-        self.bar4 = tk.Entry(self.canvas, bg=self.bgcolor1, textvariable=self.ef, width=8).grid(row=__row, column=2,sticky=tk.E)
-        __row += 1
-        # ###################################################################
+        self.bar4 = tk.Entry(self.canvas, bg=self.bgcolor1, textvariable=self.ef, width=6).grid(row=__row, column=2,sticky=tk.W)
+        # __row += 1
 
-        tk.Label(self.canvas, bg=self.bgcolor1, text="By").grid(row=__row, column=0, sticky=tk.E)
+        # tk.Label(self.canvas, bg=self.bgcolor1, text="By").grid(row=__row, column=0, sticky=tk.E)
         self.bf = tk.StringVar()
         self.bf.set("1")
-        self.bar5 = tk.Entry(self.canvas, bg=self.bgcolor2,textvariable=self.bf, width=8).grid(row=__row, column=1, sticky=tk.W)
+        self.bar5 = tk.Entry(self.canvas, bg=self.bgcolor2,textvariable=self.bf, width=6).grid(row=__row, column=3, sticky=tk.W)
+        __row += 1
+        # ###################################################################
 
         tk.Label(self.canvas, bg=self.bgcolor1,text="Resolution").grid(row=__row, column=0, sticky=tk.E)
         self.resolution = tk.StringVar()

@@ -19,7 +19,6 @@ formatter = logging.Formatter('%(levelname)5.5s \t%(name)s \t%(message)s')
 sh.setFormatter(formatter)
 logger.addHandler(sh)
 
-
 class Job(envfac.TractorJob):
     ''' The payload of gui-data needed to describe a rfm render job '''
     def __init__(self):
@@ -58,7 +57,6 @@ class Render(object):
         self.outformat = "exr"
         # self.asspath = "{}/ass".format(self.renderpath)
         self.finaloutputimagebase = "{}/{}".format(self.renderpath,self.scenebasename)
-        # self.proxyoutput = "$DABRENDER/$TYPE/$SHOW/$PROJECT/movies/$SCENENAME_{}.mov".format("datehere")
         self.thedate=time.strftime("%d-%B-%Y")
 
     def build(self):
@@ -104,16 +102,6 @@ class Render(object):
                                                       "{na}".format(na=self.job.username),
                                                       "{na} {no} {em} {sc}".format(na=self.job.username, no=self.job.usernumber,em=self.job.useremail, sc=self.mayascenefilefullpath)))
         task_thisjob.addChild(task_notify_admin_start)
-
-        # # ############## 5 NOTIFY USER OF JOB START ###############
-        # try:
-        #     if self.job.optionsendjobstartemail:
-        #         logger.info("email = {}".format(self.job.useremail))
-        #         task_notify_start = self.job.author.Task(title="Notify Start", service="ShellServices")
-        #         task_notify_start.addCommand(self.mail(self.job.useremail, "JOB", "START", "{}".format(self.mayascenefilefullpath)))
-        #         task_thisjob.addChild(task_notify_start)
-        # except Exception:
-        #     pass
 
         ####### make a render directory - mayaproj/arnold/scene/[ass,images]
         _mayaproj = self.mayaprojectpath
@@ -187,6 +175,7 @@ class Render(object):
         task_render_frames = self.job.author.Task(title="RENDER Frames {}-{}".format(self.job.jobstartframe, self.job.jobendframe))
         task_render_frames.serialsubtasks = 0
         for frame in range( int(self.job.jobstartframe), int(self.job.jobendframe) + 1, int(self.job.jobbyframe) ):
+            print frame
             # ################# Job Metadata as JSON
             _imgfile = "{proj}/{scenebase}.{frame:04d}.{ext}".format( proj=self.renderdirectory, scenebase=self.scenebasename, frame=frame, ext=self.outformat)
             _assfile = "{base}.{frame:04d}.ass".format(base=os.path.join(_assDir,self.scenebasename), frame=frame)
@@ -216,86 +205,15 @@ class Render(object):
             rendererspecificargs.extend([
                 "-t", "{}".format(self.job.jobthreads),
             ])
-            # userspecificargs = [ utils.expandargumentstring(self.options)]
+            userspecificargs = [ utils.expandargumentstring(self.options)]
             finalargs = commonargs + rendererspecificargs
+            # print finalargs
             command_render = self.job.author.Command(argv=finalargs, tags=["kick", "theWholeFarm"], atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads), service="Maya")
             task_render_ass.addCommand(command_render)
-
-            # # ############## 5 NOTIFY Task END ###############
-            # if self.job.optionsendtaskendemail:
-            #     task_render_ass.addCommand(self.mail("TASK FRAME {}".format(frame), "END", "{}".format( self.mayascenefilefullpath)))
-            # task_render_frames.addChild(task_render_ass)
+            task_render_frames.addChild(task_render_ass)
         task_render_allframes.addChild(task_render_frames)
         task_thisjob.addChild(task_render_allframes)
 
-        # # ############## 5 PROXY ###############
-        # if self.job.optionmakeproxy:
-        #     #### making proxys with rvio
-        #     # TODO we need to find the actual output frames - right now we huess
-        #     # (self.job.seqbasename,self.job.seqtemplatename)=utils.getSeqTemplate(self.job.selectedframename)
-        #     _mov = "{}_{}.mov".format(self.scenebasename,utils.getnow())
-        #     _outmov = os.path.join(self.mayaprojectpath,"movies",_mov)
-        #     _inseq = "{}.####.exr".format(self.scenebasename)    #cameraShape1/StillLife.####.exr"
-        #     _directory = "{}/arnold/{}/images".format(self.mayaprojectpath, self.scenebasename)
-        #     _seq = os.path.join(_directory, _inseq)
-        #     try:
-        #         utils.makedirectoriesinpath(os.path.dirname(_outmov))
-        #     except Exception, err:
-        #         logger.warn(err)
-        #     try:
-        #         _option1 = "-v -fps 25 -rthreads {threads} -outres {xres} {yres} -t {start}-{end}".format( threads="4", xres="1280", yres = "720",  start=int(self.job.jobstartframe), end=int(self.job.jobendframe))
-        #         _option2 = "-out8 -outgamma 2.2"
-        #         _option3 = "-overlay frameburn 0.5 1.0 30 -leader simpleslate UTS_BDES_ANIMATION Type={} Show={} Project={} File={} Student={}-{} Group={} Date={}".format( self.job.envtype, self.job.envshow, self.job.envproject,
-        #                       # self.scenebasename,
-        #                       _mov, self.job.usernumber, self.job.username,self.job.department, self.thedate)
-        #         _output = "-o %s" % _outmov
-        #         _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (_seq, _option1, _option2, _option3, _output)) ]
-        #         task_proxy = self.job.author.Task(title="Proxy Generation")
-        #         proxycommand = self.job.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"], envkey=["rvio"])
-        #         task_proxy.addCommand(proxycommand)
-        #         task_thisjob.addChild(task_proxy)
-        #     except Exception, proxyerror:
-        #         logger.warn("Cant make a proxy {}".format(proxyerror))
-        # else:
-        #     logger.info("make proxy = {}".format(self.job.optionmakeproxy))
-        #
-        # # ############## 6 SEND TO SHOTGUN ###############
-        # # TODO issue with int vs str values here for job upload
-        #
-        # if self.job.sendToShotgun:
-        #     logger.info("Sending to Shotgun = {} {} {} {}".format(self.job.shotgunProjectId,self.job.shotgunSeqAssetTypeId,self.job.shotgunShotAssetId,self.job.shotgunTaskId))
-        #     _description = "Auto Uploaded from {} {} {} {}".format(self.job.envtype,self.job.envproject, self.job.envshow,self.job.envscene)
-        #     _uploadcmd = ""
-        #     if self.job.shotgunTaskId:
-        #         _uploadcmd = ["shotgunupload.py",
-        #                       "-o", int(self.job.shotgunOwnerId),
-        #                       "-p", int(self.job.shotgunProjectId),
-        #                       "-s", int(self.job.shotgunShotAssetId),
-        #                       "-a", int(self.job.shotgunShotAssetId),
-        #                       "-t", int(self.job.shotgunTaskId),
-        #                       "-n", _mov,
-        #                       "-d", _description,
-        #                       "-m", _outmov ]
-        #     elif not self.job.shotgunTaskId:
-        #         _uploadcmd = ["shotgunupload.py",
-        #                       "-o", int(self.job.shotgunOwnerId),
-        #                       "-p", int(self.job.shotgunProjectId),
-        #                       "-s", int(self.job.shotgunShotAssetId),
-        #                       "-a", int(self.job.shotgunShotAssetId),
-        #                       "-n", _mov,
-        #                       "-d", _description,
-        #                       "-m", _outmov ]
-        #     task_upload = self.job.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSeqAssetType,self.job.shotgunShotAsset, self.job.shotgunTask))
-        #     uploadcommand = self.job.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"], envkey=["ShellServices"])
-        #     task_upload.addCommand(uploadcommand)
-        #     task_thisjob.addChild(task_upload)
-        #
-        # # ############## 5 NOTIFY JOB END ###############
-        # if self.job.optionsendjobendemail:
-        #     logger.info("email = {}".format(self.job.useremail))
-        #     task_notify_end = self.job.author.Task(title="Notify End", service="ShellServices")
-        #     task_notify_end.addCommand(self.mail(self.job.useremail, "JOB", "COMPLETE", "{}".format(self.mayascenefilefullpath)))
-        #     task_thisjob.addChild(task_notify_end)
         self.renderjob.addChild(task_thisjob)
 
     def validate(self):
