@@ -139,6 +139,9 @@ class Render(object):
         task_thisjob.addChild(task_prefilight)
 
         # ############## 3 ASSGEN ##############
+
+        #TODO  this need to respect the byframe attribute rather than make ass files for every frame
+
         task_render_allframes = self.job.author.Task(title="ALL FRAMES {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
         task_render_allframes.serialsubtasks = 1
         task_assgen_allframes = self.job.author.Task(title="ASS GEN {}-{}".format(self.job.jobstartframe,self.job.jobendframe))
