@@ -77,7 +77,7 @@ class Render(object):
         self.renderjob = self.job.author.Job(title="M2A: {} {} {}-{}".format(
               self.job.username, self.scenename, self.job.jobstartframe, self.job.jobendframe),
               priority=10,
-              envkey=[self.envkey_maya,"ProjectX",
+              envkey=["ProjectX",
                     "TYPE={}".format(self.job.envtype),
                     "SHOW={}".format(self.job.envshow),
                     "PROJECT={}".format(self.job.envproject),
@@ -169,7 +169,8 @@ class Render(object):
                     tags=["maya", "theWholeFarm"],
                     atleast=int(self.job.jobthreads),
                     atmost=int(self.job.jobthreads),
-                    service="Maya")
+                    service="Maya",
+                    envkey=["maya{}".format(self.job.mayaversion)])
             task_generate_ass.addCommand(command_generate_ass)
             task_assgen_allframes.addChild(task_generate_ass)
         task_render_allframes.addChild(task_assgen_allframes)
@@ -178,7 +179,6 @@ class Render(object):
         task_render_frames = self.job.author.Task(title="RENDER Frames {}-{}".format(self.job.jobstartframe, self.job.jobendframe))
         task_render_frames.serialsubtasks = 0
         for frame in range( int(self.job.jobstartframe), int(self.job.jobendframe) + 1, int(self.job.jobbyframe) ):
-            print frame
             # ################# Job Metadata as JSON
             _imgfile = "{proj}/{scenebase}.{frame:04d}.{ext}".format( proj=self.renderdirectory, scenebase=self.scenebasename, frame=frame, ext=self.outformat)
             _assfile = "{base}.{frame:04d}.ass".format(base=os.path.join(_assDir,self.scenebasename), frame=frame)
@@ -210,8 +210,12 @@ class Render(object):
             ])
             userspecificargs = [ utils.expandargumentstring(self.options)]
             finalargs = commonargs + rendererspecificargs
-            # print finalargs
-            command_render = self.job.author.Command(argv=finalargs, tags=["kick", "theWholeFarm"], atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads), service="Maya")
+            command_render = self.job.author.Command(argv=finalargs,
+                                                     tags=["kick", "theWholeFarm"],
+                                                     atleast=int(self.job.jobthreads),
+                                                     atmost=int(self.job.jobthreads),
+                                                     service="Maya",
+                                                     envkey=["kick{}".format(self.job.mayaversion)])
             task_render_ass.addCommand(command_render)
             task_render_frames.addChild(task_render_ass)
         task_render_allframes.addChild(task_render_frames)
