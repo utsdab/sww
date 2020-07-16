@@ -162,7 +162,7 @@ class RenderBase(object):
 #                               projects=[str(self.projectgroup)],
 #
 #                               tier=config.ConfigBase.getdefault("defaultrendertier"),
-#                               tags=[ "theWholeFarm", ],
+#                               tags=[ "thewholefarm", ],
 #                               service="")
 #
 #
@@ -249,7 +249,7 @@ class RenderBase(object):
 #             finalargs = commonargs + rendererspecificargs + userspecificargs
 #             render = author.Command(argv=finalargs,
 #                                     service="MayaMentalRay",
-#                                     tags=["maya", "theWholeFarm"],
+#                                     tags=["maya", "thewholefarm"],
 #                                     atmost=int(self.threads),
 #                                     atleast=int(self.threads),
 #                                     envkey=["maya{}".format(self.mayaversion)]
@@ -304,7 +304,7 @@ class RenderBase(object):
 #                 task_proxy = author.Task(title="Proxy Generation")
 #                 proxycommand = author.Command(argv=_rvio_cmd,
 #                                       service="Transcoding",
-#                                       tags=["rvio", "theWholeFarm"],
+#                                       tags=["rvio", "thewholefarm"],
 #                                       envkey=["rvio"])
 #                 task_proxy.addCommand(proxycommand)
 #                 task_thisjob.addChild(task_proxy)
@@ -319,7 +319,7 @@ class RenderBase(object):
 #         # ############## 7 NOTIFY ###############
 #         if self.sendmail:
 #             task_notify = author.Task(title="Notify")
-#             email = author.Command(self.mail("JOB", "COMPLETE", "blah"), service="ShellServices")
+#             email = author.Command(self.mail("JOB", "COMPLETE", "blah"), service="shellservices")
 #             task_notify.addCommand(email)
 #             logger.info("email = {}".format(self.email))
 #             """
@@ -330,7 +330,7 @@ class RenderBase(object):
 #             window.emailcompletion.get(),
 #             window.emailerror.get()
 #             """
-#             task_notify = author.Task(title="Notify", service="ShellServices")
+#             task_notify = author.Task(title="Notify", service="shellservices")
 #             task_notify.addCommand(self.mail("JOB", "COMPLETE", "blah"))
 #             task_thisjob.addChild(task_notify)
 #             self.job.addChild(task_thisjob)
@@ -344,7 +344,7 @@ class RenderBase(object):
 #                                                                                          body)
 #         subjectstring = "FARM JOB: %s %s" % (str(self.mayascenenamebase), self.renderusername)
 #         mailcmd = author.Command(argv=["sendmail.py", "-t", "%s@uts.edu.au" % self.user,
-#                                        "-b", bodystring, "-s", subjectstring], service="ShellServices")
+#                                        "-b", bodystring, "-s", subjectstring], service="shellservices")
 #         return mailcmd
 #
 #     def spool(self):

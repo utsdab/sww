@@ -123,7 +123,7 @@ class Render_RV(object):
               comment="LocalUser is {} {}".format(self.job.username,self.job.usernumber),
               projects=[str(self.projectgroup)],
               tier=str(self.job.farmtier),
-              tags=["theWholeFarm", ],
+              tags=["thewholefarm", ],
               service="")
 
         # ############## 0 ThisJob #################
@@ -133,7 +133,7 @@ class Render_RV(object):
         # ############## 5 NOTIFY JOB START ###############
         if self.optionsendjobstartmail:
             logger.info("email = {}".format(self.job.useremail))
-            task_notify_start = self.job.env.author.Task(title="Notify Start", service="ShellServices")
+            task_notify_start = self.job.env.author.Task(title="Notify Start", service="shellservices")
             task_notify_start.addCommand(self.mail("JOB", "START", "{}".format(self.job.seqfullpath)))
             task_thisjob.addChild(task_notify_start)
 
@@ -150,7 +150,7 @@ class Render_RV(object):
 
         _mkdir_cmd = [ utils.expandargumentstring("mkdir -p %s" % (_outmovdir)) ]
         task_mkdir = self.job.env.author.Task(title="Make output directory")
-        mkdircommand = self.job.env.author.Command(argv=_mkdir_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"], envkey=["rvio"])
+        mkdircommand = self.job.env.author.Command(argv=_mkdir_cmd, service="Transcoding",tags=["rvio", "thewholefarm"], envkey=["rvio"])
 
         task_mkdir.addCommand(mkdircommand)
         task_preflight.addChild(task_mkdir)
@@ -188,7 +188,7 @@ class Render_RV(object):
             _output = "-o %s" % _outmov
             _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (_seq, _option1, _option2, _option3, _output)) ]
             task_proxy = self.job.env.author.Task(title="RVIO Proxy Generation")
-            proxycommand = self.job.env.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"], envkey=["rvio"])
+            proxycommand = self.job.env.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "thewholefarm"], envkey=["rvio"])
             task_proxy.addCommand(proxycommand)
             task_thisjob.addChild(task_proxy)
 
@@ -222,14 +222,14 @@ class Render_RV(object):
                               "-d", _description,
                               "-m", _outmov ]
             task_upload = self.job.env.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSequence,self.job.shotgunShot, self.job.shotgunTask))
-            uploadcommand = self.job.env.author.Command(argv=_uploadcmd, service="ShellServices",tags=["shotgun", "theWholeFarm"], envkey=["rvio"])
+            uploadcommand = self.job.env.author.Command(argv=_uploadcmd, service="shellservices",tags=["shotgun", "thewholefarm"], envkey=["rvio"])
             task_upload.addCommand(uploadcommand)
             task_thisjob.addChild(task_upload)
 
         # ############## 5 NOTIFY JOB END ###############
         if self.optionsendjobendemail:
             logger.info("email = {}".format(self.job.useremail))
-            task_notify_end = self.job.env.author.Task(title="Notify End", service="ShellServices")
+            task_notify_end = self.job.env.author.Task(title="Notify End", service="shellservices")
             task_notify_end.addCommand(self.mail("JOB", "COMPLETE", "{}".format(_seq)))
 
             task_thisjob.addChild(task_notify_end)
@@ -242,7 +242,7 @@ class Render_RV(object):
     def mail(self, level="Level", trigger="Trigger", body="Render Progress Body"):
         bodystring = "Prman Render Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
         subjectstring = "FARM JOB: {} {} {} {}".format(level, trigger, str(self.job.seqbasename), self.job.username)
-        mailcmd = self.job.env.author.Command(argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
+        mailcmd = self.job.env.author.Command(argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring], service="shellservices")
         return mailcmd
 
     def spool(self):

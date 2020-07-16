@@ -87,7 +87,7 @@ class Render(object):
               comment="User is {} {} {}".format(self.job.useremail,self.job.username,self.job.usernumber),
               projects=[str(self.job.department)],
               tier=str(self.job.farmtier),
-              tags=["theWholeFarm", ],
+              tags=["thewholefarm"],
               service="")
 
         # ############## 0 ThisJob #################
@@ -96,11 +96,14 @@ class Render(object):
 
         # ############## 4 NOTIFY ADMIN OF TASK START ##########
         logger.info("admin email = {}".format(self.job.adminemail))
-        task_notify_admin_start = self.job.author.Task(title="Register", service="ShellServices")
+        task_notify_admin_start = self.job.author.Task(title="Register", service="shellservices")
         task_notify_admin_start.addCommand( self.mail(self.job.adminemail,
                                                       "ARNOLD REGISTER",
                                                       "{na}".format(na=self.job.username),
-                                                      "{na} {no} {em} {sc}".format(na=self.job.username, no=self.job.usernumber,em=self.job.useremail, sc=self.mayascenefilefullpath)))
+                                                      "{na} {no} {em} {sc}".format(na=self.job.username,
+                                                                                   no=self.job.usernumber,
+                                                                                   em=self.job.useremail,
+                                                                                   sc=self.mayascenefilefullpath)))
         task_thisjob.addChild(task_notify_admin_start)
 
         ####### make a render directory - mayaproj/arnold/scene/[ass,images]
@@ -113,25 +116,25 @@ class Render(object):
 
         task_prefilight = self.job.author.Task(title="Make render directory")
         command_mkdirs1 = self.job.author.Command(argv=[ "mkdir","-p", _arnolddir ],
-                    tags=["ShellServices", "theWholeFarm"],
+                    tags=["shellservices", "thewholefarm"],
                     atleast=1,
                     atmost=1,
-                    service="ShellServices")
+                    service="shellservices")
         command_mkdirs2 = self.job.author.Command(argv=[ "mkdir","-p", _arnoldWorkDir ],
-                    tags=["ShellServices", "theWholeFarm"],
+                    tags=["shellservices", "thewholefarm"],
                     atleast=1,
                     atmost=1,
-                    service="ShellServices")
+                    service="shellservices")
         command_mkdirs3 = self.job.author.Command(argv=[ "mkdir","-p", _assDir ],
-                    tags=["ShellServices", "theWholeFarm"],
+                    tags=["shellservices", "thewholefarm"],
                     atleast=1,
                     atmost=1,
-                    service="ShellServices")
+                    service="shellservices")
         command_mkdirs4 = self.job.author.Command(argv=[ "mkdir", "-p",_imgDir ],
-                    tags=["ShellServices", "theWholeFarm"],
+                    tags=["shellservices", "thewholefarm"],
                     atleast=1,
                     atmost=1,
-                    service="ShellServices")
+                    service="shellservices")
         task_prefilight.addCommand(command_mkdirs1)
         task_prefilight.addCommand(command_mkdirs2)
         task_prefilight.addCommand(command_mkdirs3)
@@ -166,7 +169,7 @@ class Render(object):
             command_generate_ass = self.job.author.Command(argv=[
                     "maya", "-batch", "-proj", self.mayaprojectpath, "-command",
                     "{command} -f \"{file}\" -startFrame {start} -endFrame {end}".format(command=__command, file=os.path.join(_assDir,self.scenebasename), start=_chunkstart, end=_chunkend, step=1), "-file", self.mayascenefilefullpath],
-                    tags=["maya", "theWholeFarm"],
+                    tags=["maya", "thewholefarm"],
                     atleast=int(self.job.jobthreads),
                     atmost=int(self.job.jobthreads),
                     service="Maya",
@@ -211,10 +214,10 @@ class Render(object):
             userspecificargs = [ utils.expandargumentstring(self.options)]
             finalargs = commonargs + rendererspecificargs
             command_render = self.job.author.Command(argv=finalargs,
-                                                     tags=["kick", "theWholeFarm"],
+                                                     tags=["kick", "thewholefarm"],
                                                      atleast=int(self.job.jobthreads),
                                                      atmost=int(self.job.jobthreads),
-                                                     service="Maya",
+                                                     service="Kick",
                                                      envkey=["kick{}".format(self.job.mayaversion)])
             task_render_ass.addCommand(command_render)
             task_render_frames.addChild(task_render_ass)
@@ -231,7 +234,7 @@ class Render(object):
             to = self.job.adminemail
         bodystring = "Arnold Render Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
         subjectstring = "FARM JOB: {} {} {} {}".format(level,trigger, str(self.scenebasename), self.job.username)
-        mailcmd = self.job.author.Command(argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
+        mailcmd = self.job.author.Command(argv=["sendmail.py", "-t", "%s"%self.job.useremail, "-b", bodystring, "-s", subjectstring], service="shellservices")
         return mailcmd
 
     def spool(self):

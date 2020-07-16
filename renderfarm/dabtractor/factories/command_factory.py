@@ -45,8 +45,8 @@ class Bash(Base):
             comment="LocalUser is {} {}".format(self.fj.usernumber, self.fj.username),
             projects=[str(self.projectgroup)],
             tier=str(self.tier),
-            tags=["theWholeFarm"],
-            service="ShellServices")
+            tags=["thewholefarm"],
+            service="shellservices")
 
     def build(self):
         """ Main method to build the job """
@@ -113,7 +113,7 @@ class Rsync(Base):
                                                             self.fj.username),
                       comment="LocalUser is {} {}".format(self.fj.usernumber,
                                                           self.fj.username),
-                      service="ShellServices")
+                      service="shellservices")
 
 
     def build(self):
@@ -133,7 +133,7 @@ class Rsync(Base):
         parent.serialsubtasks = 1
 
         # ############## 2  RSYNC ###########
-        task_loadon = self.fj.author.Task(title="Rsync", service="ShellServices")
+        task_loadon = self.fj.author.Task(title="Rsync", service="shellservices")
         _sourceproject = self.sourcedirectory
         _targetproject = self.targetdirectory
 
@@ -159,7 +159,7 @@ class Rsync(Base):
         window.emailcompletion.get(),
         window.emailerror.get()
         """
-        task_notify = self.fj.author.Task(title="Notify", service="ShellServices")
+        task_notify = self.fj.author.Task(title="Notify", service="shellservices")
         task_notify.addCommand(self.mail("JOB", "COMPLETE", "blah"))
         parent.addChild(task_notify)
         self.job.addChild(parent)
@@ -170,7 +170,7 @@ class Rsync(Base):
     def mail(self, level="Level", trigger="Trigger", body="Render Progress Body"):
         bodystring = "Rsync Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
         subjectstring = "FARM JOB: %s %s" % (str(self.sourcedirectory), self.targetdirectory)
-        mailcmd = self.fj.author.Command(argv=["sendmail.py", "-t", self.fj.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
+        mailcmd = self.fj.author.Command(argv=["sendmail.py", "-t", self.fj.useremail, "-b", bodystring, "-s", subjectstring], service="shellservices")
         return mailcmd
 
     def spool(self):
@@ -206,12 +206,12 @@ class SendMail(Base):
 
         self.job = self.fj.author.Job(title="MAIL: {}".format(self.fj.username),
           priority=10,
-          envkey=["ShellServices"],
+          envkey=["shellservices"],
           metadata="username={} usernumber={}".format(self.fj.username, self.fj.usernumber),
           comment="LocalUser is {} {}".format(self.fj.username, self.fj.usernumber),
           projects=["admin"],
           tier="batch",
-          tags=["theWholeFarm"],
+          tags=["thewholefarm"],
           service="")
 
     def build(self):
@@ -219,7 +219,7 @@ class SendMail(Base):
         task_thisjob = self.fj.author.Task(title="Adhoc Job")
         task_thisjob.serialsubtasks = 1
 
-        task_notify = self.fj.author.Task(title="Notify", service="ShellServices")
+        task_notify = self.fj.author.Task(title="Notify", service="shellservices")
         task_notify.addCommand(self.bugreport("BUG", self.mailbody))
         task_thisjob.addChild(task_notify)
 
@@ -232,15 +232,15 @@ class SendMail(Base):
     def mail(self, level="Level", trigger="Trigger", body="Render Progress Body"):
         bodystring = "Prman Render Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(level, trigger, body)
         subjectstring = "FARM JOB: %s %s" % (str(self.fj.usernumber), self.fj.username)
-        mailcmd = self.fj.author.Command(argv=["sendmail.py", "-t", self.fj.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
+        mailcmd = self.fj.author.Command(argv=["sendmail.py", "-t", self.fj.useremail, "-b", bodystring, "-s", subjectstring], service="shellservices")
 
         return mailcmd
 
     def bugreport(self, level="BUG", body="Bug report details"):
         _bodystring = "LEVEL: {}\n\n\nDETAILS: \n\n{}".format(level, body)
         _subjectstring = "BUG REPORT: From {} {}\n".format(str(self.fj.username),str(self.fj.usernumber))
-        mailcmd = self.fj.author.Command(argv=["sendmail.py", "-t", "%s@uts.edu.au" % "120988", "-b", _bodystring, "-s", _subjectstring], service="ShellServices")
-        cccmd = self.fj.author.Command(argv=["sendmail.py", "-t", self.fj.useremail, "-b", _bodystring, "-s", _subjectstring], service="ShellServices")
+        mailcmd = self.fj.author.Command(argv=["sendmail.py", "-t", "%s@uts.edu.au" % "120988", "-b", _bodystring, "-s", _subjectstring], service="shellservices")
+        cccmd = self.fj.author.Command(argv=["sendmail.py", "-t", self.fj.useremail, "-b", _bodystring, "-s", _subjectstring], service="shellservices")
         return mailcmd
 
     def spool(self):
