@@ -193,7 +193,8 @@ class Render(object):
             # _preview = "sho {""}".format(_imgfile)
             task_render_ass = self.job.author.Task(title=_title, metadata=_jsontaskMetaData)
             '''
-            kick -i /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Renderfarm/data/xxx.0001.ass -t 6 -dp -ds 8 -r 1280 720
+            kick -i /Volumes/dabrender/work/user_work/matthewgidney/TESTING_Renderfarm/data/xxx.0001.ass 
+            -t 6 -dp -ds 8 -r 1280 720
             -set options.procedural_search_path $ARNOLD_PROCEDURAL_PATH   for xgen and kick
             '''
             commonargs = ["kick", "-i", _assfile, "-l", "$ARNOLD_PROCEDURAL_PATH",
