@@ -122,7 +122,7 @@ class Render(object):
                                       self.job.username, self.job.usernumber),
                               tier=self.job.farmtier,
                               projects=[str(self.job.department)],
-                              tags=["theWholeFarm"],
+                              tags=["thewholefarm"],
                               service="")
 
         # ############## 1 NUKE RENDER ###############
@@ -189,7 +189,7 @@ class Render(object):
         bodystring = "{}  Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(
                 self.job.envproject,level,trigger,body)
         subjectstring = "FARM JOB: %s %s" % (str(self.job.envscene), self.job.username)
-        mailcmd = self.job.env.author.Command(argv=["sendmail.py", "-t", "%s" % self.job.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
+        mailcmd = self.job.env.author.Command(argv=["sendmail.py", "-t", "%s" % self.job.useremail, "-b", bodystring, "-s", subjectstring], service="shellservices")
         return mailcmd
 
     def spool(self):

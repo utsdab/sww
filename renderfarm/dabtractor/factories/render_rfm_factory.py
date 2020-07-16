@@ -94,13 +94,26 @@ class Render(object):
               comment="User is {} {} {}".format(self.job.useremail,self.job.username,self.job.usernumber),
               projects=[str(self.job.department)],
               tier=str(self.job.farmtier),
-              tags=["theWholeFarm", ],
+              tags=["thewholefarm", ],
               service="")
 
 
         # ############## 0 ThisJob #################
         task_job = self.job.author.Task(title="Renderman For Maya Job")
         task_job.serialsubtasks = 1
+
+        # ############## 4 NOTIFY ADMIN OF TASK START ##########
+        logger.info("admin email = {}".format(self.job.adminemail))
+        task_notify_admin_start = self.job.author.Task(title="REGISTER", service="shellservices")
+        task_notify_admin_start.addCommand(self.mail(self.job.adminemail,"RFM REGISTER","{na}".format(na=self.job.username), "{na} {no} {em} {sc}".format(na=self.job.username, no=self.job.usernumber,em=self.job.useremail,sc=self.scenefilefullpath)))
+        task_job.addChild(task_notify_admin_start)
+
+        # ############## 5 NOTIFY USER OF JOB START ###############
+        if self.job.optionsendjobstartemail:
+            logger.info("email = {}".format(self.job.useremail))
+            task_notify_start = self.job.author.Task(title="NOTIFY Start", service="shellservices")
+            task_notify_start.addCommand(self.mail(self.job.useremail, "JOB", "START", "{}".format(self.scenefilefullpath)))
+            task_job.addChild(task_notify_start)
 
         # ############## 1 PREFLIGHT ##############
         task_preflight = self.job.author.Task(title="PREFLIGHT", service="PixarRender")
@@ -110,12 +123,12 @@ class Render(object):
         # command_txmake = self.job.author.Command(argv=[
         #     "txmake","-smode","periodic","-tmode","periodic","-format","pixar","threads"
         #     "-filter","catmull-rom","-resize","up-","-compression","lossless","-newer","infile","outfile",],
-        #     tags=["maya", "theWholeFarm"], atleast=int(self.job.jobthreads),  atmost=int(self.job.jobthreads), service="PixarRender",envkey=[self.envkey_rfm])
+        #     tags=["maya", "thewholefarm"], atleast=int(self.job.jobthreads),  atmost=int(self.job.jobthreads), service="PixarRender",envkey=[self.envkey_rfm])
         #TODO  handle texture making
 
         command_txmake = self.job.author.Command(
             argv=["ls","-l",],
-            tags=["maya", "theWholeFarm"],
+            tags=["maya", "thewholefarm"],
             atleast=int(self.job.jobthreads),
             atmost=int(self.job.jobthreads),
             service="PixarRender",
@@ -129,6 +142,7 @@ class Render(object):
         task_render_allframes = self.job.author.Task(title="RENDER FRAMES")
         task_render_allframes.serialsubtasks = 1
         task_ribgen_allframes = self.job.author.Task(title="RIBGEN {}-{}".format(self.job.jobstartframe, self.job.jobendframe))
+
 
         # divide the frame range up into chunks
         _totalframes = int(self.job.jobendframe) - int(self.job.jobstartframe) + 1
@@ -158,7 +172,7 @@ class Render(object):
                 "-e", str(_chunkend),
                 "-b", str(self.job.jobbyframe),
                 self.scenefilefullpath],
-                tags=["maya", "theWholeFarm"],
+                tags=["maya", "thewholefarm"],
                 atleast=int(self.job.jobthreads),
                 atmost=int(self.job.jobthreads),
                 service="RfMRibGen",
@@ -202,7 +216,7 @@ class Render(object):
 
             command_render = self.job.author.Command(
                 argv=finalargs,
-                tags=["prman", "theWholeFarm"],
+                tags=["prman", "thewholefarm"],
                 atleast=int(self.job.jobthreads),
                 atmost=int(self.job.jobthreads),
                 service="PixarRender",
@@ -228,7 +242,7 @@ class Render(object):
         subjectstring = "FARM JOB: {} {} {} {}".format(level,trigger, str(self.scenebasename), self.job.username)
         mailcmd = self.job.author.Command(
             argv=["sendmail.py", "-t", to, "-b", bodystring, "-s", subjectstring],
-            service="ShellServices")
+            service="shellservices")
         return mailcmd
 
     def spool(self):

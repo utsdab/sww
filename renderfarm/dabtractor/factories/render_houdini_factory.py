@@ -92,8 +92,8 @@ class Render(object):
               comment="User is {} {} {}".format(self.job.useremail,self.job.username,self.job.usernumber),
               projects=[str(self.job.department)],
               tier=str(self.job.farmtier),
-              tags=["theWholeFarm", ],
-              service="ShellServices")
+              tags=["thewholefarm", ],
+              service="shellservices")
 
 
         # ############## 0 ThisJob #################
@@ -102,14 +102,14 @@ class Render(object):
 
         # ############## 4 NOTIFY ADMIN OF TASK START ##########
         logger.info("admin email = {}".format(self.job.adminemail))
-        task_notify_admin_start = self.job.author.Task(title="Register", service="ShellServices")
+        task_notify_admin_start = self.job.author.Task(title="Register", service="shellservices")
         task_notify_admin_start.addCommand( self.mail(self.job.adminemail,"HOUDINI REGISTER", "{na}".format(na=self.job.username), "{na} {no} {em} {sc}".format(na=self.job.username, no=self.job.usernumber,em=self.job.useremail, sc=self.scenefilefullpath)))
         task_job.addChild(task_notify_admin_start)
 
         # ############## 5 NOTIFY USER OF JOB START ###############
         if self.job.optionsendjobstartemail:
             logger.info("email = {}".format(self.job.useremail))
-            task_notify_start = self.job.author.Task(title="Notify Start", service="ShellServices")
+            task_notify_start = self.job.author.Task(title="Notify Start", service="shellservices")
             task_notify_start.addCommand(self.mail(self.job.useremail, "JOB", "START", "{}".format(self.scenefilefullpath)))
             task_job.addChild(task_notify_start)
 
@@ -120,15 +120,15 @@ class Render(object):
         task_prefilight = self.job.author.Task(title="Make render directory")
 
         command_mkdirs1 = self.job.author.Command(argv=[ "mkdir","-p", _ifdDir ],
-                tags=["houdini", "theWholeFarm"],
+                tags=["houdini", "thewholefarm"],
                 atleast=int(self.job.jobthreads),
                 atmost=int(self.job.jobthreads),
-                service="ShellServices")
+                service="shellservices")
         command_mkdirs4 = self.job.author.Command(argv=[ "mkdir", "-p",_imgDir ],
-                tags=["houdini", "theWholeFarm"],
+                tags=["houdini", "thewholefarm"],
                 atleast=int(self.job.jobthreads),
                 atmost=int(self.job.jobthreads),
-                service="ShellServices")
+                service="shellservices")
 
         task_prefilight.addCommand(command_mkdirs1)
         task_prefilight.addCommand(command_mkdirs4)
@@ -189,7 +189,7 @@ class Render(object):
             command_hserver = self.job.author.Command(
                 argv=[ command_hserver ],
                 samehost = 1,
-                tags=["houdini", "theWholeFarm"],
+                tags=["houdini", "thewholefarm"],
                 atleast=int(self.job.jobthreads),
                 atmost=int(self.job.jobthreads),
                 envkey=[self.envkey_houdini],
@@ -197,7 +197,7 @@ class Render(object):
             command_generate_ifd = self.job.author.Command(
                 argv=[ command_hrender ],
                 samehost = 1,
-                tags=["houdini", "theWholeFarm"],
+                tags=["houdini", "thewholefarm"],
                 atleast=int(self.job.jobthreads),
                 atmost=int(self.job.jobthreads),
                 envkey=[self.envkey_houdini],
@@ -240,7 +240,7 @@ class Render(object):
             _finalargs = _commonargs + _rendererspecificargs
             command_render = self.job.author.Command(
                 argv=_finalargs,
-                tags=["mantra", "theWholeFarm"],
+                tags=["mantra", "thewholefarm"],
                 atleast=int(self.job.jobthreads),
                 atmost=int(self.job.jobthreads),
                 envkey=[self.envkey_houdini],
@@ -310,7 +310,7 @@ class Render(object):
                 _output = "-o %s" % self.job.proxy_output
                 _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (self.job.proxy_input_seq, _option1, _option2, _option3, _output)) ]
                 task_proxy = self.job.author.Task(title="Proxy Generation")
-                rviocommand = self.job.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),envkey=["ShellServices"])
+                rviocommand = self.job.author.Command(argv=_rvio_cmd, service="Transcoding",tags=["rvio", "thewholefarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),envkey=["shellservices"])
 
                 task_rvio_proxy.addCommand(rviocommand)
                 task_proxy.addChild(task_rvio_proxy)
@@ -326,7 +326,7 @@ class Render(object):
                 _option2 = "-i {input} -vcodec libx264 -pix_fmt yuv420p -preset slow -crf 18 -filter:v scale=1280:720 -r 25 ".format(input = self.job.proxy_input_seq2)
                 _option3 = "{outfile}".format(outfile=self.job.proxy_output2)
                 _cmd = [ utils.expandargumentstring("ffmpeg %s %s %s" % ( _option1, _option2, _option3)) ]
-                ffmpegcommand = self.job.author.Command(argv=_cmd, service="Transcoding",tags=["rvio", "theWholeFarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),envkey=["ShellServices"])
+                ffmpegcommand = self.job.author.Command(argv=_cmd, service="Transcoding",tags=["rvio", "thewholefarm"],atleast=int(self.job.jobthreads), atmost=int(self.job.jobthreads),envkey=["shellservices"])
 
                 task_ffmpeg_proxy.addCommand(ffmpegcommand)
                 task_proxy.addChild(task_ffmpeg_proxy)
@@ -365,8 +365,8 @@ class Render(object):
             task_upload = self.job.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSeqAssetType,self.job.shotgunShotAsset, self.job.shotgunTask))
 
             uploadcommand = self.job.author.Command(
-                argv=_uploadcmd, service="ShellServices",
-                tags=["shotgun", "theWholeFarm"],
+                argv=_uploadcmd, service="shellservices",
+                tags=["shotgun", "thewholefarm"],
                 envkey=["PixarRender"])
             task_upload.addCommand(uploadcommand)
             task_job.addChild(task_upload)
@@ -374,7 +374,7 @@ class Render(object):
         # ############## 5 NOTIFY JOB END ###############
         if self.job.optionsendjobendemail:
             logger.info("email = {}".format(self.job.useremail))
-            task_notify_end = self.job.author.Task(title="Notify End", service="ShellServices")
+            task_notify_end = self.job.author.Task(title="Notify End", service="shellservices")
             task_notify_end.addCommand(self.mail(self.job.useremail, "JOB", "COMPLETE", "{}".format(self.scenefilefullpath)))
             task_job.addChild(task_notify_end)
         self.renderjob.addChild(task_job)
@@ -393,7 +393,7 @@ class Render(object):
         subjectstring = "FARM JOB: {} {} {} {}".format(level,trigger, str(self.scenebasename), self.job.username)
         mailcmd = self.job.author.Command(
             argv=["sendmail.py", "-t", to, "-b", bodystring, "-s", subjectstring],
-            service="ShellServices")
+            service="shellservices")
         return mailcmd
 
     def spool(self):
