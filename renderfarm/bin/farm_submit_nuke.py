@@ -1,4 +1,4 @@
-#!/usr/bin/env rmanpy
+#!/usr/bin/env python2
 '''
 Main submission of a nuke job to tractor.
 '''
