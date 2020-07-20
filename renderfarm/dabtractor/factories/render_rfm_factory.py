@@ -108,13 +108,6 @@ class Render(object):
         task_notify_admin_start.addCommand(self.mail(self.job.adminemail,"RFM REGISTER","{na}".format(na=self.job.username), "{na} {no} {em} {sc}".format(na=self.job.username, no=self.job.usernumber,em=self.job.useremail,sc=self.scenefilefullpath)))
         task_job.addChild(task_notify_admin_start)
 
-        # ############## 5 NOTIFY USER OF JOB START ###############
-        if self.job.optionsendjobstartemail:
-            logger.info("email = {}".format(self.job.useremail))
-            task_notify_start = self.job.author.Task(title="NOTIFY Start", service="shellservices")
-            task_notify_start.addCommand(self.mail(self.job.useremail, "JOB", "START", "{}".format(self.scenefilefullpath)))
-            task_job.addChild(task_notify_start)
-
         # ############## 1 PREFLIGHT ##############
         task_preflight = self.job.author.Task(title="PREFLIGHT", service="PixarRender")
         task_preflight.serialsubtasks = 1
@@ -142,7 +135,6 @@ class Render(object):
         task_render_allframes = self.job.author.Task(title="RENDER FRAMES")
         task_render_allframes.serialsubtasks = 1
         task_ribgen_allframes = self.job.author.Task(title="RIBGEN {}-{}".format(self.job.jobstartframe, self.job.jobendframe))
-
 
         # divide the frame range up into chunks
         _totalframes = int(self.job.jobendframe) - int(self.job.jobstartframe) + 1
@@ -227,6 +219,8 @@ class Render(object):
         task_render_allframes.addChild(task_render_frames)
         task_job.addChild(task_render_allframes)
 
+        self.renderjob.addChild(task_job)
+        logger.info("Ending job BUILD")
 
 
     def validate(self):

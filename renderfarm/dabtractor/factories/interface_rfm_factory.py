@@ -141,71 +141,6 @@ class Window(WindowBase):
         self.envscenebut.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor3,text="Upload as new version to SHOTGUN").grid(row=__row, column=0, columnspan=4, rowspan=1, sticky=tk.W + tk.E)
-        __row += 1
-
-        self.sgtProject = tk.StringVar()
-        self.sgtClass = tk.StringVar()
-        self.sgtShotAss = tk.StringVar()
-        self.sgtSeqAssType = tk.StringVar()
-        self.sgtTask = tk.StringVar()
-
-        # ########################### S H O T G U N ############################
-        _txt="Send the resulting proxy to Shotgun"
-        self.sendToShotgun = tk.IntVar()
-        self.sendToShotgun.set(1)
-        self.job.sendToShotgun = True
-        self.sendtoshotgunbut=ttk.Checkbutton(self.canvas, variable=self.sendToShotgun, command=self.setSendToShotgun)
-        self.sendtoshotgunbut.config(text=_txt)
-        self.sendtoshotgunbut.grid(row=__row,column=1,sticky=tk.W)
-        __row += 1
-
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="SHOTGUN PROJ").grid(row=__row, column=0, sticky=tk.E)
-        self.sgtProject.set(self.msg_selectSgtProject)
-        self.sgtProjectBox = ttk.Combobox(self.canvas, textvariable=self.sgtProject)
-        self.sgtProjectBox.config(values=self.getSgtProjectValues(), justify=tk.CENTER)
-        self.sgtProjectBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        self.sgtProjectBox.bind("<<ComboboxSelected>>", self.setSgtProject)
-        __row += 1
-
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="CLASS").grid(row=__row, column=0, sticky=tk.E)
-        self.sgtClass.set(self.msg_null)
-        self.sgtClassBox = ttk.Combobox(self.canvas, textvariable=self.sgtClass)
-        self.sgtClassBox.config(values=self.getSgtClassValues(), justify=tk.CENTER)
-        self.sgtClassBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        self.sgtClassBox.bind("<<ComboboxSelected>>", self.setSgtClass)
-        __row += 1
-
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1, text="SEQUENCE or ASSETTYPE").grid(row=__row, column=0, sticky=tk.E)
-        self.sgtSeqAssType.set(self.msg_null)
-        self.sgtSeqAssTypeBox = ttk.Combobox(self.canvas, textvariable=self.sgtSeqAssType)
-        self.sgtSeqAssTypeBox.config(values=self.getSgtSeqAssTypeValues(), justify=tk.CENTER)
-        self.sgtSeqAssTypeBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        self.sgtSeqAssTypeBox.bind("<<ComboboxSelected>>", self.setSgtSeqAssetType)
-        __row += 1
-
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="SHOT or ASSET").grid(row=__row, column=0, sticky=tk.E)
-        self.sgtShotAss.set(self.msg_null)
-        self.sgtShotAssBox = ttk.Combobox(self.canvas, textvariable=self.sgtShotAss)
-        self.sgtShotAssBox.config(values=self.getSgtShotAssValues(), justify=tk.CENTER)
-        self.sgtShotAssBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        self.sgtShotAssBox.bind("<<ComboboxSelected>>", self.setSgtShotAss)
-        __row += 1
-
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1,text="TASK").grid(row=__row, column=0, sticky=tk.E)
-        self.sgtTask.set(self.msg_null)
-        self.sgtTaskBox = ttk.Combobox(self.canvas, textvariable=self.sgtTask)
-        self.sgtTaskBox.config(values=self.getSgtTaskValues(), justify=tk.CENTER)
-        self.sgtTaskBox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
-        self.sgtTaskBox.bind("<<ComboboxSelected>>", self.setSgtTask)
-        __row += 1
-
         # ########################## M A Y A ##########################
         tk.Label(self.canvas, bg=self.bgcolor3,text="Maya Generic Details").grid(row=__row, column=0, columnspan=4, rowspan=1, sticky=tk.W + tk.E)
         __row += 1
@@ -234,23 +169,25 @@ class Window(WindowBase):
         self.tierbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
+
         # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor1, text="Frame Start").grid(row=__row, column=0, sticky=tk.E)
+        tk.Label(self.canvas, bg=self.bgcolor1, text="Frames: Start End By").grid(row=__row, column=0, sticky=tk.E)
         self.sf = tk.StringVar()
         self.sf.set("1")
-        self.bar3 = tk.Entry(self.canvas, bg=self.bgcolor1,textvariable=self.sf,width=8).grid(row=__row, column=1, sticky=tk.W)
+        self.bar3 = tk.Entry(self.canvas, bg=self.bgcolor1,textvariable=self.sf,width=6).grid(row=__row, column=1, sticky=tk.W)
 
-        tk.Label(self.canvas, bg=self.bgcolor1,text="Frame End").grid(row=__row, column=3, sticky=tk.W)
+        # tk.Label(self.canvas, bg=self.bgcolor1,text="Frame End").grid(row=__row, column=3, sticky=tk.W)
         self.ef = tk.StringVar()
         self.ef.set("4")
-        self.bar4 = tk.Entry(self.canvas, bg=self.bgcolor1, textvariable=self.ef, width=8).grid(row=__row, column=2,sticky=tk.E)
-        __row += 1
-        # ###################################################################
+        self.bar4 = tk.Entry(self.canvas, bg=self.bgcolor1, textvariable=self.ef, width=6).grid(row=__row, column=2,sticky=tk.W)
+        # __row += 1
 
-        tk.Label(self.canvas, bg=self.bgcolor1, text="By").grid(row=__row, column=0, sticky=tk.E)
+        # tk.Label(self.canvas, bg=self.bgcolor1, text="By").grid(row=__row, column=0, sticky=tk.E)
         self.bf = tk.StringVar()
         self.bf.set("1")
-        self.bar5 = tk.Entry(self.canvas, bg=self.bgcolor2,textvariable=self.bf, width=8).grid(row=__row, column=1, sticky=tk.W)
+        self.bar5 = tk.Entry(self.canvas, bg=self.bgcolor2,textvariable=self.bf, width=6).grid(row=__row, column=3, sticky=tk.W)
+        __row += 1
+        # ###################################################################
 
         tk.Label(self.canvas, bg=self.bgcolor1,text="Resolution").grid(row=__row, column=0, sticky=tk.E)
         self.resolution = tk.StringVar()
@@ -320,12 +257,6 @@ class Window(WindowBase):
         self.chunksbox.grid(row=__row, column=1, columnspan=4, sticky=tk.W + tk.E)
         __row += 1
 
-        # ###################################################################
-        _txt="Dont Re-Render Existing Frames"
-        self.skipframes = tk.IntVar()
-        self.skipframes.set(1)
-        tk.Checkbutton(self.canvas, bg=self.bgcolor1, text=_txt, variable=self.skipframes).grid(row=__row, column=1,sticky=tk.W)
-        __row += 1
 
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor1, text="Other Options").grid(row=__row, column=0)
@@ -334,32 +265,6 @@ class Window(WindowBase):
         self.bar7 = tk.Entry(self.canvas, bg=self.bgcolor2, textvariable=self.options, width=40).grid(row=__row,column=1, columnspan=4,sticky=tk.W + tk.E)
         __row += 1
 
-        # ###################################################################
-        tk.Label(self.canvas, bg=self.bgcolor3,text="Make Proxy").grid(row=__row,column=0,columnspan=4,sticky=tk.W + tk.E)
-        __row += 1
-
-        # ########################### P R O X Y ############################
-        _txt="Make Movie from Finished Frames"
-        self.makeproxy = tk.IntVar()
-        self.makeproxy.set(1)
-        tk.Checkbutton(self.canvas, bg=self.bgcolor1, text=_txt, variable=self.makeproxy).grid(row=__row, column=1,sticky=tk.W)
-        __row += 1
-
-        # ########################### N O T I F I C A T I O N S #############
-        _txt="Tractor Notifications"
-        tk.Label(self.canvas, bg=self.bgcolor3, text=_txt).grid(row=__row,column=0,columnspan=4,sticky=tk.W + tk.E)
-        __row += 1
-
-        # ###################################################################
-        self.emailjobstart = tk.IntVar()
-        self.emailjobstart.set(1)
-        self.emailjobstartbut=tk.Checkbutton(self.canvas, variable=self.emailjobstart, bg=self.bgcolor1, text="Job Start").grid(row=__row, column=1,sticky=tk.W)
-
-
-        self.emailjobend = tk.IntVar()
-        self.emailjobend.set(1)
-        self.emailjobendbut=tk.Checkbutton(self.canvas, variable=self.emailjobend, bg=self.bgcolor1,text="Job End").grid(row=__row, column=2, sticky=tk.W)
-        __row += 1
 
         # ###################################################################
         tk.Label(self.canvas, bg=self.bgcolor3, text="Submit Job To Tractor").grid(row=__row, column=0, columnspan=4, sticky=tk.W + tk.E)
@@ -375,194 +280,6 @@ class Window(WindowBase):
         self.vbutton.grid(row=__row, column=0, sticky=tk.W + tk.E)
 
         self.master.mainloop()
-
-
-    # ############################################################
-    def setSendToShotgun(self):
-        logger.debug("Run: {}".format("setSendToShotgun"))
-        if not self.sendToShotgun.get():
-            self.sgtProjectBox.set(self.msg_null)
-            self.sgtSeqAssType.set(self.msg_null)
-            self.sgtShotAss.set(self.msg_null)
-            self.sgtTask.set(self.msg_null)
-            self.sgtClass.set(self.msg_null)
-            self.sgtProjectBox.config(values=[], justify=tk.CENTER)
-            self.sgtSeqAssTypeBox.configure(values=[], justify=tk.CENTER)
-            self.sgtShotAssBox.config(values=[], justify=tk.CENTER)
-            self.sgtTaskBox.config(values=[],justify=tk.CENTER)
-            self.job.sendToShotgun = False
-            #set widget off too!
-        else:
-            self.sgtProjectBox.set(self.msg_selectSgtProject)
-            self.sgtSeqAssType.set(self.msg_null)
-            self.sgtShotAss.set(self.msg_null)
-            self.sgtTask.set(self.msg_null)
-            self.sgtProjectBox.config(values=self.getSgtProjectValues(), justify=tk.CENTER)
-            self.job.sendToShotgun = True
-
-
-    def getSgtProjectValues(self):
-        logger.debug("Run: {}".format("getSgtProjectValues"))
-        _ret = self.shotgun.myProjects().keys()
-        _ret.sort()
-        return _ret
-
-    def setSgtProject(self, entity):
-        logger.debug("Run: {}".format("setSgtProject"))
-        try:
-            self.sgtClass.set(self.msg_selectSgtClass)
-            self.sgtShotAss.set(self.msg_null)
-            self.sgtSeqAssType.set(self.msg_null)
-            self.sgtTask.set(self.msg_null)
-        except:
-            pass
-
-        self.job.shotgunProject = self.sgtProject.get()
-        self.job.shotgunProjectId = self.shotgun.myProjects().get(self.job.shotgunProject)
-        logger.info("Shotgun Project is {} id {}".format( self.job.shotgunProject, self.job.shotgunProjectId))
-        self.getSgtClassValues()
-
-    def getSgtClassValues(self):
-        logger.debug("Run: {}".format("getSgtClassValues"))
-        _ret = ["ASSETS", "SHOTS"]
-        _ret.sort()
-        return _ret
-
-    def setSgtClass(self, event):
-        logger.debug("Run: {}".format("setSgtClass"))
-        # Just bind the virtual event <<ComboboxSelected>> to the Combobox widget
-        self.job.shotgunClass = self.sgtClass.get()
-        if self.job.shotgunClass == "ASSETS":
-            self.sgtSeqAssType.set(self.msg_selectSgtAssetType)
-            self.sgtShotAss.set(self.msg_null)
-            self.sgtTask.set(self.msg_null)
-        elif self.job.shotgunClass == "SHOTS":
-            self.sgtSeqAssType.set(self.msg_selectSgtSequence)
-            self.sgtShotAss.set(self.msg_null)
-            self.sgtTask.set(self.msg_null)
-        else:
-            self.sgtClass.set(self.msg_selectSgtClass)
-
-        self.getSgtSeqAssTypeValues()
-
-
-    def getSgtSeqAssTypeValues(self):
-        logger.debug("Run: {}".format("getSgtSeqAssTypeValues"))
-        _ret = []
-        try:
-            self.sgtTask.set(self.msg_null)
-            self.sgtTaskBox.config(values=[], justify=tk.CENTER)
-        except:
-            # logger.warn("Cant set Task {}".format(err))
-            pass
-
-        if self.sgtClass.get() == "SHOTS":
-            _ret = self.job.sgtproject.seqFromProject(self.job.shotgunProjectId).keys()
-
-        elif self.sgtClass.get() == "ASSETS":
-            # just get ones for the asset type
-            _ret = self.job.sgtproject.assettypes(self.job.shotgunProjectId)
-
-        _ret.sort()
-        self.sgtSeqAssTypeBox.configure(values=_ret, justify=tk.CENTER)
-
-    def setSgtSeqAssetType(self, entity):
-        logger.debug("Run: {}".format("setSgtSeqAssetType"))
-        try:
-            self.sgtTask.set(self.msg_null)
-            self.sgtTaskBox.config(values=[], justify=tk.CENTER)
-        except:
-            # logger.warn("Cant set Task {}".format(err))
-            pass
-
-        if self.job.shotgunClass == 'ASSETS':
-            self.sgtShotAss.set(self.msg_selectSgtAsset)
-            self.job.shotgunSeqAssetType = self.sgtSeqAssType.get()
-            self.job.shotgunSeqAssetTypeId = None
-
-        elif self.job.shotgunClass == 'SHOTS':
-            self.sgtShotAss.set(self.msg_selectSgtShot)
-            self.job.shotgunSeqAssetType = self.sgtSeqAssType.get()
-            _seqs = self.job.sgtproject.seqFromProject(self.job.shotgunProjectId)
-            self.job.shotgunSeqAssetTypeId = _seqs.get(self.job.shotgunSeqAssetType)
-        else:
-            self.sgtShotAss.set(self.msg_null)
-
-        logger.info("Shotgun Seq/Ass is {} id {}".format(self.job.shotgunSeqAssetType, self.job.shotgunSeqAssetTypeId))
-        self.getSgtShotAssValues()
-
-    def getSgtShotAssValues(self):
-        logger.debug("Run: {}".format("getSgtShotAssValues"))
-        _ret = []
-        if self.job.shotgunClass == 'SHOTS':
-            try:
-                _ret = self.job.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssetTypeId).keys()
-            except RuntimeError, err:
-                logger.warn("Cant set Seq {}".format(err))
-        elif self.job.shotgunClass == 'ASSETS':
-            try:
-                _ret = self.job.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAssetTypeId).keys()
-            except RuntimeError, err:
-                logger.warn("Cant set Asset {}".format(err))
-        _ret.sort()
-        self.sgtShotAssBox.configure(values=_ret, justify=tk.CENTER)
-
-    def setSgtShotAss(self, entity):
-        logger.debug("Run: {}".format("setSgtShotAss"))
-        try:
-            self.sgtTask.set(self.msg_null)
-            self.sgtTaskBox.config(values=[], justify=tk.CENTER)
-        except:
-            pass
-            # logger.warn("Cant set Task {}".format(err))
-
-        if not self.job.shotgunProjectId:
-            try:
-                self.sgtShotAss.set(self.msg_null)
-                self.sgtTask.set(self.msg_null)
-            except:
-                pass
-                # logger.warn("No Shotgun Project {}".format(err))
-        else:
-            if self.job.shotgunClass == 'SHOTS':
-                self.job.shotgunShotAsset = self.sgtShotAss.get()
-                _shots = self.job.sgtproject.shotFromSeq(self.job.shotgunProjectId,self.job.shotgunSeqAssetTypeId)
-                self.job.shotgunShotAssetId = _shots.get(self.job.shotgunShotAsset)
-            elif self.job.shotgunClass == 'ASSETS':
-                self.job.shotgunShotAsset = self.sgtShotAss.get()
-                _ass = self.job.sgtproject.assetFromAssetType(self.job.shotgunProjectId, self.job.shotgunSeqAssetTypeId)
-                self.job.shotgunShotAssetId = _ass.get(self.job.shotgunShotAsset)
-        logger.info("Shotgun Shot/Asset is {} id {}".format(self.job.shotgunShotAsset, self.job.shotgunShotAssetId))
-        self.getSgtTaskValues()
-        self.sgtTask.set(self.msg_selectSgtTask)
-
-
-    def getSgtTaskValues(self):
-        logger.debug("Run: {}".format("getSgtTaskValues"))
-        _ret = []
-        if not self.job.shotgunShotAssetId:
-            self.sgtTask.set(self.msg_null)
-            self.sgtTaskBox.config(values=[],justify=tk.CENTER)
-        elif self.job.shotgunClass == 'SHOTS':
-            _ret=self.job.sgtproject.taskFromShot(self.job.shotgunProjectId, self.job.shotgunShotAssetId).keys()
-            _ret.sort()
-            self.sgtTaskBox.configure(values=_ret, justify=tk.CENTER)
-            # self.job.shotgunTaskId = _ret.get(self.job.shotgunTask)
-        elif self.job.shotgunClass == 'ASSETS':
-            _ret=self.job.sgtproject.taskFromAsset(self.job.shotgunProjectId, self.job.shotgunShotAssetId).keys()
-            _ret.sort()
-            self.sgtTaskBox.configure(values=_ret, justify=tk.CENTER)
-            # self.job.shotgunTaskId = _ret.get(self.job.shotgunTask)
-
-    def setSgtTask(self, entity):
-        logger.debug("Run: {}".format("setSgtTask"))
-        if not self.job.shotgunShotAssetId:
-            self.sgtTask.set(self.msg_selectSgtTask)
-        else:
-            self.job.shotgunTask = self.sgtTask.get()
-            _tasks = self.job.sgtproject.taskFromShot(self.job.shotgunProjectId, self.job.shotgunShotAssetId)
-            self.job.shotgunTaskId = _tasks.get(self.job.shotgunTask)
-        logger.info("Shotgun Task is {} id {}".format( self.job.shotgunTask, self.job.shotgunTaskId))
 
 
     def setscene(self):
@@ -661,12 +378,12 @@ class Window(WindowBase):
         try:
             self.job.mayaprojectfullpath = self.projfullpath
             self.job.mayascenefullpath = self.filefullpath
-            self.job.optionskipframe = bool(self.skipframes.get())  # gets from the tk object
-            self.job.optionmakeproxy = bool(self.makeproxy.get())
+            # self.job.optionskipframe = bool(self.skipframes.get())  # gets from the tk object
+            # self.job.optionmakeproxy = bool(self.makeproxy.get())
             self.job.xres = self.job.config.getoptions("resolutions",self.resolution.get())[0]
             self.job.yres = self.job.config.getoptions("resolutions",self.resolution.get())[1]
-            self.job.optionsendjobstartemail = bool(self.emailjobstart.get())
-            self.job.optionsendjobendemail = bool(self.emailjobend.get())
+            # self.job.optionsendjobstartemail = bool(self.emailjobstart.get())
+            # self.job.optionsendjobendemail = bool(self.emailjobend.get())
             self.job.optionmaxsamples=self.maxsamples.get()  # gets from the tk object
             self.job.farmtier = self.tier.get()
             self.job.jobthreads = self.threads.get()
@@ -688,8 +405,8 @@ class Window(WindowBase):
             logger.info("Start: %s" % self.sf.get())
             logger.info("End: %s" % self.ef.get())
             logger.info("By: %s" % self.bf.get())
-            logger.info("Skip Existing Frames: %s" % self.skipframes.get())
-            logger.info("Make Proxy: %s" % self.makeproxy.get())
+            # logger.info("Skip Existing Frames: %s" % self.skipframes.get())
+            # logger.info("Make Proxy: %s" % self.makeproxy.get())
             self.consolidate()
             if self.filefullpath:
                 rj=rfac.Render(self.job)
