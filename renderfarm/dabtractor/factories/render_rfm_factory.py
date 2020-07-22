@@ -3,6 +3,7 @@
 
 # TODO  wrap the rib command up in a sanity checker script.
 # TODO  dab_rfm_pre_render.mel
+# TODO rib ir generated using version and take paths now so need to pass this from the rib gen job to the prman job?????
 
 import json
 import os
@@ -197,6 +198,7 @@ class Render(object):
             commonargs = [ "prman", "-cwd", self.projectpath ]
             rendererspecificargs = []
             rendererspecificargs.extend([
+                "-cwd",self.projectpath,
                 "-t:{}".format(self.job.jobthreads),
                 "-Progress",
                 "-recover", "%r",

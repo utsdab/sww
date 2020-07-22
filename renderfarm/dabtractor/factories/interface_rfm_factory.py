@@ -10,11 +10,13 @@ Build Interface for Renderman Render submission
 # TODO how do i get the window to scroll - fail
 # TODO check in assets too  in progress
 
+# TODO  work out how to explicitly set and render rib by name
+
 import Tkinter as tk
 import ttk
 import tkFileDialog
 import Tkconstants
-import os
+import os,sys
 import renderfarm.dabtractor as dabtractor
 import render_rfm_factory as rfac
 import utils_factory as utils
@@ -440,12 +442,16 @@ class Window(WindowBase):
 
 
 if __name__ == "__main__":
+    logger.warn("Not currently implemented render from maya please using the DAB shelf")
+    sys.exit()
     w=Window()
+
     try:
         for key in w.job.__dict__.keys():
             logger.debug( "{:20} = {}".format(key,w.job.__dict__.get(key)))
     except Exception, err:
         logger.warn("Cant show dictionary {}".format(err))
+
     wb=WindowBase()
 
 

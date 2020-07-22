@@ -4,6 +4,9 @@ Main submission of a renderman for maya job to tractor.
 '''
 
 #TODO  ldap authentication is dissapearing
+#TODO fix the scene navigation bug on the path expansion if you navigate away and back again in the UI
+#TODO  add in a suffix for the naming of the job on the farm if desired
+#TODO  add in integrator
 
 import os
 import sys
@@ -32,6 +35,6 @@ def main():
 
 if __name__ == '__main__':
     # print os.environ['PYTHONPATH']
-    main()
     print "PLEASE LAUNCH RFM JOBS FROM MAYA USING THE DAB SHELF"
+    #main()
 

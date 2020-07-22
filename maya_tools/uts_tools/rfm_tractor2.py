@@ -40,6 +40,7 @@
 #
 
 THREADS=int(8)
+PORT=int(5600)
 
 # pylint: disable=import-error
 import subprocess
@@ -104,7 +105,7 @@ def add_prman_render_task(parentTask, title, threads, rib, img, args=[]):
     command = author.Command(
         local=False,
         service="PixarRender",
-        tags=["prman", "theWholeFarm"],
+        tags=["prman", "thewholefarm"],
         atleast=threads,
         atmost=threads
     )
@@ -112,7 +113,8 @@ def add_prman_render_task(parentTask, title, threads, rib, img, args=[]):
     for arg in args:
         command.argv.append(arg)
 
-    for arg in ["-Progress", "-t:%d" % threads, "%%D(%s)" % rib]:
+    proj = mc.workspace(q=True, rd=True)
+    for arg in ["-Progress", "-t:%d" % threads, "-cwd", "%%D(%s)" % proj,  "%%D(%s)" % rib]:
         command.argv.append(arg)
 
     task.addCommand(command)
@@ -168,6 +170,7 @@ def add_maya_batch_render_task(parentTask, title, stash_scene_name, imgs,
         command.argv.append(by)
 
     command.argv.append("%%D(%s)" % stash_scene_name)
+    command.tags = ['prman']
 
     task.addCommand(command)
     parentTask.addChild(task)
@@ -314,8 +317,7 @@ def generate_denoise_tasks(frametasktitle, frametask, displays, frame,
         for d in denoise_displays:
             is_variance = False
             filepath = denoise_displays[d]['filePath']
-            imgfile = FilePath(apistr.expand_string(
-                filepath, display=d,frame=frame))
+            imgfile = apistr.expand_string(filepath, display=d, frame=frame, asFilePath=True)
             dspy_node = d
             if variance_display == d:
                 is_variance = True
@@ -339,11 +341,11 @@ def generate_denoise_tasks(frametasktitle, frametask, displays, frame,
 
                     else:
                         args = base_args
-                        variance_file_expand = FilePath(apistr.expand_string(
-                            variance_file, display=variance_display, frame=frame))
+                        variance_file_expand = apistr.expand_string(
+                            variance_file, display=variance_display, frame=frame, asFilePath=True)
                         filtered_path = get_denoise_filtered_name(filepath)
-                        filtered_path_expand = FilePath(apistr.expand_string(
-                            filtered_path, display=d, frame=frame))
+                        filtered_path_expand = apistr.expand_string(
+                            filtered_path, display=d, frame=frame, asFilePath=True)
                         add_denoise_task(frametask, denoise_task_title, args,
                                          [imgfile], [filtered_path_expand],
                                          [variance_file_expand])
@@ -362,11 +364,11 @@ def generate_denoise_tasks(frametasktitle, frametask, displays, frame,
 
                         else:
                             args = base_args
-                            variance_file_expand = FilePath(apistr.expand_string(
-                                variance_file, display=variance_display, frame=frame))
+                            variance_file_expand = apistr.expand_string(
+                                variance_file, display=variance_display, frame=frame, asFilePath=True)
                             filtered_path = get_denoise_filtered_name(filepath)
-                            filtered_path_expand = FilePath(apistr.expand_string(
-                                filtered_path, display=d, frame=frame))
+                            filtered_path_expand = apistr.expand_string(
+                                filtered_path, display=d, frame=frame, asFilePath=True)
                             add_denoise_task(frametask, denoise_task_title, args,
                                              [imgfile], [filtered_path_expand],
                                              [variance_file_expand])
@@ -376,38 +378,38 @@ def generate_denoise_tasks(frametasktitle, frametask, displays, frame,
                         base_args.append("-v")
                         base_args.append("variance")
 
-                        f1 = FilePath(apistr.expand_string(variance_file,
-                                                           display=variance_display,
-                                                           frame=frame-2))
-                        f2 = FilePath(apistr.expand_string(variance_file,
-                                                           display=variance_display,
-                                                           frame=frame-1))
-                        f3 = FilePath(apistr.expand_string(variance_file,
-                                                           display=variance_display,
-                                                           frame=frame))
+                        f1 = apistr.expand_string(variance_file,
+                                                  display=variance_display,
+                                                  frame=frame-2, asFilePath=True)
+                        f2 = apistr.expand_string(variance_file,
+                                                  display=variance_display,
+                                                  frame=frame-1, asFilePath=True)
+                        f3 = apistr.expand_string(variance_file,
+                                                  display=variance_display,
+                                                  frame=frame, asFilePath=True)
                         variance_files = [f1, f2, f3]
 
-                        f1 = FilePath(apistr.expand_string(filepath,
-                                                           display=d,
-                                                           frame=frame-2))
-                        f2 = FilePath(apistr.expand_string(filepath,
-                                                           display=d,
-                                                           frame=frame-1))
-                        f3 = FilePath(apistr.expand_string(filepath,
-                                                           display=d,
-                                                           frame=frame))
+                        f1 = apistr.expand_string(filepath,
+                                                  display=d,
+                                                  frame=frame-2, asFilePath=True)
+                        f2 = apistr.expand_string(filepath,
+                                                  display=d,
+                                                  frame=frame-1, asFilePath=True)
+                        f3 = apistr.expand_string(filepath,
+                                                  display=d,
+                                                  frame=frame, asFilePath=True)
                         imgs = [f1, f2, f3]
 
                         filtered_path = get_denoise_filtered_name(filepath)
-                        p0 = FilePath(apistr.expand_string(filepath,
-                                                           display=d,
-                                                           frame=frame-2))
-                        p1 = FilePath(apistr.expand_string(filepath,
-                                                           display=d,
-                                                           frame=frame-1))
-                        p2 = FilePath(apistr.expand_string(filepath,
-                                                           display=d,
-                                                           frame=frame))
+                        p0 = apistr.expand_string(filepath,
+                                                  display=d,
+                                                  frame=frame-2, asFilePath=True)
+                        p1 = apistr.expand_string(filepath,
+                                                  display=d,
+                                                  frame=frame-1, asFilePath=True)
+                        p2 = apistr.expand_string(filepath,
+                                                  display=d,
+                                                  frame=frame, asFilePath=True)
 
                         if (frame - 2) == start:
                             # we need at least three frames to do crossframe
@@ -603,6 +605,14 @@ def create_output_directories(displays, ribdir, imgdir):
         ribdir {str} -- RIB output path
         imgdir {str} -- image output path
     """
+
+    # check if the paths are relative. if they are
+    # add <ws>
+    if not FilePath(ribdir).isabs():
+        ribdir = '<ws>/' + ribdir
+    if not FilePath(imgdir).isabs():
+        imgdir = '<ws>/' + imgdir
+
     mc.sysFile(apistr.expand_string(ribdir), makeDir=True)
     if '<aov>' in imgdir:
         for dspy in displays:
@@ -618,9 +628,9 @@ def _eval_maya_callback(attr):
     Arguments:
         attr {str} -- attribute name like 'preMel'
     """
-    mel = apistr.get_str_attr('defaultRenderGlobals.%s' % attr)
-    if mel and len(mel) > 0:
-        mel.eval(mel)
+    mel_str = apistr.get_str_attr('defaultRenderGlobals.%s' % attr)
+    if mel_str and len(mel_str) > 0:
+        mel.eval(mel_str)
 
 
 def _add_checkpoint_args(checkpoint_str, args):
@@ -648,18 +658,18 @@ def _it_setup_succeeded(img_expanded, is_localqueue, args):
 def _preview_img_full_path(beauty_dspy_variance, imgOutputDir, imgFileFormat,
                            **kwargs):
     if beauty_dspy_variance:
-        img_expanded = FilePath(apistr.expand_string(
+        img_expanded = apistr.expand_string(
             FilePath(imgOutputDir).join(imgFileFormat),
-            display=beauty_dspy_variance, **kwargs))
+            display=beauty_dspy_variance, asFilePath=True, **kwargs)
     else:
-        img_expanded = FilePath(apistr.expand_string(
-            FilePath(imgOutputDir).join(imgFileFormat), **kwargs))
+        img_expanded = apistr.expand_string(
+            FilePath(imgOutputDir).join(imgFileFormat), asFilePath=True, **kwargs)
     return img_expanded
 
 
 def generate_rib_render_tasks(is_localqueue, anim, parent_task, tasktitle, aovs,
                               beauty_dspy_variance, start, last, by, chunk, threads,
-                              do_bake, checkpoint):
+                              do_bake, bake_mode, checkpoint):
     displays = aovs['displays']
     rmanGlobals = apinodes.rman_globals()
     ribOutputDir = mc.getAttr('%s.ribOutputDir' % rmanGlobals)
@@ -679,8 +689,9 @@ def generate_rib_render_tasks(is_localqueue, anim, parent_task, tasktitle, aovs,
     doExpandEnvVars = is_localqueue
     foundRenderableCam = False
     bakeFlag = ""
+    org_val = None
     if do_bake:
-        bakeFlag = "-bake"
+        bakeFlag = "-bake %s" % bake_mode
 
     # call maya's preMel script
     _eval_maya_callback('preMel')
@@ -709,8 +720,7 @@ def generate_rib_render_tasks(is_localqueue, anim, parent_task, tasktitle, aovs,
                          '-s %s -e %s -b %s"'  %
                          (ribFullPath, layer, cam, doExpandEnvVars, bakeFlag,
                           start, last, by))
-                rib_expanded = FilePath(
-                    apistr.expand_string(ribFullPath))
+                rib_expanded = apistr.expand_string(ribFullPath, asFilePath=True)
                 img_expanded = _preview_img_full_path(beauty_dspy_variance,
                                                       imgOutputDir,
                                                       imgFileFormat)
@@ -739,7 +749,7 @@ def generate_rib_render_tasks(is_localqueue, anim, parent_task, tasktitle, aovs,
                 parent_task.addChild(frametask)
 
             else:
-                curFrame = mc.currentTime(query=True)
+                #curFrame = mc.currentTime(query=True)
                 parent_task.serialsubtasks = True
                 mel.eval('rmanRender "-ribFile \\\"%s\\\" -layer %s -camera %s '
                          '-ribFormat \\\"binary\\\" -expandEnvVars %d %s '
@@ -754,15 +764,13 @@ def generate_rib_render_tasks(is_localqueue, anim, parent_task, tasktitle, aovs,
                 renderframestask.title = renderframestasktitle
 
                 for iframe in range(int(start), int(last + 1), int(by)):
-                    mc.currentTime(iframe)
-                    rib_expanded = FilePath(
-                        apistr.expand_string(ribFullPath))
+                    rib_expanded = apistr.expand_string(ribFullPath, frame=iframe, asFilePath=True)
                     img_expanded = _preview_img_full_path(beauty_dspy_variance,
                                                           imgOutputDir,
-                                                          imgFileFormat)
+                                                          imgFileFormat, frame=iframe)
 
                     prmantasktitle = ("%s Frame: %d Layer: %s Camera: %s (prman)" %
-                                      (tasktitle, int(start), str(layer), str(cam)))
+                                      (tasktitle, int(iframe), str(layer), str(cam)))
                     args = []
 
                     _add_checkpoint_args(checkpoint, args)
@@ -789,7 +797,7 @@ def generate_rib_render_tasks(is_localqueue, anim, parent_task, tasktitle, aovs,
                             frame=iframe)
 
                         denoisetasktitle = ("Denoise Frame: %d Layer: %s Camera: %s" %
-                                            (int(start), str(layer), str(cam)))
+                                            (int(iframe), str(layer), str(cam)))
 
                         generate_denoise_tasks(denoisetasktitle, denoiseframestask,
                                                displays, iframe, start=int(start),
@@ -797,11 +805,11 @@ def generate_rib_render_tasks(is_localqueue, anim, parent_task, tasktitle, aovs,
 
                     parent_task.addChild(denoiseframestask)
 
-                mc.currentTime(curFrame)
         # call maya's post render layer script
         _eval_maya_callback('postRenderLayerMel')
 
-    apistr.set_var('camera', org_val)
+    if org_val:
+        apistr.set_var('camera', org_val)
 
     # call maya's postMel script
     _eval_maya_callback('postMel')
@@ -814,7 +822,7 @@ def generate_rib_render_tasks(is_localqueue, anim, parent_task, tasktitle, aovs,
 
 def generate_maya_batch_render_tasks(stash_scene_name, anim, parent_task, tasktitle,
                                      displays, beauty_dspy_variance, start, last,
-                                     by, chunk, threads, do_bake, checkpoint):
+                                     by, chunk, threads, do_bake, bake_mode, checkpoint):
 
     rmanGlobals = apinodes.rman_globals()
     imgOutputDir = mc.getAttr('%s.imageOutputDir' % rmanGlobals)
@@ -828,13 +836,14 @@ def generate_maya_batch_render_tasks(stash_scene_name, anim, parent_task, taskti
         args += ['-jobid', jobid]
     if do_bake:
         args.append('-bake')
+        args.append(bake_mode)
     if checkpoint != '':
         args.append('-checkpoint')
         args.append(checkpoint)
 
     if mc.about(api=True) >= 20180300 and mc.optionVar(q="renderSetupEnable"):
         args.append('-rst')
-        args.append(stash_scene_name + ".json")
+        args.append('%%D(%s)' % stash_scene_name + ".json")
 
     if anim is False:
         frametasktitle = "%s Frame: %d" % (tasktitle, int(start))
@@ -851,12 +860,12 @@ def generate_maya_batch_render_tasks(stash_scene_name, anim, parent_task, taskti
                 continue
             apistr.set_var('camera', cam)
             if beauty_dspy_variance:
-                img_expanded = FilePath(apistr.expand_string(
+                img_expanded = apistr.expand_string(
                     FilePath(imgOutputDir).join(imgFileFormat),
-                    display=beauty_dspy_variance))
+                    display=beauty_dspy_variance, asFilePath=True)
             else:
-                img_expanded = FilePath(apistr.expand_string(
-                    FilePath(imgOutputDir).join(imgFileFormat)))
+                img_expanded = apistr.expand_string(
+                    FilePath(imgOutputDir).join(imgFileFormat), asFilePath=True)
 
             imgs.append(img_expanded)
 
@@ -890,12 +899,12 @@ def generate_maya_batch_render_tasks(stash_scene_name, anim, parent_task, taskti
             mayabatch_tasktitle = ("%s Frames: (%d-%d) (mayabatch render)" %
                                    (tasktitle, int(iframe), int(e)))
             if beauty_dspy_variance:
-                img_expanded = FilePath(apistr.expand_string(
+                img_expanded = apistr.expand_string(
                     FilePath(imgOutputDir).join(imgFileFormat),
-                    display=beauty_dspy_variance))
+                    display=beauty_dspy_variance, asFilePath=True)
             else:
-                img_expanded = FilePath(apistr.expand_string(
-                    FilePath(imgOutputDir).join(imgFileFormat)))
+                img_expanded = apistr.expand_string(
+                    FilePath(imgOutputDir).join(imgFileFormat), asFilePath=True)
 
             add_maya_batch_render_task(renderframestask, mayabatch_tasktitle,
                                        stash_scene_name, [], anim, iframe, e,
@@ -916,13 +925,13 @@ def generate_maya_batch_render_tasks(stash_scene_name, anim, parent_task, taskti
                         continue
                     apistr.set_var('camera', cam)
                     if beauty_dspy_variance:
-                        img_expanded = FilePath(apistr.expand_string(
+                        img_expanded = apistr.expand_string(
                             FilePath(imgOutputDir).join(imgFileFormat),
-                            display=beauty_dspy_variance, frame=iframe))
+                            display=beauty_dspy_variance, frame=iframe, asFilePath=True)
                     else:
-                        img_expanded = FilePath(apistr.expand_string(
+                        img_expanded = apistr.expand_string(
                             FilePath(imgOutputDir).join(imgFileFormat),
-                            frame=iframe))
+                            frame=iframe, asFilePath=True)
 
                     denoisetasktitle = "Denoise Frame: %d" % (int(start))
 
@@ -933,7 +942,8 @@ def generate_maya_batch_render_tasks(stash_scene_name, anim, parent_task, taskti
             parent_task.addChild(denoiseframestask)
 
 
-def generate_job_file(is_localqueue, scene, stash_scene_name, do_RIB, do_bake):
+def generate_job_file(is_localqueue, scene, stash_scene_name, do_RIB,
+                      do_bake, bake_mode):
     """Generate a job file using the Tractor's Job Author API.
 
     Args:
@@ -941,9 +951,11 @@ def generate_job_file(is_localqueue, scene, stash_scene_name, do_RIB, do_bake):
     - scene (str) - the current scene name.
     - stash_scene_name (str) - full path to the unique version of the scene file.
                              See 'stash_scene' function.
+    Kwargs
     - do_RIB (bool) - controls whether to generate RIB for the scene.
     - do_bake (bool) - controls whether to render using the bake hider,
                     which runs PxrBakeTexture nodes in bake mode.
+    - bake_mode (str) - 'pattern' or 'integrator'
 
     Returns:
     - job (Job) - Tractor job instance. See 'Job Author Python API' in the
@@ -954,7 +966,11 @@ def generate_job_file(is_localqueue, scene, stash_scene_name, do_RIB, do_bake):
 
     job = author.Job()
     #TODO  set title
-    _title = "{scene} {user} {number}".format(scene=scene,user=dabuser.username,number=dabuser.usernumber)
+    rmanGlobals = apinodes.rman_globals()
+    _version=mc.getAttr('%s.version' % rmanGlobals)
+    _take=mc.getAttr('%s.take' % rmanGlobals)
+
+    _title = "{scene} v{version}t{take} {user} {number}".format(scene=scene,version=_version,take=_take, user=dabuser.username,number=dabuser.usernumber)
 
     job.title = str(_title)
     job.serialsubtasks = True
@@ -989,9 +1005,9 @@ def generate_job_file(is_localqueue, scene, stash_scene_name, do_RIB, do_bake):
         anim = False
 
     # threads = int(rfm2.ui.prefs.get_pref_by_name('rfmBatchThreads'))
-    threads = int(8)
+    threads = THREADS
 
-    aovs = apidspy.get_displays()
+    aovs = apidspy.get_displays(baking=bake_mode)
     displays = aovs['displays']
     beauty_dspy_variance = None
     xgen_files = []
@@ -1012,14 +1028,15 @@ def generate_job_file(is_localqueue, scene, stash_scene_name, do_RIB, do_bake):
     if do_RIB:
         generate_rib_render_tasks(is_localqueue, anim, parent_task, tasktitle,
                                   aovs, beauty_dspy_variance, start, last,
-                                  by, chunk, threads, do_bake, checkpoint)
+                                  by, chunk, threads, do_bake, bake_mode,
+                                  checkpoint)
     else:
         # mayabatch
         xgen_files = sputils.stash_xgen_files(stash_scene_name)
         generate_maya_batch_render_tasks(stash_scene_name, anim, parent_task,
                                          tasktitle, displays, beauty_dspy_variance,
                                          start, last, by, chunk, threads,
-                                         do_bake, checkpoint)
+                                         do_bake, bake_mode, checkpoint)
 
     # txmake tasks
     txmakeTasks = generate_txmake_tasks()
@@ -1073,7 +1090,7 @@ def generate_job_file(is_localqueue, scene, stash_scene_name, do_RIB, do_bake):
     return [job, jobfile]
 
 
-def batch_render_spool(do_bake=False):
+def batch_render_spool(do_bake=False, bake_mode='pattern'):
     """Main entry point to start a spooled batch render job. Will spool
     to either LocalQueue or Tractor, depending on the rfmRenderBatchQueue pref.
     """
@@ -1112,8 +1129,13 @@ def batch_render_spool(do_bake=False):
     else:
         stash_scene_name = sputils.stash_scene(doSave=True)
 
-    job, jobfile = generate_job_file(
-        is_localqueue, scene, stash_scene_name,do_RIB, do_bake)
+    kwargs = {
+        'do_RIB': do_RIB,
+        'do_bake': do_bake,
+        'bake_mode': bake_mode
+    }
+
+    job, jobfile = generate_job_file(is_localqueue, scene, stash_scene_name, **kwargs)
 
     apistr.unlock_jobid()
 
@@ -1128,7 +1150,7 @@ def batch_render_spool(do_bake=False):
         # spool to tractor
         tractor_cfg = cfg().tractor_cfg
         tractor_engine = tractor_cfg.get('engine', 'tractor-engine')
-        tractor_port = tractor_cfg.get('port', '5600')
+        tractor_port = tractor_cfg.get('port', PORT)
         owner = tractor_cfg.get('user', getpass.getuser())
 
         # env var trumps rfm.config
@@ -1205,12 +1227,10 @@ def batch_preview():
         # just get a name, used to generate job file name
         stash_scene_name = sputils.stash_scene(doSave=False)
 
-
-
-
-
     job = author.Job()
-    _title = "{scene} {user} {number}".format(scene=scene,user=dabuser.username,number=dabuser.usernumber)
+    _version=mc.getAttr('%s.version' % rmanGlobals)
+    _take=mc.getAttr('%s.take' % rmanGlobals)
+    _title = "{scene} v{version}t{take} {user} {number}".format(scene=scene,version=_version, take=_take, user=dabuser.username,number=dabuser.usernumber)
 
     job.title = str(_title)
     job.serialsubtasks = True
@@ -1233,16 +1253,17 @@ def batch_preview():
         ribFileFormat = mc.getAttr('%s.ribFileFormat' % rmanGlobals)
         ribFullPath = FilePath(ribOutputDir).join(ribFileFormat)
         res = mel.eval('getTestResolution("")')
-        mel.eval('rmanRender "-resolution %d %d -ribFile \\\"%s\\\" '
+        mel.eval('rmanRender "-resolution %d %d -dspy it -ribFile \\\"%s\\\" '
                  '-ribFormat \\\"binary\\\" -expandEnvVars %d"' %
                  (res[0], res[1], ribFullPath, is_localqueue))
-        rib_expanded = FilePath(apistr.expand_string(ribFullPath))
+        rib_expanded = apistr.expand_string(ribFullPath, asFilePath=True)
         args = ["-d", "it"]
         add_prman_render_task(frametask, "%s (prman)" % frametasktitle, threads,
                               rib_expanded, [], args)
     else:
         mayabatch_tasktitle = "%s (mayabatch render)" % frametasktitle
         args = ["-of", "it", "-t", "%d" % threads]
+        rfm2.render.show_it()
         add_maya_batch_render_task(frametask, mayabatch_tasktitle, stash_scene_name,
                                 [], False, curFrame, curFrame, 1, args)
 
@@ -1369,7 +1390,7 @@ def register_tractor_prefs():
                                      node_desc.NodeDescParamJSON(pref))
 
     pref = {'name': 'rfmTractorComment', 'type': 'string',
-            'default': 'Spooled from Maya', 'label': 'Comments:',
+            'default': '', 'label': 'Comments:',
             'page': 'Render/Batch Render/Tractor',
             'help': ("""Additional comment about the job.""")}
     rfm2.ui.prefs.register_pref_item(prefGroup,
