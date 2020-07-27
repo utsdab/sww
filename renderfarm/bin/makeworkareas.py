@@ -7,8 +7,8 @@ import os
 import sys
 import pwd
 import shutil
-import renderfarm.dabtractor.shotgun_factory as sgt
-import renderfarm.dabtractor.environment_factory as envfac
+import renderfarm.dabtractor.factories.shotgun_factory as sgt
+import renderfarm.dabtractor.factories.environment_factory as envfac
 import logging
 
 logger = logging.getLogger(__name__)
