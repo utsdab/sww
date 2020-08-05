@@ -147,6 +147,8 @@ class Person(ShotgunBase):
                 self.dabnumber = self.login
             if os.environ.has_key("DABUSERPREFS"):
                 self.user_prefs = os.path.join(os.environ["DABUSERPREFS"], self.dabnumber)
+
+
         finally:
             if  not self.tractor:
                 logger.critical("Shotgun user {} is not tractor user. Sorry.".format(self.shotgunlogin))
