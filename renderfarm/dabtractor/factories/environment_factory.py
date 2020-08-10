@@ -9,15 +9,8 @@
 #TODO work out how much overlap there is between all these similar configuration factories
 #TODO configuration, environment,shotgun,user and utils.
 
-import os
-from pprint import pprint
-from shotgun_factory import Person
-from shotgun_factory import Project
-from site_factory import JsonConfig
-import tractor.api.author as author
-import tractor.api.query as tq
-import logging
 
+import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
@@ -26,6 +19,20 @@ formatter = logging.Formatter('%(levelname)5.5s \t%(filename)s as %(name)s \t%(m
 sh.setFormatter(formatter)
 logger.addHandler(sh)
 
+import os
+from pprint import pprint
+try:
+    from shotgun_factory import Person
+except ImportError, err:
+    logger.critical("Cant import Person object from shotgun api")
+try:
+    from shotgun_factory import Project
+except ImportError, err:
+    logger.critical("Cant import Project object from shotgun api")
+
+from site_factory import JsonConfig
+import tractor.api.author as author
+import tractor.api.query as tq
 
 class TractorJob(object):
     """ A class with the basic farm job info """
@@ -35,6 +42,7 @@ class TractorJob(object):
         self.config = JsonConfig()
         self.shotgunOwner = None
         self.shotgunOwnerId = None
+
         try:
             self.sgtperson = Person()
         except Exception, err:
@@ -48,10 +56,14 @@ class TractorJob(object):
             self.department = self.sgtperson.department
             self.shotgunOwner = self.sgtperson.shotgunlogin
             self.shotgunOwnerId = self.sgtperson.shotgun_id
+
         try:
             self.sgtproject=Project()
         except Exception, err:
             logger.warn("Cant get project from Shotgun %s" % err)
+        else:
+            pass
+
         self.hostname = str(self.config.getdefault("tractor","engine"))
         self.port = int(self.config.getdefault("tractor","port"))
         self.jobowner = str(self.config.getdefault("tractor","jobowner"))
@@ -65,6 +77,7 @@ class TractorJob(object):
         self.jobstartframe = None
         self.jobendframe = None
         self.jobchunks = None
+        self.jobbyframe = None
         self.jobthreads = None
         self.jobthreadmemory = None
         self.envtype = None
@@ -138,17 +151,18 @@ class Environment(object):
 
 if __name__ == '__main__':
 
-    sh.setLevel(logging.INFO)
+    sh.setLevel(logging.DEBUG)
 
     logger.debug("\n-------- ENVIRONMENT ------------")
     _E2=Environment()
     # logger.debug( _E2.requiredenvars)
-    # pprint(_E2.environ)
+    for k in _E2.requiredenvars:
+        logger.debug("KEY {key} : {value}".format(key=k[0],value=k[:0]))
 
 
     logger.debug("\n-------- TRACTOR JOB ------------")
-    _TJ=TractorJob()
-    pprint(_TJ.__dict__)
+    # _TJ=TractorJob()
+    # pprint(_TJ.__dict__)
 
 
 

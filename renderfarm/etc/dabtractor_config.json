@@ -6,6 +6,8 @@
     "DABPREFS"        : "/Volumes/dabrender/prefs",
     "DABUSERPREFS"    : "/Volumes/dabrender/prefs/user_prefs",
     "DABSWW"          : "/Volumes/dabrender/sww",
+    "DABLIB"          : "/Volumes/dabrender/lib",
+    "DABETC"          : "/Volumes/dabrender/etc",
     "DABRENDER"       : "/Volumes/dabrender"
   },
 
@@ -33,7 +35,7 @@
   "shotgun"           : {
     "serverpath"      : "https://utsanim.shotgunstudio.com",
     "scriptname"      : "shotgun_factory",
-    "scriptkey"       : "694d48107fc5d7a05652afb060babff34bdfe99b4a2ea47d2adf718fc0a7745f"
+    "scriptkey"       : "nse7Gczcdki@pstrzgxlcivkq"
   },
 
   "farm"           : {
@@ -58,11 +60,11 @@
 
   "rfmbatch"       : {
     "servicekey"   : [ "2020","2019"],
-    "envkey"       : [ "rfm-23.3","maya-2020"]
+    "envkey"       : [ "rmf-22.4","maya-2020"]
   },
 
   "nuke"           : {
-    "version"      : [ "12.0v1"]
+    "version"      : [ "12.1v2"]
   },
 
   "houdini"        : {
@@ -70,17 +72,17 @@
   },
 
   "renderman"      : {
-    "version"      : [ "23.3", "22.7"],
+    "version"      : [ "23.3","22.4", "21.8"],
     "integrator"   : [ "FROMFILE", "pxr", "vcm", "visualiser", "occlusion"]
   },
 
   "renderjob"      : {
     "tier"         : [ "batch", "low", "default", "preview", "rush", "admin" ],
-    "projectgroup" : [ "Year1", "Year2", "Year3", "Year4", "Staff", "Other" ]
+    "projectgroup" : [ "Year1", "Year2", "Year3", "Year4", "Masters", "Staff", "Other" ]
   },
 
   "render"         : {
-    "threads"      : [ "4", "8", "16", "32" ],
+    "threads"      : [ "8","4", "16", "32" ],
     "chunks"       : [ "1", "2", "4", "8", "16" ,"32","64"],
     "maxsamples"   : [ "64", "128","256", "512", "FROMFILE", "1024", "32", "16" ],
     "memory"       : [ "4000", "8000", "2000" ],
@@ -93,7 +95,7 @@
     "2. HD720p 1280x720 1.778"     : [ "1280","720","1.0", "HD 720p 1280x720 1.778" ],
     "3. HD1080p 1920x1080 1,778"   : [ "1920","1080","1.0", "HD 720p 1920x1080 1,778" ],
     "4. DCPflat 1998x1080 1,85"    : [ "1998","1080","1.0", "DCP flat 2k 1998x1080 1,85" ],
-    "5. DCPscope 2048xx858 2.39"   : [ "2048","858","1.0", "DCP scope 2k 2048xx858 2.39" ],
+    "5. DCPscope 2048x858 2.39"   : [ "2048","858","1.0", "DCP scope 2k 2048xx858 2.39" ],
     "6. OMNI_4k 4096x4096  1.0"    : [ "4096","4096","1.0", "Omnidirectional Stereo Top-Bottom 4k 4096x4096  1.0" ],
     "7. OMNI_10k 10000x10000 1.0"  : [ "10000","10000","1.0", "Omnidirectional Stereo Top-Bottom 10k 10000x10000 1.0" ],
     "8. FROMFILE"                  : [ "", "", "", "Use whats in the file" ]

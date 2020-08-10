@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 '''
 command to be run as a farm job by pixar user
 '''
@@ -6,8 +6,8 @@ command to be run as a farm job by pixar user
 import os
 import sys
 import shutil
-import renderfarm.dabtractor.shotgun_factory as sgt
-import renderfarm.dabtractor.environment_factory as envfac
+import renderfarm.dabtractor.factories.shotgun_factory as sgt
+import renderfarm.dabtractor.factories.environment_factory as envfac
 import logging
 
 logger = logging.getLogger(__name__)

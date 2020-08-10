@@ -3,6 +3,7 @@
 
 # TODO  wrap the rib command up in a sanity checker script.
 # TODO  dab_rfm_pre_render.mel
+# TODO rib ir generated using version and take paths now so need to pass this from the rib gen job to the prman job?????
 
 import json
 import os
@@ -94,7 +95,7 @@ class Render(object):
               comment="User is {} {} {}".format(self.job.useremail,self.job.username,self.job.usernumber),
               projects=[str(self.job.department)],
               tier=str(self.job.farmtier),
-              tags=["theWholeFarm", ],
+              tags=["thewholefarm", ],
               service="")
 
 
@@ -104,16 +105,9 @@ class Render(object):
 
         # ############## 4 NOTIFY ADMIN OF TASK START ##########
         logger.info("admin email = {}".format(self.job.adminemail))
-        task_notify_admin_start = self.job.author.Task(title="REGISTER", service="ShellServices")
+        task_notify_admin_start = self.job.author.Task(title="REGISTER", service="shellservices")
         task_notify_admin_start.addCommand(self.mail(self.job.adminemail,"RFM REGISTER","{na}".format(na=self.job.username), "{na} {no} {em} {sc}".format(na=self.job.username, no=self.job.usernumber,em=self.job.useremail,sc=self.scenefilefullpath)))
         task_job.addChild(task_notify_admin_start)
-
-        # ############## 5 NOTIFY USER OF JOB START ###############
-        if self.job.optionsendjobstartemail:
-            logger.info("email = {}".format(self.job.useremail))
-            task_notify_start = self.job.author.Task(title="NOTIFY Start", service="ShellServices")
-            task_notify_start.addCommand(self.mail(self.job.useremail, "JOB", "START", "{}".format(self.scenefilefullpath)))
-            task_job.addChild(task_notify_start)
 
         # ############## 1 PREFLIGHT ##############
         task_preflight = self.job.author.Task(title="PREFLIGHT", service="PixarRender")
@@ -123,12 +117,12 @@ class Render(object):
         # command_txmake = self.job.author.Command(argv=[
         #     "txmake","-smode","periodic","-tmode","periodic","-format","pixar","threads"
         #     "-filter","catmull-rom","-resize","up-","-compression","lossless","-newer","infile","outfile",],
-        #     tags=["maya", "theWholeFarm"], atleast=int(self.job.jobthreads),  atmost=int(self.job.jobthreads), service="PixarRender",envkey=[self.envkey_rfm])
+        #     tags=["maya", "thewholefarm"], atleast=int(self.job.jobthreads),  atmost=int(self.job.jobthreads), service="PixarRender",envkey=[self.envkey_rfm])
         #TODO  handle texture making
 
         command_txmake = self.job.author.Command(
             argv=["ls","-l",],
-            tags=["maya", "theWholeFarm"],
+            tags=["maya", "thewholefarm"],
             atleast=int(self.job.jobthreads),
             atmost=int(self.job.jobthreads),
             service="PixarRender",
@@ -142,7 +136,6 @@ class Render(object):
         task_render_allframes = self.job.author.Task(title="RENDER FRAMES")
         task_render_allframes.serialsubtasks = 1
         task_ribgen_allframes = self.job.author.Task(title="RIBGEN {}-{}".format(self.job.jobstartframe, self.job.jobendframe))
-
 
         # divide the frame range up into chunks
         _totalframes = int(self.job.jobendframe) - int(self.job.jobstartframe) + 1
@@ -172,7 +165,7 @@ class Render(object):
                 "-e", str(_chunkend),
                 "-b", str(self.job.jobbyframe),
                 self.scenefilefullpath],
-                tags=["maya", "theWholeFarm"],
+                tags=["maya", "thewholefarm"],
                 atleast=int(self.job.jobthreads),
                 atmost=int(self.job.jobthreads),
                 service="RfMRibGen",
@@ -205,6 +198,7 @@ class Render(object):
             commonargs = [ "prman", "-cwd", self.projectpath ]
             rendererspecificargs = []
             rendererspecificargs.extend([
+                "-cwd",self.projectpath,
                 "-t:{}".format(self.job.jobthreads),
                 "-Progress",
                 "-recover", "%r",
@@ -216,7 +210,7 @@ class Render(object):
 
             command_render = self.job.author.Command(
                 argv=finalargs,
-                tags=["prman", "theWholeFarm"],
+                tags=["prman", "thewholefarm"],
                 atleast=int(self.job.jobthreads),
                 atmost=int(self.job.jobthreads),
                 service="PixarRender",
@@ -227,140 +221,9 @@ class Render(object):
         task_render_allframes.addChild(task_render_frames)
         task_job.addChild(task_render_allframes)
 
-        # ############## 5 PROXY ###############
-        if self.job.optionmakeproxy:
-            #TODO  switch to ffmpeg here
-
-            task_proxy = self.job.author.Task(title="PROXY MAKE".format(self.job.jobstartframe,self.job.jobendframe))
-            task_rvio_proxy = self.job.author.Task(title="_PROXY RVIO".format(self.job.jobstartframe,self.job.jobendframe))
-            task_ffmpeg_proxy = self.job.author.Task(title="_PROXY FFMPEG".format(self.job.jobstartframe,self.job.jobendframe))
-
-            #### making proxys with rvio
-            # TODO we need to find the actual output frames - right now we huess
-            # (self.job.seqbasename,self.job.seqtemplatename)=utils.getSeqTemplate(self.job.selectedframename)
-
-            self.job.proxy_output_base = "{}_{}.mov".format(self.scenebasename,utils.getnow())
-            self.job.proxy_output_base2 = "{}_{}_2.mov".format(self.scenebasename,utils.getnow())
-
-            self.job.proxy_input_seqbase = "{scene}_beauty.####.exr".format(scene=self.scenebasename)
-            self.job.proxy_input_image_seqbase2 = "{scene}_beauty.%04d.exr".format(scene=self.scenebasename)
-
-            self.job.proxy_input_directory = "{proj}/images/{scene}/".format(proj=self.projectpath, scene=self.scenebasename)
-            self.job.proxy_output_directory = "{proj}/movies/".format(proj=self.projectpath, scene=self.scenebasename)
-
-            self.job.proxy_input_seq = os.path.join(self.job.proxy_input_directory, self.job.proxy_input_seqbase)
-            self.job.proxy_input_seq2 = os.path.join(self.job.proxy_input_directory, self.job.proxy_input_image_seqbase2)
-
-            self.job.proxy_output = os.path.join(self.job.proxy_output_directory, self.job.proxy_output_base)
-            self.job.proxy_output2 = os.path.join(self.job.proxy_output_directory, self.job.proxy_output_base2)
-
-
-            # _imgfile = "{proj}/images/{scenebase}/{scenebase}_beauty.{frame:04d}.{ext}".format( proj=self.projectpath, scenebase=self.scenebasename, frame=frame, ext=self.outformat)
-
-            try:
-                utils.makedirectoriesinpath(os.path.dirname(self.job.proxy_output_directory))
-            except Exception, err:
-                logger.warn("Cant make proxy output directory {}".format(err))
-
-            try:
-                _option1 = "-v -fps 25 -rthreads {threads} -outres {xres} {yres} -t {start}-{end}".format(
-                           threads="4",
-                           xres="1280",
-                           yres="720",
-                           start=self.job.jobstartframe,
-                           end=self.job.jobendframe)
-                _option2 = "-out8 -outgamma 2.2"
-                _option3 = "-overlay frameburn 0.5 1.0 30 -leader simpleslate UTS_BDES_ANIMATION Type={} Show={} Project={} File={} Student={}-{} Group={} Date={}".format(
-                              self.job.envtype,
-                              self.job.envshow,
-                              self.job.envproject,
-                              self.job.proxy_output_base,
-                              self.job.usernumber,
-                              self.job.username,
-                              self.job.department,
-                              self.thedate)
-
-                _output = "-o %s" % self.job.proxy_output
-                _rvio_cmd = [ utils.expandargumentstring("rvio %s %s %s %s %s" % (self.job.proxy_input_seq, _option1, _option2, _option3, _output)) ]
-                task_proxy = self.job.author.Task(title="Proxy Generation")
-                rviocommand = self.job.author.Command(
-                    argv=_rvio_cmd, service="Transcoding",
-                    tags=["rvio", "theWholeFarm"],
-                    atleast=int(self.job.jobthreads),
-                    atmost=int(self.job.jobthreads),
-                    envkey=["ShellServices"])
-
-                task_rvio_proxy.addCommand(rviocommand)
-                task_proxy.addChild(task_rvio_proxy)
-
-            except Exception, proxyerror:
-                logger.warn("Cant make an rvio proxy {}".format(proxyerror))
-
-            # ffmpeg proxy
-            # ffmpeg version 4.1 Copyright (c) 2000-2018 the FFmpeg developers is best
-            try:
-                # ffmpeg -y -gamma 2.2 -i rmf22_test_cube_textured_100.0001__perspShape_beauty.%04d.exr -vcodec libx264 -pix_fmt yuv420p -preset slow -crf 18 -filter:v scale=1280:720 -r 25 out.mov
-                _option1 = "-y -gamma 2.2 "
-                _option2 = "-i {input} -vcodec libx264 -pix_fmt yuv420p -preset slow -crf 18 -filter:v scale=1280:720 -r 25 ".format(input = self.job.proxy_input_seq2)
-                _option3 = "{outfile}".format(outfile=self.job.proxy_output2)
-                _cmd = [ utils.expandargumentstring("ffmpeg %s %s %s" % ( _option1, _option2, _option3)) ]
-                ffmpegcommand = self.job.author.Command(
-                    argv=_cmd, service="Transcoding",
-                    tags=["rvio", "theWholeFarm"],
-                    atleast=int(self.job.jobthreads),
-                    atmost=int(self.job.jobthreads),
-                    envkey=["ShellServices"])
-
-                task_ffmpeg_proxy.addCommand(ffmpegcommand)
-                task_proxy.addChild(task_ffmpeg_proxy)
-
-            except Exception, proxyerror:
-                logger.warn("Cant make an ffmpeg proxy {}".format(proxyerror))
-            task_job.addChild(task_proxy)
-
-        else:
-            logger.info("make proxy = {}".format(str(self.job.optionmakeproxy)))
-
-        # ############## 6 SEND TO SHOTGUN ###############
-        if self.job.sendToShotgun:
-            logger.info("Sending to Shotgun = {} {} {} {}".format(self.job.shotgunProjectId,self.job.shotgunSeqAssetTypeId,self.job.shotgunShotAssetId,self.job.shotgunTaskId))
-            _description = "Auto Uploaded from {} {} {} {}".format(self.job.envtype,self.job.envproject, self.job.envshow,self.job.envscene)
-            _uploadcmd = ""
-            if self.job.shotgunTaskId:
-                _uploadcmd = ["shotgunupload.py",
-                              "-o", str(self.job.shotgunOwnerId),
-                              "-p", str(self.job.shotgunProjectId),
-                              "-s", str(self.job.shotgunShotAssetId),
-                              "-a", str(self.job.shotgunShotAssetId),
-                              "-t", str(self.job.shotgunTaskId),
-                              "-n", self.job.proxy_output_base2,
-                              "-d", _description,
-                              "-m", self.job.proxy_output2 ]
-            elif not self.job.shotgunTaskId:
-                _uploadcmd = ["shotgunupload.py",
-                              "-o", str(self.job.shotgunOwnerId),
-                              "-p", str(self.job.shotgunProjectId),
-                              "-s", str(self.job.shotgunShotAssetId),
-                              "-a", str(self.job.shotgunShotAssetId),
-                              "-n", self.job.proxy_output_base2,
-                              "-d", _description,
-                              "-m", self.job.proxy_output2 ]
-            task_upload = self.job.author.Task(title="SHOTGUN Upload P:{} SQ:{} SH:{} T:{}".format( self.job.shotgunProject,self.job.shotgunSeqAssetType,self.job.shotgunShotAsset, self.job.shotgunTask))
-            uploadcommand = self.job.author.Command(
-                argv=_uploadcmd,
-                service="ShellServices",
-                tags=["shotgun", "theWholeFarm"])
-            task_upload.addCommand(uploadcommand)
-            task_job.addChild(task_upload)
-
-        # ############## 5 NOTIFY JOB END ###############
-        if self.job.optionsendjobendemail:
-            logger.info("email = {}".format(self.job.useremail))
-            task_notify_end = self.job.author.Task(title="Notify End", service="ShellServices")
-            task_notify_end.addCommand(self.mail(self.job.useremail, "JOB", "COMPLETE", "{}".format(self.scenefilefullpath)))
-            task_job.addChild(task_notify_end)
         self.renderjob.addChild(task_job)
         logger.info("Ending job BUILD")
+
 
     def validate(self):
         #TODO  check to see if there is already this job on the farm
@@ -375,7 +238,7 @@ class Render(object):
         subjectstring = "FARM JOB: {} {} {} {}".format(level,trigger, str(self.scenebasename), self.job.username)
         mailcmd = self.job.author.Command(
             argv=["sendmail.py", "-t", to, "-b", bodystring, "-s", subjectstring],
-            service="ShellServices")
+            service="shellservices")
         return mailcmd
 
     def spool(self):

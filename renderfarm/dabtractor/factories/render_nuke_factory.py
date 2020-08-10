@@ -122,7 +122,7 @@ class Render(object):
                                       self.job.username, self.job.usernumber),
                               tier=self.job.farmtier,
                               projects=[str(self.job.department)],
-                              tags=["theWholeFarm"],
+                              tags=["thewholefarm"],
                               service="")
 
         # ############## 1 NUKE RENDER ###############
@@ -162,6 +162,8 @@ class Render(object):
             commonargs = [self.nuke_executable]
             filespecificargs = ["-F", "{}-{}x{}".format(_chunkstart,_chunkend,_chunkby),
                                 "-m","{}".format(_threads),
+                                "-f",
+                                # "--nc",  for non commercial
                                 "-V 1",
                                 "-x", self.nukescriptfullpath
                                 ]
@@ -185,12 +187,12 @@ class Render(object):
             pass
 
 
-    def mail(self, level="Level", trigger="Trigger", body="Render Progress Body"):
-        bodystring = "{}  Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(
-                self.job.envproject,level,trigger,body)
-        subjectstring = "FARM JOB: %s %s" % (str(self.job.envscene), self.job.username)
-        mailcmd = self.job.env.author.Command(argv=["sendmail.py", "-t", "%s" % self.job.useremail, "-b", bodystring, "-s", subjectstring], service="ShellServices")
-        return mailcmd
+    # def mail(self, level="Level", trigger="Trigger", body="Render Progress Body"):
+    #     bodystring = "{}  Progress: \nLevel: {}\nTrigger: {}\n\n{}".format(
+    #             self.job.envproject,level,trigger,body)
+    #     subjectstring = "FARM JOB: %s %s" % (str(self.job.envscene), self.job.username)
+    #     mailcmd = self.job.env.author.Command(argv=["sendmail.py", "-t", "%s" % self.job.useremail, "-b", bodystring, "-s", subjectstring], service="shellservices")
+    #     return mailcmd
 
     def spool(self):
         try:
