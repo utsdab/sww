@@ -3,8 +3,6 @@
 Main submission of a nuke job to tractor.
 '''
 
-# TODO
-
 import os
 import sys
 import logging
@@ -22,7 +20,7 @@ logger.addHandler(sh)
 def main():
     from renderfarm.dabtractor.factories import interface_nuke_factory as ui
     try:
-        w=ui.Window()
+        w = ui.Window()
     except Exception, err:
         logger.warn(err)
         sys.exit("Sorry you dont appear to be a registered farm user {}, try running farm_adduser.py and then contact "
@@ -31,4 +29,4 @@ def main():
 
 
 if __name__ == '__main__':
-    w=main()
+    main()

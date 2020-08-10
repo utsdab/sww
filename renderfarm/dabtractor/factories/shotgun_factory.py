@@ -737,23 +737,23 @@ if __name__ == "__main__":
     # raise SystemExit(".......done and exiting")
 
 
-    ########## PERSON TEST
-    # p = Person("120988")
-    # print "Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department)
-    #
-    # print p.myProjects()
-    # print p.myGroups()
-    # print p.me()
-    # raise SystemExit(".......done and exiting")
+    ######### PERSON TEST
+    p = Person("120988")
+    print "Shotgun Tractor User >>>> Login={number}   Name={name}  Email={email} Dept={dept}".format(name=p.dabname,number=p.dabnumber,email=p.email,dept=p.department)
 
-    # logger.debug(">>>> SCHEMA {} ------".format(__file__))
-    # schema=Schema()
-    # schema.task()
-    # schema.asset()
-    # schema.shot()
-    # schema.humanuser()
-    # schema.episode()
-    # schema.sequence()
+    print p.myProjects()
+    print p.myGroups()
+    print p.me()
+    raise SystemExit(".......done and exiting")
+
+    logger.debug(">>>> SCHEMA {} ------".format(__file__))
+    schema=Schema()
+    schema.task()
+    schema.asset()
+    schema.shot()
+    schema.humanuser()
+    schema.episode()
+    schema.sequence()
 
 
     # ############# PROJECT TEST
