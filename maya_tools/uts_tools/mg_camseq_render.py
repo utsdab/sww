@@ -38,8 +38,11 @@ def run():
     print seq.nodeName()
     print dir(seq)
     print seq.sources()
+    # loop thru the shots and submit farm jobs
 
 if __name__ == "__main__":
     print "RUNNING camera sequencer exporter ...."
     run()
+
+
 
