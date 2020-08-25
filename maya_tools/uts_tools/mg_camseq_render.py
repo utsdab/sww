@@ -16,8 +16,6 @@ except ImportWarning, err:
     print (err)
 
 
-
-
 def sequencer_exists(nodename='sequencer1'):
     # test for a camera sequencer node
     try:
@@ -34,10 +32,6 @@ def sequencer_exists(nodename='sequencer1'):
         raise TypeError, 'Cant find a sequencer node named %s'%nodename
     else:
         return sequencer
-
-
-
-# -------------------------------------------
 
 def run():
     seq=sequencer_exists()
