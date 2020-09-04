@@ -45,8 +45,14 @@ PORT=int(5600)
 # pylint: disable=import-error
 import subprocess
 import sys
-import maya.mel as mel
-import maya.cmds as mc
+
+try:
+    import maya.mel as mel
+    import maya.cmds as mc
+    import pymel.core as pmc
+except ImportWarning, err:
+    print "Failed to import pymel,mel or maya python %s" % (err)
+
 from rfm2.config import cfg, RfmError
 from rfm2.config import DEFAULT_DISPLAY_NAME, DEFAULT_DISPLAY_NODE
 import rfm2.api.strings as apistr
