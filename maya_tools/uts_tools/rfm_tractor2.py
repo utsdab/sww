@@ -41,6 +41,7 @@
 
 THREADS=int(8)
 PORT=int(5600)
+OWNER="pixar"
 
 # pylint: disable=import-error
 import subprocess
@@ -1158,6 +1159,7 @@ def batch_render_spool(do_bake=False, bake_mode='pattern'):
         tractor_engine = tractor_cfg.get('engine', 'tractor-engine')
         tractor_port = tractor_cfg.get('port', PORT)
         owner = tractor_cfg.get('user', getpass.getuser())
+        #owner = "pixar"
 
         # env var trumps rfm.config
         if 'TRACTOR_ENGINE' in os.environ:
@@ -1168,6 +1170,10 @@ def batch_render_spool(do_bake=False, bake_mode='pattern'):
 
         if 'TRACTOR_USER' in os.environ:
             owner = os.environ['TRACTOR_USER']
+
+        owner = OWNER
+        print 'Owner: %s',owner
+        rfm_log().info('Owner: %s',owner)
 
         try:
             spoolhost = socket.gethostname()
