@@ -113,8 +113,8 @@ def add_prman_render_task(parentTask, title, threads, rib, img, args=[]):
         local=False,
         service="PixarRender",
         tags=["prman", "thewholefarm"],
-        atleast=threads,
-        atmost=threads
+        atleast=THREADS,
+        atmost=THREADS
     )
     command.argv = ["prman"]
     for arg in args:
@@ -522,7 +522,7 @@ def add_job_level_attrs(is_localqueue, job):
     tier = "batch"
     projects = str(dabuser.department)
     comment = "Created from Maya by {}".format(dabuser.useremail)
-    metadata = "User:{user} Email:{mail}".format(user=dabuser.username,mail=dabuser.useremail)
+    metadata = "User: {user} Email: {mail}".format(user=dabuser.username,mail=dabuser.useremail)
     whendone = ""
     whenerror = ""
     whenalways = ""
@@ -642,8 +642,6 @@ def _eval_maya_callback(attr):
 
 def _add_checkpoint_args(checkpoint_str, args):
     if checkpoint_str != '':
-        args.append('-checkpoint')
-        args.append(checkpoint_str)
         args.append('-recover')
         args.append('%r')
 
@@ -676,7 +674,7 @@ def _preview_img_full_path(beauty_dspy_variance, imgOutputDir, imgFileFormat,
 
 def generate_rib_render_tasks(is_localqueue, anim, parent_task, tasktitle, aovs,
                               beauty_dspy_variance, start, last, by, chunk, threads,
-                              do_bake, bake_mode, checkpoint):
+                              do_bake, bake_mode, checkpoint_interval, checkpoint_exit):
     displays = aovs['displays']
     rmanGlobals = apinodes.rman_globals()
     ribOutputDir = mc.getAttr('%s.ribOutputDir' % rmanGlobals)
@@ -724,9 +722,10 @@ def generate_rib_render_tasks(is_localqueue, anim, parent_task, tasktitle, aovs,
             if anim is False:
                 mel.eval('rmanRender "-ribFile \\\"%s\\\" -layer %s -camera %s '
                          '-ribFormat \\\"binary\\\" -expandEnvVars %d %s '
-                         '-s %s -e %s -b %s"'  %
+                         '-s %s -e %s -b %s -checkpointInterval \\\"%s\\\" '
+                         '-checkpointExit \\\"%s\\\""'  %
                          (ribFullPath, layer, cam, doExpandEnvVars, bakeFlag,
-                          start, last, by))
+                          start, last, by, checkpoint_interval, checkpoint_exit))
                 rib_expanded = apistr.expand_string(ribFullPath, asFilePath=True)
                 img_expanded = _preview_img_full_path(beauty_dspy_variance,
                                                       imgOutputDir,
@@ -741,7 +740,7 @@ def generate_rib_render_tasks(is_localqueue, anim, parent_task, tasktitle, aovs,
                 prmantasktitle = "%s (render)" % frametasktitle
                 args = []
 
-                _add_checkpoint_args(checkpoint, args)
+                _add_checkpoint_args(checkpoint_interval, args)
 
                 if _it_setup_succeeded(img_expanded, is_localqueue, args):
                     add_prman_render_task(frametask, prmantasktitle, threads,
@@ -756,13 +755,13 @@ def generate_rib_render_tasks(is_localqueue, anim, parent_task, tasktitle, aovs,
                 parent_task.addChild(frametask)
 
             else:
-                #curFrame = mc.currentTime(query=True)
                 parent_task.serialsubtasks = True
                 mel.eval('rmanRender "-ribFile \\\"%s\\\" -layer %s -camera %s '
                          '-ribFormat \\\"binary\\\" -expandEnvVars %d %s '
-                         '-s %s -e %s -b %s"' %
+                         '-s %s -e %s -b %s -checkpointInterval \\\"%s\\\" '
+                         '-checkpointExit \\\"%s\\\""' %
                          (ribFullPath, layer, cam, doExpandEnvVars, bakeFlag,
-                          start, last, by))
+                          start, last, by, checkpoint_interval, checkpoint_exit))
 
                 renderframestask = author.Task()
                 renderframestask.serialsubtasks = False
@@ -780,7 +779,7 @@ def generate_rib_render_tasks(is_localqueue, anim, parent_task, tasktitle, aovs,
                                       (tasktitle, int(iframe), str(layer), str(cam)))
                     args = []
 
-                    _add_checkpoint_args(checkpoint, args)
+                    _add_checkpoint_args(checkpoint_interval, args)
 
                     if _it_setup_succeeded(img_expanded, is_localqueue, args):
                         add_prman_render_task(renderframestask, prmantasktitle, threads,
@@ -829,7 +828,8 @@ def generate_rib_render_tasks(is_localqueue, anim, parent_task, tasktitle, aovs,
 
 def generate_maya_batch_render_tasks(stash_scene_name, anim, parent_task, tasktitle,
                                      displays, beauty_dspy_variance, start, last,
-                                     by, chunk, threads, do_bake, bake_mode, checkpoint):
+                                     by, chunk, threads, do_bake, bake_mode,
+                                     checkpoint_interval, checkpoint_exit):
 
     rmanGlobals = apinodes.rman_globals()
     imgOutputDir = mc.getAttr('%s.imageOutputDir' % rmanGlobals)
@@ -844,9 +844,12 @@ def generate_maya_batch_render_tasks(stash_scene_name, anim, parent_task, taskti
     if do_bake:
         args.append('-bake')
         args.append(bake_mode)
-    if checkpoint != '':
-        args.append('-checkpoint')
-        args.append(checkpoint)
+    if checkpoint_interval:
+        args.append('-checkpointInterval')
+        args.append(checkpoint_interval)
+    if checkpoint_exit:
+        args.append('-checkpointExit')
+        args.append(checkpoint_exit)
 
     if mc.about(api=True) >= 20180300 and mc.optionVar(q="renderSetupEnable"):
         args.append('-rst')
@@ -977,23 +980,26 @@ def generate_job_file(is_localqueue, scene, stash_scene_name, do_RIB,
     _version=mc.getAttr('%s.version' % rmanGlobals)
     _take=mc.getAttr('%s.take' % rmanGlobals)
 
-    _title = "{scene} v{version}t{take} {user} {number}".format(scene=scene,version=_version,take=_take, user=dabuser.username,number=dabuser.usernumber)
-
-    job.title = str(_title)
-    job.serialsubtasks = True
-    add_job_level_attrs(is_localqueue, job)
-
     anim = mc.getAttr('defaultRenderGlobals.animation')
     start = mc.getAttr('defaultRenderGlobals.startFrame')
     end = mc.getAttr('defaultRenderGlobals.endFrame')
     by = int(mc.getAttr('defaultRenderGlobals.byFrameStep'))
     chunk = rfm2.ui.prefs.get_pref_by_name('rfmRenderBatchFrameChunk')
+    width = mc.getAttr('defaultResolution.width')
+    height = mc.getAttr('defaultResolution.height')
+    _resolution = "{w}x{h}".format(w=int(width),h=(height))
     do_cleanup = int(rfm2.ui.prefs.get_pref_by_name('rfmTractorCleanup'))
+    _range="{start}-{end}x{by}".format(start=int(start),end=int(end),by=int(by))
+    _title = "{scene} v{version}t{take} {range} {res} {user} {number}".format(scene=scene,range=_range, res=_resolution, version=_version,take=_take, user=dabuser.username,number=dabuser.usernumber)
 
+    job.title = str(_title)
+    job.serialsubtasks = True
+    add_job_level_attrs(is_localqueue, job)
     dspys_asrgba = {}
-    checkpoint = str(rfm2.ui.prefs.get_pref_by_name('rfmRenderBatchCheckpoint'))
+    checkpoint_interval = str(rfm2.ui.prefs.get_pref_by_name('rfmRenderBatchCheckpointInterval'))
+    checkpoint_exit = str(rfm2.ui.prefs.get_pref_by_name('rfmRenderBatchCheckpointExit'))
     # if we're checkpointing, temporarily turn off asrgba for all openexr displays
-    if checkpoint:
+    if checkpoint_interval or checkpoint_exit:
         for d in mc.ls('d_openexr*'):
             dspys_asrgba[d] = mc.getAttr('%s.asrgba' % d)
             mc.setAttr('%s.asrgba' % d, 0)
@@ -1036,14 +1042,15 @@ def generate_job_file(is_localqueue, scene, stash_scene_name, do_RIB,
         generate_rib_render_tasks(is_localqueue, anim, parent_task, tasktitle,
                                   aovs, beauty_dspy_variance, start, last,
                                   by, chunk, threads, do_bake, bake_mode,
-                                  checkpoint)
+                                  checkpoint_interval, checkpoint_exit)
     else:
         # mayabatch
-        xgen_files = sputils.stash_xgen_files(stash_scene_name)
+        xgen_files = sputils.stash_xgen_files(stash_scene_name, os.path.splitext(scene)[0])
         generate_maya_batch_render_tasks(stash_scene_name, anim, parent_task,
                                          tasktitle, displays, beauty_dspy_variance,
                                          start, last, by, chunk, threads,
-                                         do_bake, bake_mode, checkpoint)
+                                         do_bake, bake_mode,
+                                         checkpoint_interval, checkpoint_exit)
 
     # txmake tasks
     txmakeTasks = generate_txmake_tasks()
@@ -1077,7 +1084,7 @@ def generate_job_file(is_localqueue, scene, stash_scene_name, do_RIB,
             job.addCleanup(xgen_cleanup)
 
     # turn asrgba back
-    if checkpoint:
+    if checkpoint_interval or checkpoint_exit:
         for k, v in dspys_asrgba.iteritems():
             mc.setAttr('%s.asrgba' % k, v)
 
@@ -1234,7 +1241,7 @@ def batch_preview():
     xgen_files = []
     if spoolstyle != 'RIB':
         stash_scene_name = sputils.stash_scene(doSave=True)
-        xgen_files = sputils.stash_xgen_files(stash_scene_name)
+        xgen_files = sputils.stash_xgen_files(stash_scene_name, os.path.splitext(scene)[0])
     else:
         # just get a name, used to generate job file name
         stash_scene_name = sputils.stash_scene(doSave=False)
